@@ -1,13 +1,14 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import { useTheme } from "@/providers/theme-provider";
 import { cn } from "@/lib/utils";
 
 export function LogosModeToggle() {
-	const { resolvedTheme } = useTheme();
+	const { theme } = useTheme();
+	console.log("resolvedTheme:", theme);
 	let src;
 
-	switch (resolvedTheme) {
+	switch (theme) {
 		case "light":
 			src = "/elixir-no-logo-black.svg";
 			break;
