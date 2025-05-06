@@ -1,5 +1,3 @@
-"use client";
-
 import { FC, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
