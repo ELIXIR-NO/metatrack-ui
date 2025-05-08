@@ -24,7 +24,7 @@ export const Route = createRootRoute({
 						</div>
 					</header>
 					<hr />
-					<main className="mx-auto w-3/4 py-10 pt-40 pb-30">
+					<main className="mx-auto w-3/4 py-10 pt-50 pb-30">
 						<Outlet />
 					</main>
 					<Footer />
