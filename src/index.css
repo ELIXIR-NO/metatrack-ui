@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Exo:wght@400;700&family=Lato:wght@400;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -110,11 +111,44 @@
 	--sidebar-ring: oklch(0.556 0 0);
 }
 
+@theme {
+	--font-lato: 'Lato', sans-serif;
+	--font-exo: 'Exo', sans-serif;
+  }
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-lato);
+	}
+	h1, h2, h3, h4 {
+		font-family: var(--font-exo);
+	  }
+
+	h1 {
+	@apply font-normal text-[58px];
+	}
+	h2 {
+	@apply font-semibold text-[44px];
+	}
+	h3 {
+	@apply font-normal text-[32px];
+	}
+	h4 {
+	@apply font-semibold text-[24px];
+	}
+	.text-body-l {
+	font-size: 20px;
+	}
+
+	.text-body-m {
+	font-size: 18px;
+	}
+
+	.text-body-s {
+	font-size: 16px;
 	}
 }
