@@ -16,7 +16,7 @@ export function NavBarMobile() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<nav className="flex flex-row justify-between px-6 py-3">
+		<nav className="flex flex-row justify-between px-2 py-3">
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger asChild>
 					<HamburgerButton open={open} />
@@ -72,13 +72,14 @@ export function NavBarMobile() {
 				</SheetContent>
 			</Sheet>
 			<div className="flex flex-col items-center">
-				{" "}
-				{/* Mudança para flex-col */}
-				<Link to="/" className="text-2xl font-bold">
-					MetaTrack GUI
+				<Link to="/">
+					<img
+						src={"Metatrack_logo_advanced.svg"}
+						alt={"MetaTrack Logo"}
+						width={250}
+						height={65.55}
+					/>
 				</Link>
-				<p className="text-muted-foreground text">By Elixir Norway</p>{" "}
-				{/* Texto abaixo do nome */}
 			</div>
 			<ModeToggle />
 		</nav>
