@@ -1,5 +1,3 @@
-"use client";
-
 import { useTheme } from "@/providers/theme-provider";
 import { cn } from "@/lib/utils";
 
