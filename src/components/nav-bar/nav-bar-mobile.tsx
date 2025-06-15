@@ -16,7 +16,7 @@ export function NavBarMobile() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<nav className="flex flex-row justify-between px-2 py-3">
+		<nav className="flex flex-row justify-between px-4 py-3">
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger asChild>
 					<HamburgerButton open={open} />
@@ -76,8 +76,7 @@ export function NavBarMobile() {
 					<img
 						src={"Metatrack_logo_advanced.svg"}
 						alt={"MetaTrack Logo"}
-						width={250}
-						height={65.55}
+						className="h-auto w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72"
 					/>
 				</Link>
 			</div>
