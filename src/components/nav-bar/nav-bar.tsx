@@ -27,7 +27,7 @@ export function NavBar() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<nav className="fixed right-0 left-0 z-10 h-fit py-2 backdrop-blur-sm">
+		<nav className="fixed right-0 left-0 z-10 h-fit px-10 py-4 backdrop-blur-sm">
 			<div className="mx-auto flex w-full max-w-screen-2xl flex-row items-center justify-between">
 				<Link to="/">
 					<img
