@@ -6,13 +6,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-export type CardGridData = {
-	title: string;
-	description: string;
-	image: string;
-	link: string;
-};
+import type { CardGridData } from "./types";
 
 export default function CardGrid({
 	data,
@@ -39,13 +33,17 @@ export default function CardGrid({
 							<CardDescription></CardDescription>
 						</CardHeader>
 						<CardContent className="flex flex-col items-center justify-center space-y-6">
-							<img
-								src={item.image}
-								alt={item.title}
-								width={500}
-								height={250}
-								className="aspect-video self-center object-fill"
-							/>
+							{typeof item.image === "string" ? (
+								<img
+									src={item.image}
+									alt={item.title}
+									width={500}
+									height={250}
+									className="aspect-video object-contain"
+								/>
+							) : (
+								item.image
+							)}
 							<p className="text-justify text-sm">{item.description}</p>
 						</CardContent>
 					</a>
