@@ -1,9 +1,16 @@
 import { useTheme } from "@/providers/theme-provider";
 import { cn } from "@/lib/utils";
 
-export function LogosModeToggle() {
+export function LogosModeToggle({
+	className = "",
+	width = 150,
+	height = 50,
+}: {
+	className?: string;
+	width?: number;
+	height?: number;
+}) {
 	const { theme } = useTheme();
-	console.log("resolvedTheme:", theme);
 	let src;
 
 	switch (theme) {
@@ -22,9 +29,9 @@ export function LogosModeToggle() {
 		<img
 			src={src}
 			alt="Logo of ELIXIR Norway"
-			width={150}
-			height={50}
-			className={cn("hover:ring-primary hover:ring-2")}
+			width={width}
+			height={height}
+			className={cn("hover:ring-primary hover:ring-2", className)}
 		/>
 	);
 }
