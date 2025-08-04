@@ -13,7 +13,9 @@ import {
 import { useRouterState } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { HamburgerButton } from "../hamburger-button";
-import { CircleHelp, Cloud, Search, User } from "lucide-react";
+import { CircleHelp, Cloud, LogOut, Search, User } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
 type NavItem = { pageUrl: string; pageName: string };
 const NavItems: NavItem[] = [
@@ -25,6 +27,8 @@ const NavItems: NavItem[] = [
 
 export function NavBar() {
 	const [open, setOpen] = useState(false);
+	const { data: session } = authClient.useSession();
+	const navigate = useNavigate();
 
 	return (
 		<nav className="fixed top-10 right-0 left-0 z-10 h-fit py-2 backdrop-blur-sm">
@@ -55,10 +59,30 @@ export function NavBar() {
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
-									<DropdownMenuItem>
-										<User />
-										Register / Login
-									</DropdownMenuItem>
+									{session ? (
+										<DropdownMenuItem
+											onClick={() =>
+												authClient.signOut({
+													fetchOptions: {
+														onSuccess: () => {
+															navigate({ to: "/" }); // redirect to login page
+														},
+													},
+												})
+											}
+										>
+											<LogOut />
+											Sign Out
+										</DropdownMenuItem>
+									) : (
+										<DropdownMenuItem
+											onClick={() => navigate({ to: "/account/login" })}
+										>
+											<User />
+											Register / Login
+										</DropdownMenuItem>
+									)}
+
 									<DropdownMenuItem>
 										<Search />
 										Browse Public Data
@@ -89,8 +113,6 @@ const NavBarItem: FC<NavItem> = ({ pageUrl, pageName }) => {
 		select: (state) => state.location,
 	});
 	const pathName = selected.pathname;
-	console.log("pageUrl:", pageUrl);
-	console.log("pathName:", pathName);
 	return (
 		<Button
 			asChild

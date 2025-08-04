@@ -10,10 +10,14 @@ import { HamburgerButton } from "../hamburger-button";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ModeToggle } from "../mode-toggle";
-import { CircleHelp, Cloud, Info, Search, User } from "lucide-react";
+import { CircleHelp, Cloud, Info, LogOut, Search, User } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
 export function NavBarMobile() {
 	const [open, setOpen] = useState(false);
+	const { data: session } = authClient.useSession();
+	const navigate = useNavigate();
 
 	return (
 		<nav className="flex flex-row justify-between px-6 py-3">
@@ -34,13 +38,31 @@ export function NavBarMobile() {
 							<Info className="mr-2" />
 							About
 						</Link>
-						<Link
-							to="/"
-							className="flex items-center text-lg font-semibold hover:underline"
-						>
-							<User className="mr-2" />
-							Register / Login
-						</Link>
+						{session ? (
+							<button
+								onClick={() =>
+									authClient.signOut({
+										fetchOptions: {
+											onSuccess: () => {
+												navigate({ to: "/account/login" }); // redireciona após logout
+											},
+										},
+									})
+								}
+								className="flex items-center text-lg font-semibold hover:underline"
+							>
+								<LogOut className="mr-2" />
+								Sign Out
+							</button>
+						) : (
+							<Link
+								to="/account/login"
+								className="flex items-center text-lg font-semibold hover:underline"
+							>
+								<User className="mr-2" />
+								Register / Login
+							</Link>
+						)}
 						<Link
 							to="/"
 							className="flex items-center text-lg font-semibold hover:underline"
