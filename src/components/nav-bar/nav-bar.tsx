@@ -10,7 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { HamburgerButton } from "../hamburger-button";
 import { CircleHelp, Cloud, LogOut, Search, User } from "lucide-react";
@@ -31,14 +31,16 @@ export function NavBar() {
 	const navigate = useNavigate();
 
 	return (
-		<nav className="fixed top-10 right-0 left-0 z-10 h-fit py-2 backdrop-blur-sm">
-			<div className="mx-auto flex w-full max-w-screen-2xl flex-row items-center justify-between pt-2">
-				<div className="p-2">
-					<a className="block text-6xl leading-none font-bold" href="/">
-						MetaTrack GUI
-					</a>
-					<p className="text-muted-foreground text-2xl">By Elixir Norway</p>
-				</div>
+		<nav className="fixed right-0 left-0 z-10 h-fit px-10 py-4 backdrop-blur-sm">
+			<div className="mx-auto flex w-full max-w-screen-2xl flex-row items-center justify-between">
+				<Link to="/">
+					<img
+						src={"Metatrack_logo_advanced.svg"}
+						alt={"MetaTrack Logo"}
+						width={250}
+						height={65.55}
+					/>
+				</Link>
 
 				<div className="flex flex-row items-center gap-x-4 pb-4">
 					<ul className="flex flex-row items-center gap-x-4">
@@ -84,19 +86,29 @@ export function NavBar() {
 									)}
 
 									<DropdownMenuItem>
-										<Search />
-										Browse Public Data
+										<Link to="/" className="flex items-center">
+											<Search className="mr-2" />
+											Browse Public Data
+										</Link>
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem>GitHub</DropdownMenuItem>
 								<DropdownMenuItem>
-									<CircleHelp />
-									Support
+									<Link to="/" className="flex items-center">
+										GitHub
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem>
+									<Link to="/" className="flex items-center">
+										<CircleHelp className="mr-2" />
+										Support
+									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuItem disabled>
-									<Cloud />
-									API
+									<Link to="/" className="flex items-center">
+										<Cloud className="mr-2" />
+										API
+									</Link>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
