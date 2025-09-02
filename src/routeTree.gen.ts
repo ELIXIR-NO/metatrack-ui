@@ -17,6 +17,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as AccountRegisterImport } from './routes/account/register'
 import { Route as AccountLoginImport } from './routes/account/login'
+import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projects/index'
 
 // Create/Update Routes
 
@@ -54,6 +55,12 @@ const AccountLoginRoute = AccountLoginImport.update({
   id: '/account/login',
   path: '/account/login',
   getParentRoute: () => rootRoute,
+} as any)
+
+const DashboardProjectsIndexRoute = DashboardProjectsIndexImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -102,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof DashboardRouteImport
     }
+    '/dashboard/projects/': {
+      id: '/dashboard/projects/'
+      path: '/projects'
+      fullPath: '/dashboard/projects'
+      preLoaderRoute: typeof DashboardProjectsIndexImport
+      parentRoute: typeof DashboardRouteImport
+    }
   }
 }
 
@@ -109,10 +123,12 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardProjectsIndexRoute: typeof DashboardProjectsIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardProjectsIndexRoute: DashboardProjectsIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
@@ -126,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -134,6 +151,7 @@ export interface FileRoutesByTo {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -144,6 +162,7 @@ export interface FileRoutesById {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/projects/': typeof DashboardProjectsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -155,8 +174,15 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
+    | '/dashboard/projects'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/account/login' | '/account/register' | '/dashboard'
+  to:
+    | '/'
+    | '/about'
+    | '/account/login'
+    | '/account/register'
+    | '/dashboard'
+    | '/dashboard/projects'
   id:
     | '__root__'
     | '/'
@@ -165,6 +191,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
+    | '/dashboard/projects/'
   fileRoutesById: FileRoutesById
 }
 
@@ -207,7 +234,8 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
       "children": [
-        "/dashboard/"
+        "/dashboard/",
+        "/dashboard/projects/"
       ]
     },
     "/about": {
@@ -221,6 +249,10 @@ export const routeTree = rootRoute
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/projects/": {
+      "filePath": "dashboard/projects/index.tsx",
       "parent": "/dashboard"
     }
   }
