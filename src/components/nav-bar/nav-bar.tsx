@@ -10,10 +10,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { HamburgerButton } from "../hamburger-button";
-import { CircleHelp, Cloud, Search, User } from "lucide-react";
+import { CircleHelp, Cloud, LogOut, Search, User } from "lucide-react";
+import { useAuth } from "@/providers/auth-provider";
 
 type NavItem = { pageUrl: string; pageName: string };
 const NavItems: NavItem[] = [
@@ -25,6 +26,9 @@ const NavItems: NavItem[] = [
 
 export function NavBar() {
 	const [open, setOpen] = useState(false);
+	const navigate = useNavigate();
+	const { user, logoutUser } = useAuth();
+	console.log("user:", user);
 
 	return (
 		<nav className="fixed right-0 left-0 z-10 h-fit px-10 py-4 backdrop-blur-sm">
@@ -57,10 +61,19 @@ export function NavBar() {
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
-									<DropdownMenuItem>
-										<User />
-										Register / Login
-									</DropdownMenuItem>
+									{user ? (
+										<DropdownMenuItem onClick={logoutUser}>
+											<LogOut />
+											Sign Out
+										</DropdownMenuItem>
+									) : (
+										<DropdownMenuItem
+											onClick={() => navigate({ to: "/account/login" })}
+										>
+											<User />
+											Register / Login
+										</DropdownMenuItem>
+									)}
 									<DropdownMenuItem>
 										<Link to="/" className="flex items-center">
 											<Search className="mr-2" />
@@ -101,8 +114,6 @@ const NavBarItem: FC<NavItem> = ({ pageUrl, pageName }) => {
 		select: (state) => state.location,
 	});
 	const pathName = selected.pathname;
-	console.log("pageUrl:", pageUrl);
-	console.log("pathName:", pathName);
 	return (
 		<Button
 			asChild
