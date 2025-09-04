@@ -46,6 +46,8 @@ import {
 	DrawerTrigger,
 } from "../ui/drawer";
 import { Label } from "../ui/label";
+import { useState } from "react";
+import { updateSample } from "@/lib/api-client";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -55,6 +57,9 @@ interface DataTableProps<T extends object> {
 	onDelete?: (row: T) => void;
 	showAddButton?: React.ReactNode;
 	filterPlaceholder?: string;
+	projectId: string;
+	studyId: string;
+	assayId: string;
 }
 
 export function DataTable<T extends object>({
@@ -64,6 +69,9 @@ export function DataTable<T extends object>({
 	onEdit,
 	onDelete,
 	showAddButton,
+	projectId,
+	studyId,
+	assayId,
 	filterPlaceholder = "Filter...",
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -112,14 +120,24 @@ export function DataTable<T extends object>({
 						id: "actions",
 						enableHiding: false,
 						cell: ({ row }) => (
-							<DropdownMenu>
+							<DropdownMenu modal={false}>
 								<DropdownMenuTrigger asChild>
 									<Button variant="ghost" size="sm">
 										<MoreHorizontal size={16} />
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent>
-									{onEdit && <TableCellViewer item={row.original} />}
+									{onEdit && (
+										<TableCellViewer
+											item={row.original}
+											projectId={projectId} // ou passe via props da tabela
+											studyId={studyId}
+											assayId={assayId}
+											onUpdated={() => {
+												if (onEdit) onEdit(row.original); // callback externo
+											}}
+										/>
+									)}
 									{onDelete && (
 										<Button
 											variant="ghost"
@@ -209,6 +227,38 @@ export function DataTable<T extends object>({
 
 	const { headers, rows } = prepareTableDataForDownload(table);
 
+	const handleBatchUpdate = async (colName: string, value: string) => {
+		try {
+			await Promise.all(
+				selectedRows.map(async (row: any) => {
+					console.log("row:", row);
+					const payload = {
+						name: row.name, // mantém compatibilidade
+						rawAttributes: row.rawAttributes.map((attr: any) =>
+							attr.name === colName
+								? { attributeName: attr.name, value }
+								: { attributeName: attr.name, value: attr.value }
+						),
+					};
+
+					console.log("payload:", payload);
+
+					const updated = await updateSample(
+						projectId,
+						studyId,
+						assayId,
+						row.id,
+						payload
+					);
+
+					if (onEdit) onEdit(updated as T);
+				})
+			);
+		} catch (err) {
+			console.error("Erro ao atualizar múltiplos samples:", err);
+		}
+	};
+
 	return (
 		<div className="space-y-4">
 			<div className="items-center justify-between space-x-2 lg:flex">
@@ -243,16 +293,20 @@ export function DataTable<T extends object>({
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
-										<Input
-											placeholder={String(col.header)}
-											onChange={(e) => {
-												const value = e.target.value;
-												selectedRows.forEach((row) => {
-													row[String(col.header) as keyof T] = value as any;
-												});
+										<form
+											onSubmit={(e) => {
+												e.preventDefault();
+												const formData = new FormData(e.currentTarget);
+												const value = formData.get("field") as string;
+												handleBatchUpdate(String(col.header), value);
 											}}
-											className="w-auto"
-										/>
+										>
+											<Input
+												name="field"
+												placeholder={String(col.header)}
+												className="w-auto"
+											/>
+										</form>
 									</DropdownMenuContent>
 								</DropdownMenu>
 							</>
@@ -374,7 +428,67 @@ export function DataTable<T extends object>({
 	);
 }
 
-function TableCellViewer({ item }: { item: any }) {
+function TableCellViewer({
+	item,
+	projectId,
+	studyId,
+	assayId,
+	onUpdated,
+}: {
+	item: any;
+	projectId: string;
+	studyId: string;
+	assayId: string;
+	onUpdated?: () => void; // callback pra atualizar a tabela
+}) {
+	const [loading, setLoading] = useState(false);
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setLoading(true);
+
+		try {
+			const formData = new FormData(e.currentTarget);
+			const updateData: any = { rawAttributes: [] };
+
+			updateData.name = item.name;
+
+			// Verifica os rawAttributes alterados
+			item.rawAttributes.forEach((attr: any) => {
+				const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
+
+				updateData.rawAttributes.push({
+					id: attr.id,
+					attributeName: attr.name,
+					value: newValue,
+					units: attr.units ?? null,
+				});
+			});
+
+			// Só faz a request se algo mudou
+			if (updateData.name || updateData.rawAttributes.length > 0) {
+				console.log("Payload enviado:", {
+					name: updateData.name,
+					rawAttributes: updateData.rawAttributes,
+				});
+				console.log("Payload enviado:", {
+					projectId: projectId,
+					studyId: studyId,
+					assayId: assayId,
+					itemId: item.id,
+				});
+				await updateSample(projectId, studyId, assayId, item.id, updateData);
+				if (onUpdated) onUpdated();
+			} else {
+				console.log("Nenhuma alteração detectada, nada para salvar.");
+			}
+		} catch (err) {
+			console.error("Erro ao atualizar sample:", err);
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	return (
 		<Drawer direction="right">
 			<DrawerTrigger asChild>
@@ -387,44 +501,34 @@ function TableCellViewer({ item }: { item: any }) {
 			</DrawerTrigger>
 			<DrawerContent>
 				<DrawerHeader className="gap-1">
-					<DrawerTitle className="text-xl">{item.name}</DrawerTitle>
+					<DrawerTitle className="text-xl">Edit {item.name}</DrawerTitle>
 				</DrawerHeader>
-				<div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-					<form className="flex flex-col gap-4">
-						<div className="flex flex-col gap-3">
-							<Label htmlFor="header">Header</Label>
-							<Input id="header" defaultValue="test" />
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<div className="flex flex-col gap-3">
-								<Label htmlFor="type">Type</Label>
-								<Input id="header" defaultValue="test" />
+
+				<div className="flex-1 overflow-y-auto px-4">
+					<form
+						id="sampleForm"
+						onSubmit={handleSubmit}
+						className="flex flex-col gap-4"
+					>
+						{item.rawAttributes.map((attr: any) => (
+							<div key={attr.id} className="flex flex-col gap-3">
+								<Label htmlFor={attr.name}>{attr.name}</Label>
+								<Input
+									id={attr.name}
+									name={`rawAttributes.${attr.id}`}
+									defaultValue={attr.value}
+								/>
 							</div>
-							<div className="flex flex-col gap-3">
-								<Label htmlFor="status">Status</Label>
-								<Input id="header" defaultValue="test" />
-							</div>
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<div className="flex flex-col gap-3">
-								<Label htmlFor="target">Target</Label>
-								<Input id="header" defaultValue="test" />
-							</div>
-							<div className="flex flex-col gap-3">
-								<Label htmlFor="limit">Limit</Label>
-								<Input id="header" defaultValue="test" />
-							</div>
-						</div>
-						<div className="flex flex-col gap-3">
-							<Label htmlFor="reviewer">Reviewer</Label>
-							<Input id="header" defaultValue="test" />
-						</div>
+						))}
 					</form>
 				</div>
+
 				<DrawerFooter>
-					<Button>Submit</Button>
+					<Button form="sampleForm" type="submit">
+						{loading ? "Saving..." : "Save"}
+					</Button>
 					<DrawerClose asChild>
-						<Button variant="outline">Done</Button>
+						<Button variant="outline">Cancel</Button>
 					</DrawerClose>
 				</DrawerFooter>
 			</DrawerContent>
