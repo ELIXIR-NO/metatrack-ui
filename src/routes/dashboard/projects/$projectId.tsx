@@ -90,12 +90,8 @@ export function RouteComponent() {
 				]
 			: [];
 
-	console.log("dynamicColumns:", dynamicColumns);
-	console.log("samples:", samples);
-
 	return (
 		<div className="space-y-6">
-			{/* Header com Breadcrumb */}
 			<SiteHeader
 				items={[
 					{ label: "My Projects", href: "/dashboard/projects" },
@@ -103,7 +99,6 @@ export function RouteComponent() {
 				]}
 			/>
 
-			{/* Título e descrição */}
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-2xl font-bold">{project.title}</CardTitle>
@@ -113,7 +108,6 @@ export function RouteComponent() {
 				</CardContent>
 			</Card>
 
-			{/* Tabela de Samples */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Samples</CardTitle>
@@ -127,6 +121,9 @@ export function RouteComponent() {
 							columns={dynamicColumns}
 							onEdit={(sample) => console.log("Edit sample", sample)}
 							onDelete={(sample) => console.log("Delete sample", sample)}
+							projectId={projectId}
+							studyId={studyId}
+							assayId={assayId}
 							showAddButton={
 								studyId && assayId ? (
 									<div className="flex gap-2">
