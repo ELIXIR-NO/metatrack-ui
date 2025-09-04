@@ -35,7 +35,7 @@ export function NavBar() {
 			<div className="mx-auto flex w-full max-w-screen-2xl flex-row items-center justify-between">
 				<Link to="/">
 					<img
-						src={"Metatrack_logo_advanced.svg"}
+						src={"/Metatrack_logo_advanced.svg"}
 						alt={"MetaTrack Logo"}
 						width={250}
 						height={65.55}
