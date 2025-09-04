@@ -356,3 +356,40 @@ export async function uploadSampleFile(
 		return { success: true };
 	}
 }
+
+export async function updateSample(
+	projectId: string,
+	studyId: string,
+	assayId: string,
+	sampleId: string,
+	data: CreateSampleData
+): Promise<Sample> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples/id/${sampleId}`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to update sample";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	return response.json() as Promise<Sample>;
+}
