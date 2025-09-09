@@ -21,12 +21,12 @@ export const Route = createRootRoute({
 							<div className="lg:hidden">
 								<NavBarMobile />
 							</div>
-							<div className="hidden lg:flex">
+							<div className="hidden pb-35 lg:flex">
 								<NavBar />
 							</div>
 						</header>
 						<hr />
-						<main className="mx-auto w-3/4 py-10 pt-10 pb-30 lg:pt-50">
+						<main className="mx-auto">
 							<Outlet />
 						</main>
 						<Footer />
