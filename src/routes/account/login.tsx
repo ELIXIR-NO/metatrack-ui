@@ -55,7 +55,7 @@ function RouteComponent() {
 	};
 
 	return (
-		<div className="flex justify-center">
+		<div className="my-36 flex justify-center">
 			<Card className="w-full max-w-sm">
 				<CardHeader>
 					<div className="flex items-center justify-center gap-2">
