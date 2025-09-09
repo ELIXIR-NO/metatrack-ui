@@ -136,6 +136,9 @@
 	h4 {
 		@apply text-[24px] font-semibold;
 	}
+	h5 {
+		@apply text-[20px] font-normal;
+	}
 	.text-body-l {
 		font-size: 20px;
 	}

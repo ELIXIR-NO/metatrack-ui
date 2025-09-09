@@ -4,7 +4,7 @@ import { LogosModeToggle } from "./logos-mode-toggle";
 
 export default function Footer() {
 	return (
-		<footer className="bg-background text-foreground w-full">
+		<footer className="bg-background text-foreground mt-8 w-full">
 			<hr />
 			<div className="container mx-auto w-3/4 px-4 py-8">
 				<div className="flex flex-wrap items-center justify-center gap-6">
