@@ -6,6 +6,7 @@ import { LogosModeToggle } from "@/components/logos-mode-toggle";
 import { statCards } from "@/lib/data/statCards";
 import { ThemeImage } from "@/components/theme-image";
 import QuickStart from "@/components/quick-start";
+import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/")({
 
 const resources: CardGridData[] = [
 	{
-		title: "Pathogen Platform Norway",
+		title: "",
 		description: "",
 		link: "https://www.pathogens.no",
 		image: (
@@ -25,7 +26,7 @@ const resources: CardGridData[] = [
 		),
 	},
 	{
-		title: "Elixir Page",
+		title: "",
 		description: "",
 		link: "https://www.elixir.no",
 		image: (
@@ -40,27 +41,74 @@ const resources: CardGridData[] = [
 
 function Index() {
 	return (
-		<div className="flex flex-col items-center space-y-12 text-justify">
-			<div className="flex flex-col gap-12">
-				<div className="flex flex-col">
-					<h1 className="text-bold text-justify lg:text-left">
-						Open Platform for Metadata Management and Tracking
-					</h1>
-					<h4 className="text-justify font-normal lg:text-left">
-						For life scientists in Norway
-					</h4>
-					<a href="https://elixir.no" className="text-muted-foreground text-lg">
-						By Elixir Norway
-					</a>
-				</div>
+		<motion.div
+			initial={{ opacity: 0, y: 30 }}
+			whileInView={{ opacity: 1, y: 0 }}
+			viewport={{ once: true, amount: 0.3 }}
+			transition={{ duration: 1.2 }}
+		>
+			<div className="flex flex-col items-center space-y-16">
+				{/* HERO SECTION */}
+				<section className="relative flex h-150 w-full items-center justify-center overflow-hidden">
+					<ThemeImage
+						lightSrc="/bg-light.jpg"
+						darkSrc="/bg-light.jpg"
+						alt="Background"
+						className="absolute inset-0 h-150 w-full object-cover"
+					/>
+
+					<div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+
+					<div className="relative z-10 max-w-3xl px-6 text-center">
+						<h1 className="animate-fade-in mb-4 text-4xl font-bold text-white lg:text-6xl">
+							Open Platform for Metadata Management and Tracking
+						</h1>
+						<h4 className="animate-fade-in mb-6 text-lg text-gray-200 lg:text-2xl">
+							For life scientists in Norway
+						</h4>
+						<a
+							href="https://elixir.no"
+							className="flex flex-col items-center rounded-lg px-6 py-3 font-medium text-white shadow-lg"
+						>
+							By Elixir Norway
+						</a>
+					</div>
+				</section>
+
+				{/* QUICK START */}
 
 				<QuickStart />
-				<div className="w-full rounded-md bg-gray-100 p-6">
-					<h2 className="text-center text-black lg:text-left">Resources</h2>
-					<CardGrid data={resources} className="lg:grid-cols-2" />
-				</div>
-				<StatCardGrid data={statCards} />
+
+				{/* STAT CARDS */}
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 0.3 }}
+					transition={{ duration: 0.8 }}
+				>
+					<StatCardGrid data={statCards} />
+				</motion.div>
+
+				{/* RESOURCES */}
+
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 0.3 }}
+					transition={{ duration: 0.8 }}
+				>
+					<div className="w-[75vw]">
+						<div className="bg-secondary flex flex-col items-center rounded-md pb-4 text-center shadow-lg">
+							<h3 className="text-primary pt-4 text-center font-semibold lg:text-left">
+								Resources
+							</h3>
+							<CardGrid data={resources} />
+						</div>
+					</div>
+				</motion.div>
 			</div>
-		</div>
+		</motion.div>
 	);
 }
+
+export default Index;
