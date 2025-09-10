@@ -174,7 +174,7 @@ export function ProjectsDataTable({
 
 			<div className="rounded-md border">
 				<Table>
-					<TableHeader className="bg-muted sticky top-0 z-10">
+					<TableHeader className="bg-muted sticky top-0">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
