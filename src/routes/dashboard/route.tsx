@@ -28,7 +28,7 @@ function DashboardLayout() {
 	if (!user) return null;
 
 	return (
-		<SidebarProvider>
+		<SidebarProvider className="min-h-full">
 			<AppSidebar variant="inset" user={user.firstName} />
 			<SidebarInset>
 				<Outlet />
