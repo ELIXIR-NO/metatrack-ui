@@ -25,7 +25,6 @@ export const Route = createRootRoute({
 								<NavBar />
 							</div>
 						</header>
-						<hr />
 						<main className="mx-auto">
 							<Outlet />
 						</main>
