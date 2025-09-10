@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProjectsDataTable } from "@/components/dashboard/project-card";
 import { useNavigate } from "@tanstack/react-router";
+import { Loader2Icon } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/projects/")({
 	component: RouteComponent,
@@ -39,7 +40,10 @@ function RouteComponent() {
 			/>
 
 			{isLoading ? (
-				<div>Loading projects...</div>
+				<div className="flex h-screen w-screen items-center justify-center gap-2">
+					{" "}
+					<Loader2Icon className="animate-spin" /> Loading projects...{" "}
+				</div>
 			) : (
 				<div className="flex flex-col space-y-4 p-4">
 					<ProjectsDataTable
