@@ -31,11 +31,11 @@ export function NavBar() {
 	console.log("user:", user);
 
 	return (
-		<nav className="fixed right-0 left-0 z-10 h-fit px-10 py-4 backdrop-blur-sm">
+		<nav className="fixed right-0 left-50 z-10 h-fit px-10 py-4 backdrop-blur-sm">
 			<div className="mx-auto flex w-full max-w-screen-2xl flex-row items-center justify-between">
 				<Link to="/">
 					<img
-						src={"Metatrack_logo_advanced.svg"}
+						src={"/Metatrack_logo_advanced.svg"}
 						alt={"MetaTrack Logo"}
 						width={250}
 						height={65.55}
