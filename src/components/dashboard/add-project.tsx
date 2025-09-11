@@ -10,10 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-	createInvestigation,
-	createProjectWithStudyAndAssay,
-} from "@/lib/api-client";
+import { createProjectWithStudyAndAssay } from "@/lib/api-client";
 import {
 	Tooltip,
 	TooltipContent,
