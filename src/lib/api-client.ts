@@ -1,0 +1,358 @@
+import {
+	Project,
+	CreateProjectData,
+	CreateStudyData,
+	CreateAssayData,
+	CreateSampleData,
+	Study,
+	Assay,
+	Sample,
+} from "./types";
+
+const API_URL = "http://localhost:8080";
+
+export async function createInvestigation(data: CreateProjectData) {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(`${API_URL}/api/v1/investigations`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: JSON.stringify(data),
+	});
+
+	if (!response.ok) {
+		let errorMessage = "Failed to create project";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	return response.json();
+}
+
+export async function getInvestigations(): Promise<Project[]> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(`${API_URL}/api/v1/investigations`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch investigations");
+	}
+
+	return response.json();
+}
+
+export async function getInvestigationsByUserId(): Promise<Project[]> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(`${API_URL}/api/v1/me/investigations`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch investigations");
+	}
+
+	return response.json();
+}
+
+export async function getInvestigationId(projectId: string): Promise<Project> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch investigation");
+	}
+
+	return response.json();
+}
+
+export async function createStudy(data: CreateStudyData, projectId: string) {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to create study";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	return response.json();
+}
+
+export async function createAssay(
+	data: CreateAssayData,
+	projectId: string,
+	studyId: string
+) {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to create study";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	return response.json();
+}
+
+export async function createProjectWithStudyAndAssay(
+	projectData: CreateProjectData
+) {
+	try {
+		const project: Project = await createInvestigation(projectData);
+
+		const studyData: CreateStudyData = {
+			identifier: projectData.identifier,
+			title: projectData.title,
+			description: projectData.description,
+			filename: projectData.filename,
+		};
+		console.log("createStudy(studyData, project.id):", studyData, project.id);
+		const study = await createStudy(studyData, project.id);
+
+		const assayData: CreateAssayData = {
+			filename: projectData.filename,
+		};
+		console.log(
+			"createAssay(assayData, project.id, study.id):",
+			assayData,
+			project.id,
+			study.id
+		);
+		const assay = await createAssay(assayData, project.id, study.id);
+
+		return { project, study, assay };
+	} catch (error) {
+		console.error("Failed to create project with study and assay:", error);
+		throw error;
+	}
+}
+
+export async function createSample(
+	data: CreateSampleData,
+	projectId: string,
+	studyId: string,
+	assayId: string
+) {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to create sample";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	return response.json();
+}
+
+export async function getStudies(projectId: string): Promise<Study[]> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch studies");
+	}
+
+	return response.json();
+}
+
+// Pega todos os assays de um study
+export async function getAssays(
+	projectId: string,
+	studyId: string
+): Promise<Assay[]> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch assays");
+	}
+
+	return response.json();
+}
+
+export async function getSamples(
+	projectId: string,
+	studyId: string,
+	assayId: string
+): Promise<Sample[]> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples`,
+		{
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao buscar samples");
+	}
+
+	const data = await response.json();
+	return data.samples ?? data;
+}
+
+export async function getSampleById(
+	projectId: string,
+	studyId: string,
+	assayId: string,
+	sampleId: string
+) {
+	const accessToken = localStorage.getItem("access_token");
+
+	const res = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples/id/${sampleId}`,
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+
+	if (!res.ok) throw new Error("Failed to fetch sample");
+
+	return res.json();
+}
+
+export async function uploadSampleFile(
+	investigationId: string,
+	studyId: string,
+	assayId: string,
+	file: File
+) {
+	const formData = new FormData();
+	formData.append("file", file);
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${investigationId}/studies/${studyId}/assays/${assayId}/samples/upload`,
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: formData,
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao fazer upload do arquivo de amostras");
+	}
+
+	try {
+		return await response.json();
+	} catch {
+		return { success: true };
+	}
+}

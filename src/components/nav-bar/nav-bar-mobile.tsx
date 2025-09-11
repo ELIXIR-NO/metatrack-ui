@@ -74,7 +74,7 @@ export function NavBarMobile() {
 			<div className="flex flex-col items-center">
 				<Link to="/">
 					<img
-						src={"Metatrack_logo_advanced.svg"}
+						src={"/Metatrack_logo_advanced.svg"}
 						alt={"MetaTrack Logo"}
 						className="h-auto w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72"
 					/>

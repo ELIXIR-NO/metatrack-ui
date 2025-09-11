@@ -22,18 +22,37 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useQuery } from "@tanstack/react-query";
+import { getInvestigationsByUserId } from "@/lib/api-client";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	user: string | undefined;
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
+	const { data: projects = [], isLoading } = useQuery({
+		queryKey: ["projects"],
+		queryFn: getInvestigationsByUserId,
+		enabled: !!user,
+	});
+
 	const data = {
 		navMain: [
 			{
 				title: "My Projects",
 				url: "/projects",
 				icon: IconBackpack,
+				items: isLoading
+					? [
+							{
+								title: "Loading...",
+								url: "#",
+							},
+						]
+					: projects.map((p: any) => ({
+							title: p.title,
+							url: `/dashboard/projects/${p.id}`,
+						})),
 			},
 		],
 		navSecondary: [
