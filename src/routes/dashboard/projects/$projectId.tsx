@@ -9,7 +9,6 @@ import { SiteHeader } from "@/components/dashboard/site-header";
 import {
 	getAssays,
 	getInvestigationId,
-	getSampleById,
 	getSamples,
 	getStudies,
 } from "@/lib/api-client";
@@ -74,7 +73,7 @@ export function RouteComponent() {
 		return <div>Sample not found</div>;
 	}
 
-	const dynamicColumns: ColumnDef<any>[] =
+	const dynamicColumns: ColumnDef<Sample>[] =
 		samples.length > 0
 			? [
 					...samples[0].rawAttributes.map((attr: any) => ({
@@ -91,59 +90,62 @@ export function RouteComponent() {
 			: [];
 
 	return (
-		<div className="space-y-6">
+		<div>
 			<SiteHeader
 				items={[
 					{ label: "My Projects", href: "/dashboard/projects" },
 					{ label: project.title, href: `/dashboard/projects/${project.id}` },
 				]}
 			/>
+			<div className="space-y-6 p-4">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-2xl font-bold">
+							{project.title}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-muted-foreground">{project.description}</p>
+					</CardContent>
+				</Card>
 
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-2xl font-bold">{project.title}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<p className="text-muted-foreground">{project.description}</p>
-				</CardContent>
-			</Card>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>Samples</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{samplesLoading ? (
-						<Skeleton className="h-40 w-full" />
-					) : (
-						<DataTable
-							data={samples}
-							columns={dynamicColumns}
-							onEdit={(sample) => console.log("Edit sample", sample)}
-							onDelete={(sample) => console.log("Delete sample", sample)}
-							projectId={projectId}
-							studyId={studyId}
-							assayId={assayId}
-							showAddButton={
-								studyId && assayId ? (
-									<div className="flex gap-2">
-										<AddSampleDialog
-											projectId={projectId}
-											studyId={studyId}
-											assayId={assayId}
-										/>
-										<UploadSampleDialog
-											projectId={projectId}
-											studyId={studyId}
-											assayId={assayId}
-										/>
-									</div>
-								) : null
-							}
-						/>
-					)}
-				</CardContent>
-			</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle>Samples</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{samplesLoading ? (
+							<Skeleton className="h-40 w-full" />
+						) : (
+							<DataTable
+								data={samples}
+								columns={dynamicColumns}
+								onEdit={(sample) => console.log("Edit sample", sample)}
+								onDelete={(sample) => console.log("Delete sample", sample)}
+								projectId={projectId}
+								studyId={studyId}
+								assayId={assayId}
+								showAddButton={
+									studyId && assayId ? (
+										<div className="flex gap-2">
+											<AddSampleDialog
+												projectId={projectId}
+												studyId={studyId}
+												assayId={assayId}
+											/>
+											<UploadSampleDialog
+												projectId={projectId}
+												studyId={studyId}
+												assayId={assayId}
+											/>
+										</div>
+									) : null
+								}
+							/>
+						)}
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }
