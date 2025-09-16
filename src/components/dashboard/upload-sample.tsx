@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { uploadSampleFile } from "@/lib/api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Input } from "../ui/input";
 
 interface UploadSampleDialogProps {
 	projectId: string;
@@ -25,7 +26,7 @@ export function UploadSampleDialog({
 	assayId,
 }: UploadSampleDialogProps) {
 	const [file, setFile] = useState<File | null>(null);
-
+	const [open, setOpen] = useState(false);
 	const queryClient = useQueryClient();
 
 	const uploadMutation = useMutation({
@@ -47,6 +48,7 @@ export function UploadSampleDialog({
 				},
 			});
 			setFile(null);
+			setOpen(false);
 		},
 		onError: (error: any) => {
 			console.error(error);
@@ -68,15 +70,15 @@ export function UploadSampleDialog({
 	};
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button>Upload Sample</Button>
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent aria-describedby={undefined}>
 				<DialogHeader>
 					<DialogTitle>Upload Sample File</DialogTitle>
 				</DialogHeader>
-				<input
+				<Input
 					type="file"
 					accept=".csv,.xlsx,.tsv,.txt"
 					onChange={(e) => setFile(e.target.files?.[0] || null)}
