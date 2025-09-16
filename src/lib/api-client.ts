@@ -252,7 +252,6 @@ export async function getStudies(projectId: string): Promise<Study[]> {
 	return response.json();
 }
 
-// Pega todos os assays de um study
 export async function getAssays(
 	projectId: string,
 	studyId: string
@@ -355,4 +354,92 @@ export async function uploadSampleFile(
 	} catch {
 		return { success: true };
 	}
+}
+
+export async function updateSample(
+	projectId: string,
+	studyId: string,
+	assayId: string,
+	sampleId: string,
+	data: CreateSampleData
+): Promise<Sample | { success: true }> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples/id/${sampleId}`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to update sample";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	const text = await response.text();
+	if (!text) {
+		return { success: true };
+	}
+
+	try {
+		return JSON.parse(text) as Sample;
+	} catch {
+		return { success: true };
+	}
+}
+
+export async function deleteSelectedSamples<T extends { id: string }>(
+	projectId: string,
+	studyId: string,
+	assayId: string,
+	selectedRows: T[] | T
+): Promise<{ success: string[]; failed: string[] }> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const sampleIds = Array.isArray(selectedRows)
+		? selectedRows.map((row) => row.id)
+		: [selectedRows.id];
+
+	const results = await Promise.allSettled(
+		sampleIds.map((sampleId) =>
+			fetch(
+				`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples/id/${sampleId}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+					},
+				}
+			).then((res) => ({ id: sampleId, ok: res.ok }))
+		)
+	);
+
+	const success: string[] = [];
+	const failed: string[] = [];
+
+	results.forEach((r) => {
+		if (r.status === "fulfilled" && r.value.ok) {
+			success.push(r.value.id);
+		} else if (r.status === "fulfilled" && !r.value.ok) {
+			failed.push(r.value.id);
+		} else if (r.status === "rejected") {
+			failed.push(r.reason?.id || "unknown");
+		}
+	});
+
+	return { success, failed };
 }

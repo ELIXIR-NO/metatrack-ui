@@ -18,6 +18,7 @@ import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as AccountRegisterImport } from './routes/account/register'
 import { Route as AccountLoginImport } from './routes/account/login'
 import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projects/index'
+import { Route as DashboardProjectsProjectIdImport } from './routes/dashboard/projects/$projectId'
 
 // Create/Update Routes
 
@@ -62,6 +63,14 @@ const DashboardProjectsIndexRoute = DashboardProjectsIndexImport.update({
   path: '/projects/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+
+const DashboardProjectsProjectIdRoute = DashboardProjectsProjectIdImport.update(
+  {
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any,
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -109,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof DashboardRouteImport
     }
+    '/dashboard/projects/$projectId': {
+      id: '/dashboard/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/dashboard/projects/$projectId'
+      preLoaderRoute: typeof DashboardProjectsProjectIdImport
+      parentRoute: typeof DashboardRouteImport
+    }
     '/dashboard/projects/': {
       id: '/dashboard/projects/'
       path: '/projects'
@@ -123,11 +139,13 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardProjectsProjectIdRoute: typeof DashboardProjectsProjectIdRoute
   DashboardProjectsIndexRoute: typeof DashboardProjectsIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardProjectsProjectIdRoute: DashboardProjectsProjectIdRoute,
   DashboardProjectsIndexRoute: DashboardProjectsIndexRoute,
 }
 
@@ -142,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
 
@@ -151,6 +170,7 @@ export interface FileRoutesByTo {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
 
@@ -162,6 +182,7 @@ export interface FileRoutesById {
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects/': typeof DashboardProjectsIndexRoute
 }
 
@@ -174,6 +195,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
+    | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -182,6 +204,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/register'
     | '/dashboard'
+    | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
   id:
     | '__root__'
@@ -191,6 +214,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
+    | '/dashboard/projects/$projectId'
     | '/dashboard/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +259,7 @@ export const routeTree = rootRoute
       "filePath": "dashboard/route.tsx",
       "children": [
         "/dashboard/",
+        "/dashboard/projects/$projectId",
         "/dashboard/projects/"
       ]
     },
@@ -249,6 +274,10 @@ export const routeTree = rootRoute
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/projects/$projectId": {
+      "filePath": "dashboard/projects/$projectId.tsx",
       "parent": "/dashboard"
     },
     "/dashboard/projects/": {

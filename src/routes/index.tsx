@@ -68,7 +68,7 @@ function Index() {
 						</h4>
 						<a
 							href="https://elixir.no"
-							className="flex flex-col items-center rounded-lg px-6 py-3 font-medium text-white shadow-lg"
+							className="flex flex-col items-center px-6 py-3 font-medium text-white shadow-lg"
 						>
 							By Elixir Norway
 						</a>

@@ -8,6 +8,7 @@ import { NavBarMobile } from "@/components/nav-bar/nav-bar-mobile";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "@/providers/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ export const Route = createRootRoute({
 						</header>
 						<main className="mx-auto">
 							<Outlet />
+							<Toaster position="top-center" />
 						</main>
 						<Footer />
 						<TanStackRouterDevtools />
