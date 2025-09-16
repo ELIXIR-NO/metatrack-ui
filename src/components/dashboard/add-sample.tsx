@@ -52,7 +52,6 @@ export function AddSampleDialog({
 				description: `${formattedDate}.`,
 			});
 
-			// Atualiza a lista de samples
 			queryClient.invalidateQueries({ queryKey: ["samples"] });
 		},
 		onError: (error: any) => {
@@ -71,7 +70,7 @@ export function AddSampleDialog({
 			name,
 			rawAttributes: [
 				{
-					id: crypto.randomUUID(), // gera ID único para o atributo
+					id: crypto.randomUUID(),
 					name: attributeName,
 					value: attributeValue,
 					units: attributeUnits,
