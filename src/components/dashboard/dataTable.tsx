@@ -31,7 +31,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, MoreHorizontal, SquarePen, Trash2, X } from "lucide-react";
+import { Download, MoreHorizontal, SquarePen, X } from "lucide-react";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
