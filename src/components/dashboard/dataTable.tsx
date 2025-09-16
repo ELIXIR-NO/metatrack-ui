@@ -27,9 +27,11 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, MoreHorizontal, X } from "lucide-react";
+import { Download, MoreHorizontal, SquarePen, Trash2, X } from "lucide-react";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
@@ -48,6 +50,11 @@ import {
 import { Label } from "../ui/label";
 import { useState } from "react";
 import { updateSample } from "@/lib/api-client";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
+import { DeleteAlertButton } from "../delete-alert-button";
+import { toast } from "sonner";
+import { Sample } from "@/lib/types";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -76,6 +83,9 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
+	const [initialColumnOrder, setInitialColumnOrder] = React.useState<string[]>(
+		[]
+	);
 
 	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
 		if (columns && columns.length > 0) return columns;
@@ -92,6 +102,23 @@ export function DataTable<T extends object>({
 			),
 		}));
 	}, [columns, data]);
+
+	const orderedColumns = React.useMemo(() => {
+		if (autoColumns.length === 0) return [];
+
+		if (initialColumnOrder.length === 0) {
+			setInitialColumnOrder(
+				autoColumns
+					.map((col) => col.id)
+					.filter((id): id is string => Boolean(id))
+			);
+			return autoColumns;
+		}
+
+		return initialColumnOrder
+			.map((id) => autoColumns.find((col) => col.id === id))
+			.filter(Boolean) as ColumnDef<T>[];
+	}, [autoColumns, initialColumnOrder]);
 
 	const enhancedColumns: ColumnDef<T>[] = React.useMemo(() => {
 		const selectionColumn: ColumnDef<T> = {
@@ -129,32 +156,32 @@ export function DataTable<T extends object>({
 								<DropdownMenuContent>
 									{onEdit && (
 										<TableCellViewer
-											item={row.original}
-											projectId={projectId} // ou passe via props da tabela
+											item={row.original as Sample}
+											projectId={projectId}
 											studyId={studyId}
 											assayId={assayId}
 											onUpdated={() => {
-												if (onEdit) onEdit(row.original); // callback externo
+												if (onEdit) onEdit(row.original);
 											}}
 										/>
 									)}
 									{onDelete && (
-										<Button
-											variant="ghost"
-											className="w-full px-0 text-left text-red-700"
-										>
-											Delete
-										</Button>
+										<DeleteAlertButton
+											projectId={projectId}
+											studyId={studyId}
+											assayId={assayId}
+											item={row.original as { id: string }[]} // T estende { id: string }
+											onDeleted={() => table.resetRowSelection()}
+										/>
 									)}
 								</DropdownMenuContent>
 							</DropdownMenu>
 						),
 					}
 				: undefined;
-
 		return [
 			selectionColumn,
-			...autoColumns,
+			...orderedColumns,
 			...(actionColumn ? [actionColumn] : []),
 		];
 	}, [autoColumns, onOpen, onEdit, onDelete]);
@@ -233,7 +260,7 @@ export function DataTable<T extends object>({
 				selectedRows.map(async (row: any) => {
 					console.log("row:", row);
 					const payload = {
-						name: row.name, // mantém compatibilidade
+						name: row.name,
 						rawAttributes: row.rawAttributes.map((attr: any) =>
 							attr.name === colName
 								? { attributeName: attr.name, value }
@@ -255,7 +282,7 @@ export function DataTable<T extends object>({
 				})
 			);
 		} catch (err) {
-			console.error("Erro ao atualizar múltiplos samples:", err);
+			console.error("Error to update multiple samples:", err);
 		}
 	};
 
@@ -288,7 +315,7 @@ export function DataTable<T extends object>({
 							<>
 								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
-										<Button variant="ghost" size="sm">
+										<Button variant="ghost" size="sm" className="rounded-none">
 											{String(col.header)}
 										</Button>
 									</DropdownMenuTrigger>
@@ -309,16 +336,55 @@ export function DataTable<T extends object>({
 										</form>
 									</DropdownMenuContent>
 								</DropdownMenu>
+								<Separator orientation="vertical" />
 							</>
 						))}
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="rounded-none"
+									onClick={() =>
+										downloadTSV(
+											selectedRows.map((r: any) =>
+												Object.fromEntries(
+													r
+														.getVisibleCells()
+														.map((cell: any, i: number) => [
+															headers[i],
+															cell.getValue(),
+														])
+												)
+											),
+											"selected-rows"
+										)
+									}
+								>
+									<Download className="h-4 w-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Download selected</p>
+							</TooltipContent>
+						</Tooltip>
+
+						<Separator orientation="vertical" />
 
 						<DropdownMenu modal={false}>
 							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="sm">
+								<Button variant="ghost" size="sm" className="rounded-none">
 									<MoreHorizontal />
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
+								<DropdownMenuLabel className="flex w-full flex-row items-center gap-2 px-6">
+									<SquarePen size={18} />
+									Edit selected
+								</DropdownMenuLabel>
+
+								<DropdownMenuSeparator />
+
 								{autoColumns.slice(3).map((col) => (
 									<DropdownMenuItem key={String(col.header)} asChild>
 										<Popover>
@@ -345,6 +411,18 @@ export function DataTable<T extends object>({
 										</Popover>
 									</DropdownMenuItem>
 								))}
+
+								{/* Separator */}
+								<DropdownMenuSeparator />
+
+								{/* Delete */}
+								<DeleteAlertButton
+									projectId={projectId}
+									studyId={studyId}
+									assayId={assayId}
+									item={selectedRows as { id: string }[]}
+									onDeleted={() => table.resetRowSelection()}
+								/>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -356,27 +434,29 @@ export function DataTable<T extends object>({
 					disabled={rows.length === 0}
 					onClick={() =>
 						downloadTSV(
-							rows.map(
-								(r: {
-									map: (
-										arg0: (v: any, i: string | number) => any[]
-									) => Iterable<readonly [PropertyKey, any]>;
-								}) =>
+							table
+								.getFilteredRowModel()
+								.rows.map((r: any) =>
 									Object.fromEntries(
-										r.map((v: any, i: string | number) => [headers[i], v])
+										r
+											.getVisibleCells()
+											.map((cell: any, i: number) => [
+												headers[i],
+												cell.getValue(),
+											])
 									)
-							),
-							"sample"
+								),
+							"filtered-rows"
 						)
 					}
 				>
-					<Download />
+					<Download className="h-4 w-4" />
 				</Button>
 			</div>
 
 			<div className="rounded-md border">
 				<Table>
-					<TableHeader className="bg-muted sticky top-0 z-10">
+					<TableHeader className="bg-muted sticky top-0">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
@@ -435,13 +515,20 @@ function TableCellViewer({
 	assayId,
 	onUpdated,
 }: {
-	item: any;
+	item: Sample;
 	projectId: string;
 	studyId: string;
 	assayId: string;
-	onUpdated?: () => void; // callback pra atualizar a tabela
+	onUpdated?: () => void;
 }) {
 	const [loading, setLoading] = useState(false);
+
+	const queryClient = useQueryClient();
+
+	const now = new Date();
+	const formattedDate = now.toLocaleString();
+
+	console.log("item.rawAttributes: ", item.rawAttributes);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -453,7 +540,6 @@ function TableCellViewer({
 
 			updateData.name = item.name;
 
-			// Verifica os rawAttributes alterados
 			item.rawAttributes.forEach((attr: any) => {
 				const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
 
@@ -465,7 +551,6 @@ function TableCellViewer({
 				});
 			});
 
-			// Só faz a request se algo mudou
 			if (updateData.name || updateData.rawAttributes.length > 0) {
 				console.log("Payload enviado:", {
 					name: updateData.name,
@@ -478,12 +563,33 @@ function TableCellViewer({
 					itemId: item.id,
 				});
 				await updateSample(projectId, studyId, assayId, item.id, updateData);
+
+				toast.success("Sample has been updated", {
+					description: `${formattedDate}.`,
+					action: {
+						label: "Undo",
+						onClick: () => console.log("Undo"),
+					},
+				});
+
+				queryClient.invalidateQueries({
+					queryKey: ["samples", projectId, studyId, assayId],
+				});
+
 				if (onUpdated) onUpdated();
 			} else {
-				console.log("Nenhuma alteração detectada, nada para salvar.");
+				console.log("No changes detected, nothing to save.");
 			}
-		} catch (err) {
-			console.error("Erro ao atualizar sample:", err);
+		} catch (err: any) {
+			console.error("Erro to updated sample:", err);
+			const message = err?.message || "Erro to updated sample";
+
+			toast.error(message, {
+				action: {
+					label: "Undo",
+					onClick: () => console.log("Undo"),
+				},
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -496,10 +602,11 @@ function TableCellViewer({
 					variant="ghost"
 					className="text-foreground w-full px-0 text-left"
 				>
+					<SquarePen />
 					Edit
 				</Button>
 			</DrawerTrigger>
-			<DrawerContent>
+			<DrawerContent aria-describedby={undefined}>
 				<DrawerHeader className="gap-1">
 					<DrawerTitle className="text-xl">Edit {item.name}</DrawerTitle>
 				</DrawerHeader>
