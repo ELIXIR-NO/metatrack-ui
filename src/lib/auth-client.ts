@@ -1,6 +1,5 @@
 import { User } from "./types";
-
-const API_URL = "http://localhost:8080";
+import { API_URL } from "./config";
 
 export async function login(user: User) {
 	const res = await fetch(`${API_URL}/auth/login`, {
