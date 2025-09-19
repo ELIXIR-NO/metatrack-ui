@@ -8,8 +8,7 @@ import {
 	Assay,
 	Sample,
 } from "./types";
-
-const API_URL = "http://localhost:8080";
+import { API_URL } from "./config";
 
 export async function createInvestigation(data: CreateProjectData) {
 	const accessToken = localStorage.getItem("access_token");
