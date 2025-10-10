@@ -49,7 +49,7 @@ import {
 } from "../ui/drawer";
 import { Label } from "../ui/label";
 import { useState } from "react";
-import { updateSample } from "@/lib/api-client";
+import { batchEditSamples, updateSample } from "@/lib/api-client";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
@@ -86,6 +86,10 @@ export function DataTable<T extends object>({
 	const [initialColumnOrder, setInitialColumnOrder] = React.useState<string[]>(
 		[]
 	);
+	const [, setLoading] = useState(false);
+	const queryClient = useQueryClient();
+	const now = new Date();
+	const formattedDate = now.toLocaleString();
 
 	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
 		if (columns && columns.length > 0) return columns;
@@ -170,7 +174,7 @@ export function DataTable<T extends object>({
 											projectId={projectId}
 											studyId={studyId}
 											assayId={assayId}
-											item={row.original as { id: string }[]} // T estende { id: string }
+											item={row.original as { id: string }[]}
 											onDeleted={() => table.resetRowSelection()}
 										/>
 									)}
@@ -255,34 +259,65 @@ export function DataTable<T extends object>({
 	const { headers, rows } = prepareTableDataForDownload(table);
 
 	const handleBatchUpdate = async (colName: string, value: string) => {
+		setLoading(true);
+
 		try {
-			await Promise.all(
-				selectedRows.map(async (row: any) => {
-					console.log("row:", row);
-					const payload = {
-						name: row.name,
-						rawAttributes: row.rawAttributes.map((attr: any) =>
-							attr.name === colName
-								? { attributeName: attr.name, value }
-								: { attributeName: attr.name, value: attr.value }
-						),
-					};
+			const sampleData = selectedRows.map((row: any) => {
+				console.log("row: ", row);
+				const updateSampleRequest = {
+					name: row.name,
+					rawAttributes: row.rawAttributes.map((attr: any) =>
+						attr.name === colName.toLowerCase()
+							? { attributeName: attr.name, value, unit: attr.unit ?? "" }
+							: {
+									attributeName: attr.name,
+									value: attr.value,
+									unit: attr.unit ?? "",
+								}
+					),
+				};
 
-					console.log("payload:", payload);
+				return {
+					id: row.id,
+					updateSampleRequest,
+				};
+			});
 
-					const updated = await updateSample(
-						projectId,
-						studyId,
-						assayId,
-						row.id,
-						payload
-					);
+			const updated = await batchEditSamples(projectId, studyId, assayId, {
+				sampleData,
+			});
 
-					if (onEdit) onEdit(updated as T);
-				})
-			);
-		} catch (err) {
-			console.error("Error to update multiple samples:", err);
+			toast.success("Samples have been updated", {
+				description: `${formattedDate}.`,
+				action: {
+					label: "Undo",
+					onClick: () => console.log("Undo batch update"),
+				},
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ["samples", projectId, studyId, assayId],
+			});
+
+			if (onEdit) {
+				if (updated?.samples) {
+					updated.samples.forEach((s: T) => onEdit(s));
+				} else {
+					selectedRows.forEach((row: T) => onEdit(row));
+				}
+			}
+		} catch (err: any) {
+			console.error("Error to batch update samples:", err);
+			const message = err?.message || "Error to batch update samples";
+
+			toast.error(message, {
+				action: {
+					label: "Retry",
+					onClick: () => handleBatchUpdate(colName, value),
+				},
+			});
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -320,18 +355,22 @@ export function DataTable<T extends object>({
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
-										<form
-											onSubmit={(e) => {
-												e.preventDefault();
-												const formData = new FormData(e.currentTarget);
-												const value = formData.get("field") as string;
-												handleBatchUpdate(String(col.header), value);
-											}}
-										>
+										<form>
 											<Input
 												name="field"
 												placeholder={String(col.header)}
 												className="w-auto"
+												onKeyDown={(e) => {
+													if (e.key === "Enter") {
+														e.preventDefault();
+														const form = e.currentTarget.form;
+														if (form) {
+															const formData = new FormData(form);
+															const value = formData.get("field") as string;
+															handleBatchUpdate(String(col.header), value);
+														}
+													}
+												}}
 											/>
 										</form>
 									</DropdownMenuContent>
@@ -398,14 +437,20 @@ export function DataTable<T extends object>({
 											</PopoverTrigger>
 											<PopoverContent className="p-1">
 												<Input
+													name="field"
 													placeholder={String(col.header)}
-													onChange={(e) => {
-														const value = e.target.value;
-														selectedRows.forEach((row) => {
-															row[String(col.header) as keyof T] = value as any;
-														});
+													className="w-auto"
+													onKeyDown={(e) => {
+														if (e.key === "Enter") {
+															e.preventDefault();
+															const form = e.currentTarget.form;
+															if (form) {
+																const formData = new FormData(form);
+																const value = formData.get("field") as string;
+																handleBatchUpdate(String(col.header), value);
+															}
+														}
 													}}
-													className="w-full"
 												/>
 											</PopoverContent>
 										</Popover>
@@ -527,8 +572,6 @@ function TableCellViewer({
 
 	const now = new Date();
 	const formattedDate = now.toLocaleString();
-
-	console.log("item.rawAttributes: ", item.rawAttributes);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

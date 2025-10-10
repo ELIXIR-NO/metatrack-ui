@@ -401,6 +401,63 @@ export async function updateSample(
 	}
 }
 
+export async function batchEditSamples(
+	projectId: string,
+	studyId: string,
+	assayId: string,
+	data: {
+		sampleData: {
+			id: string;
+			updateSampleRequest: {
+				name?: string;
+				rawAttributes?: {
+					attributeName: string;
+					value: string;
+					unit?: string;
+				}[];
+			};
+		}[];
+	}
+): Promise<{ success: true } | any> {
+	const accessToken = localStorage.getItem("access_token");
+
+	const response = await fetch(
+		`${API_URL}/api/v1/investigations/${projectId}/studies/${studyId}/assays/${assayId}/samples/batch-edit`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(data),
+		}
+	);
+
+	if (!response.ok) {
+		let errorMessage = "Failed to batch edit samples";
+
+		try {
+			const errorData: { message?: string } = await response.json();
+			errorMessage = errorData.message || errorMessage;
+		} catch {
+			errorMessage = await response.text();
+		}
+
+		throw new Error(errorMessage);
+	}
+
+	const text = await response.text();
+	if (!text) {
+		return { success: true };
+	}
+
+	try {
+		return JSON.parse(text);
+	} catch {
+		return { success: true };
+	}
+}
+
 export async function deleteSelectedSamples<T extends { id: string }>(
 	projectId: string,
 	studyId: string,
