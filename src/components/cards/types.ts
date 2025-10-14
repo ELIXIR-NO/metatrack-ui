@@ -11,17 +11,23 @@ export type ChartItem = {
 	fill?: string;
 };
 
+export type IconType = React.ComponentType<{
+	size?: number;
+	className?: string;
+}>;
+
 export type StatCardData =
 	| {
 			type: "text";
 			title: string;
 			numberText: number;
 			description: string;
+			icon?: IconType;
 	  }
 	| {
-			type: "chart";
+			type: "date";
 			title: string;
+			dateText: string;
 			description?: string;
-			unit?: string;
-			data: ChartItem[];
+			icon?: IconType;
 	  };
