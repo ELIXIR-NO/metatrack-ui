@@ -55,10 +55,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
 import { Sample } from "@/lib/types";
+import { NON_EDITABLE_COLUMNS } from "@/lib/utils";
 
 interface DataTableProps<T extends object> {
 	data: T[];
-	columns?: ColumnDef<T>[]; // opcional, pode gerar automaticamente
+	columns?: ColumnDef<T>[];
 	onOpen?: (row: T) => void;
 	onEdit?: (row: T) => void;
 	onDelete?: (row: T) => void;
@@ -346,7 +347,7 @@ export function DataTable<T extends object>({
 						</div>
 
 						<Separator orientation="vertical" />
-						{autoColumns.slice(0, 3).map((col) => (
+						{autoColumns.slice(1, 4).map((col) => (
 							<>
 								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
@@ -424,7 +425,7 @@ export function DataTable<T extends object>({
 
 								<DropdownMenuSeparator />
 
-								{autoColumns.slice(3).map((col) => (
+								{autoColumns.slice(4).map((col) => (
 									<DropdownMenuItem key={String(col.header)} asChild>
 										<Popover>
 											<PopoverTrigger asChild>
@@ -595,11 +596,11 @@ function TableCellViewer({
 			});
 
 			if (updateData.name || updateData.rawAttributes.length > 0) {
-				console.log("Payload enviado:", {
+				console.log("Payload sended:", {
 					name: updateData.name,
 					rawAttributes: updateData.rawAttributes,
 				});
-				console.log("Payload enviado:", {
+				console.log("Payload sended:", {
 					projectId: projectId,
 					studyId: studyId,
 					assayId: assayId,
@@ -667,6 +668,7 @@ function TableCellViewer({
 									id={attr.name}
 									name={`rawAttributes.${attr.id}`}
 									defaultValue={attr.value}
+									disabled={NON_EDITABLE_COLUMNS.includes(attr.name)}
 								/>
 							</div>
 						))}
