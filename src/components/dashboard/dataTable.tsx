@@ -54,20 +54,23 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { Sample } from "@/lib/types";
+import { Assay, Project, Sample, Study } from "@/lib/types";
 import { NON_EDITABLE_COLUMNS } from "@/lib/utils";
+import { ProjectTree } from "../projectTree";
+import { buildProjectTree } from "@/lib/projectTree";
 
 interface DataTableProps<T extends object> {
 	data: T[];
 	columns?: ColumnDef<T>[];
+	onSelectSamples?: (selected: Sample[]) => void;
 	onOpen?: (row: T) => void;
 	onEdit?: (row: T) => void;
 	onDelete?: (row: T) => void;
 	showAddButton?: React.ReactNode;
 	filterPlaceholder?: string;
-	projectId: string;
-	studyId: string;
-	assayId: string;
+	project?: Project;
+	studies?: Study;
+	assays?: Assay;
 }
 
 export function DataTable<T extends object>({
@@ -77,9 +80,9 @@ export function DataTable<T extends object>({
 	onEdit,
 	onDelete,
 	showAddButton,
-	projectId,
-	studyId,
-	assayId,
+	project,
+	studies,
+	assays,
 	filterPlaceholder = "Filter...",
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -162,9 +165,9 @@ export function DataTable<T extends object>({
 									{onEdit && (
 										<TableCellViewer
 											item={row.original as Sample}
-											projectId={projectId}
-											studyId={studyId}
-											assayId={assayId}
+											projectId={project?.id!}
+											studyId={studies?.id!}
+											assayId={assays?.id!}
 											onUpdated={() => {
 												if (onEdit) onEdit(row.original);
 											}}
@@ -172,9 +175,9 @@ export function DataTable<T extends object>({
 									)}
 									{onDelete && (
 										<DeleteAlertButton
-											projectId={projectId}
-											studyId={studyId}
-											assayId={assayId}
+											projectId={project?.id!}
+											studyId={studies?.id!}
+											assayId={assays?.id!}
 											item={row.original as { id: string }[]}
 											onDeleted={() => table.resetRowSelection()}
 										/>
@@ -284,9 +287,14 @@ export function DataTable<T extends object>({
 				};
 			});
 
-			const updated = await batchEditSamples(projectId, studyId, assayId, {
-				sampleData,
-			});
+			const updated = await batchEditSamples(
+				project?.id!,
+				studies?.id!,
+				assays?.id!,
+				{
+					sampleData,
+				}
+			);
 
 			toast.success("Samples have been updated", {
 				description: `${formattedDate}.`,
@@ -297,7 +305,7 @@ export function DataTable<T extends object>({
 			});
 
 			queryClient.invalidateQueries({
-				queryKey: ["samples", projectId, studyId, assayId],
+				queryKey: ["samples", project?.id!, studies?.id!, assays?.id!],
 			});
 
 			if (onEdit) {
@@ -322,8 +330,22 @@ export function DataTable<T extends object>({
 		}
 	};
 
+	const studyArray = studies ? [studies] : [];
+	const assayArray = assays ? [assays] : [];
+
+	const treeData = buildProjectTree(
+		project!,
+		studyArray,
+		assayArray,
+		selectedRows as any
+	);
+
 	return (
 		<div className="space-y-4">
+			<div className="flex items-center justify-center space-x-2 lg:flex">
+				<ProjectTree data={treeData} width={1200} />
+			</div>
+
 			<div className="items-center justify-between space-x-2 lg:flex">
 				<Input
 					placeholder={filterPlaceholder}
@@ -463,9 +485,9 @@ export function DataTable<T extends object>({
 
 								{/* Delete */}
 								<DeleteAlertButton
-									projectId={projectId}
-									studyId={studyId}
-									assayId={assayId}
+									projectId={project?.id!}
+									studyId={studies?.id!}
+									assayId={assays?.id!}
 									item={selectedRows as { id: string }[]}
 									onDeleted={() => table.resetRowSelection()}
 								/>
