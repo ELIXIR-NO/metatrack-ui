@@ -122,9 +122,9 @@ export function RouteComponent() {
 								columns={dynamicColumns}
 								onEdit={(sample) => console.log("Edit sample", sample)}
 								onDelete={(sample) => console.log("Delete sample", sample)}
-								projectId={projectId}
-								studyId={studyId}
-								assayId={assayId}
+								project={project}
+								studies={studies[0]}
+								assays={assays[0]}
 								showAddButton={
 									studyId && assayId ? (
 										<div className="flex gap-2">
