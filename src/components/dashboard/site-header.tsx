@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import React from "react";
 
 interface BreadcrumbItemProps {
 	label: string;
@@ -34,18 +35,18 @@ export function SiteHeader({ items = [] }: SiteHeaderProps) {
 				<Breadcrumb>
 					<BreadcrumbList>
 						{DefaultItems.map((item, i) => (
-							<BreadcrumbItem key={i}>
-								{item.href ? (
-									<>
+							<React.Fragment key={item.href ?? item.label}>
+								<BreadcrumbItem>
+									{item.href ? (
 										<BreadcrumbLink href={item.href}>
 											{item.label}
 										</BreadcrumbLink>
-										{i < items.length && <BreadcrumbSeparator />}
-									</>
-								) : (
-									<BreadcrumbPage>{item.label}</BreadcrumbPage>
-								)}
-							</BreadcrumbItem>
+									) : (
+										<BreadcrumbPage>{item.label}</BreadcrumbPage>
+									)}
+								</BreadcrumbItem>
+								{i < DefaultItems.length - 1 && <BreadcrumbSeparator />}
+							</React.Fragment>
 						))}
 					</BreadcrumbList>
 				</Breadcrumb>
