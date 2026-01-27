@@ -10,79 +10,85 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createSample } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CreateSample, Sample } from "@/lib/types";
+import { createSample } from "@/lib/api-keycloak";
+import { SquarePlus } from "lucide-react";
 
 interface AddSampleDialogProps {
 	projectId: string;
-	studyId: string;
-	assayId: string;
+	studyId?: string;
+	assayId?: string;
 }
 
-export function AddSampleDialog({
-	projectId,
-	studyId,
-	assayId,
-}: AddSampleDialogProps) {
+export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 	const [name, setName] = useState("");
-	const [attributeName, setAttributeName] = useState("");
-	const [attributeValue, setAttributeValue] = useState("");
-	const [attributeUnits, setAttributeUnits] = useState("");
+	const [alias, setAlias] = useState("");
+	const [taxId, setTaxId] = useState("");
+	const [hostTaxId, setHostTaxId] = useState("");
+	const [mlst, setMlst] = useState("");
+	const [isolationSource, setIsolationSource] = useState("");
+	const [collectionDate, setCollectionDate] = useState("");
+	const [location, setLocation] = useState("");
+	const [sequencingLab, setSequencingLab] = useState("");
+	const [institution, setInstitution] = useState("");
+	const [hostHealthState, setHostHealthState] = useState("");
+
 	const [open, setOpen] = useState(false);
 
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: (data: { name: string; rawAttributes: any[] }) =>
-			createSample(data, projectId, studyId, assayId),
-		onSuccess: (newSample) => {
-			queryClient.setQueryData(["samples"], (old: any[] = []) => [
+		mutationFn: (data: CreateSample) => createSample(data, projectId),
+
+		onSuccess: (newSample: Sample) => {
+			queryClient.setQueryData<Sample[]>(["samples"], (old = []) => [
 				newSample,
 				...old,
 			]);
 
-			setName("");
 			setOpen(false);
 
-			const now = new Date();
-			const formattedDate = now.toLocaleString();
+			const formattedDate = new Date().toLocaleString();
 
 			toast.success("Sample has been created", {
-				description: `${formattedDate}.`,
+				description: formattedDate,
 			});
 
 			queryClient.invalidateQueries({ queryKey: ["samples"] });
 		},
-		onError: (error: any) => {
-			const message =
-				error?.response?.data?.message ||
-				error?.message ||
-				"Error creating sample";
 
-			toast.error(message);
+		onError: (error: any) => {
+			toast.error(error?.message ?? "Error creating sample");
 		},
 	});
 
 	const handleCreate = (e: React.FormEvent) => {
 		e.preventDefault();
+
 		mutation.mutate({
 			name,
-			rawAttributes: [
-				{
-					id: crypto.randomUUID(),
-					name: attributeName,
-					value: attributeValue,
-					units: attributeUnits,
-				},
-			],
+			alias,
+			taxId: Number(taxId),
+			hostTaxId: 1,
+			mlst,
+			isolationSource,
+			collectionDate,
+			location,
+			sequencingLab,
+			institution,
+			hostHealthState,
 		});
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>Add Sample</Button>
+				<Button className="flex items-center gap-2">
+					<SquarePlus className="h-4 w-4" />
+					Add Sample
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<form onSubmit={handleCreate} className="space-y-4">
@@ -96,7 +102,6 @@ export function AddSampleDialog({
 							Sample Name
 						</label>
 						<Input
-							id="sampleName"
 							placeholder="Sample name"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
@@ -104,42 +109,131 @@ export function AddSampleDialog({
 						/>
 					</div>
 
-					{/* Attribute Name */}
 					<div>
 						<label htmlFor="attrName" className="font-medium">
-							Attribute Name
+							Alias
 						</label>
 						<Input
-							id="attrName"
-							placeholder="e.g. Temperature"
-							value={attributeName}
-							onChange={(e) => setAttributeName(e.target.value)}
+							placeholder="Alias"
+							value={alias}
+							onChange={(e) => setAlias(e.target.value)}
 						/>
 					</div>
 
-					{/* Attribute Value */}
 					<div>
 						<label htmlFor="attrValue" className="font-medium">
-							Attribute Value
+							Tax ID
 						</label>
 						<Input
-							id="attrValue"
-							placeholder="e.g. 37"
-							value={attributeValue}
-							onChange={(e) => setAttributeValue(e.target.value)}
+							type="text"
+							inputMode="numeric"
+							pattern="[0-9]*"
+							placeholder="Tax ID"
+							value={taxId}
+							onChange={(e) => {
+								const value = e.target.value;
+								if (/^\d*$/.test(value)) {
+									setTaxId(value);
+								}
+							}}
+							required
 						/>
 					</div>
 
-					{/* Attribute Units */}
 					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Attribute Units
+						<label htmlFor="attrValue" className="font-medium">
+							Host Tax ID
 						</label>
 						<Input
-							id="attrUnits"
-							placeholder="e.g. C"
-							value={attributeUnits}
-							onChange={(e) => setAttributeUnits(e.target.value)}
+							type="text"
+							inputMode="numeric"
+							pattern="[0-9]*"
+							placeholder="Tax ID"
+							value={hostTaxId}
+							onChange={(e) => {
+								const value = e.target.value;
+								if (/^\d*$/.test(value)) {
+									setHostTaxId(value);
+								}
+							}}
+							required
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							MLST
+						</label>
+						<Input
+							placeholder="MLST"
+							value={mlst}
+							onChange={(e) => setMlst(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Isolation Source
+						</label>
+						<Input
+							placeholder="Isolation source"
+							value={isolationSource}
+							onChange={(e) => setIsolationSource(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Collection Date
+						</label>
+						<Input
+							type="date"
+							value={collectionDate}
+							onChange={(e) => setCollectionDate(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Location
+						</label>
+						<Input
+							placeholder="Geographical location"
+							value={location}
+							onChange={(e) => setLocation(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Sequence Lab
+						</label>
+						<Input
+							placeholder="Sequencing lab"
+							value={sequencingLab}
+							onChange={(e) => setSequencingLab(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Institution
+						</label>
+						<Input
+							placeholder="Institution"
+							value={institution}
+							onChange={(e) => setInstitution(e.target.value)}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="attrUnits" className="font-medium">
+							Host Health State
+						</label>
+						<Input
+							placeholder="Host health state"
+							value={hostHealthState}
+							onChange={(e) => setHostHealthState(e.target.value)}
 						/>
 					</div>
 
