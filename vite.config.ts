@@ -18,10 +18,17 @@ export default defineConfig({
 	},
 	server: {
 		proxy: {
+			"/keycloak": {
+				target: "https://keycloak.elixir-uit.sigma2.no/",
+				changeOrigin: true,
+				secure: true,
+				rewrite: (path) => path.replace(/^\/keycloak/, ""),
+			},
 			"/api": {
 				target: "https://api.elixir-uit.sigma2.no",
 				changeOrigin: true,
-				rewrite: (path) => path.replace(/^\/api/, ""),
+				secure: true,
+				rewrite: (path) => path.replace(/^\/api/, "/api"),
 			},
 		},
 	},
