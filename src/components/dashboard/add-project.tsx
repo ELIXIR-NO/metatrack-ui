@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createProjectWithStudyAndAssay } from "@/lib/api-client";
 import {
 	Tooltip,
 	TooltipContent,
@@ -20,28 +19,25 @@ import {
 import { HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createInvestigation } from "@/lib/api-client";
 
 export function AddProjectDialog() {
-	const [identifier, setIdentifier] = useState("");
-	const [title, setTitle] = useState("");
+	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
-	const [filename, setFilename] = useState("");
 	const [open, setOpen] = useState(false);
 
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: createProjectWithStudyAndAssay,
+		mutationFn: createInvestigation,
 		onSuccess: (newProject) => {
 			queryClient.setQueryData(["projects"], (old: any[] = []) => [
 				newProject.project,
 				...old,
 			]);
 
-			setIdentifier("");
-			setTitle("");
+			setName("");
 			setDescription("");
-			setFilename("");
 			setOpen(false);
 
 			const now = new Date();
@@ -74,10 +70,8 @@ export function AddProjectDialog() {
 	const handleCreate = (e: React.FormEvent) => {
 		e.preventDefault();
 		mutation.mutate({
-			identifier,
-			title,
+			name,
 			description,
-			filename,
 		});
 	};
 
@@ -93,32 +87,6 @@ export function AddProjectDialog() {
 					</DialogHeader>
 
 					<div className="space-y-2">
-						{/* Project Identifier */}
-						<div className="flex items-center gap-2">
-							<label htmlFor="identifier" className="font-medium">
-								Project Identifier <span className="text-red-500">*</span>
-							</label>
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<HelpCircle className="h-4 w-4 cursor-pointer text-gray-500" />
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>
-											The identifier of your project. This field is required.
-										</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-						</div>
-						<Input
-							id="identifier"
-							placeholder="Identifier"
-							value={identifier}
-							onChange={(e) => setIdentifier(e.target.value)}
-							required
-						/>
-
 						{/* Project Title */}
 						<div className="flex items-center gap-2">
 							<label htmlFor="projectName" className="font-medium">
@@ -140,8 +108,8 @@ export function AddProjectDialog() {
 						<Input
 							id="projectName"
 							placeholder="Project Title"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
+							value={name}
+							onChange={(e) => setName(e.target.value)}
 							required
 						/>
 
@@ -166,29 +134,6 @@ export function AddProjectDialog() {
 							placeholder="Description"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
-						/>
-
-						{/* File Name */}
-						<div className="flex items-center gap-2">
-							<label htmlFor="fileName" className="font-medium">
-								File Name
-							</label>
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<HelpCircle className="h-4 w-4 cursor-pointer text-gray-500" />
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Optional file name related to this project.</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-						</div>
-						<Input
-							id="fileName"
-							placeholder="File Name"
-							value={filename}
-							onChange={(e) => setFilename(e.target.value)}
 						/>
 					</div>
 
