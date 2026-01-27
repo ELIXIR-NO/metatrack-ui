@@ -89,13 +89,9 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
-	const [initialColumnOrder, setInitialColumnOrder] = React.useState<string[]>(
-		[]
-	);
+	const [initialColumnOrder] = React.useState<string[]>([]);
 	const [, setLoading] = useState(false);
 	const queryClient = useQueryClient();
-	const now = new Date();
-	const formattedDate = now.toLocaleString();
 
 	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
 		if (columns && columns.length > 0) return columns;
