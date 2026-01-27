@@ -33,13 +33,7 @@ import { AddProjectDialog } from "./add-project";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
-
-export interface Project {
-	id: string;
-	title: string;
-	description?: string;
-	filename?: string;
-}
+import { Project } from "@/lib/types";
 
 interface DataTableProps {
 	projects: Project[];
@@ -81,7 +75,7 @@ export function ProjectsDataTable({
 				enableHiding: false,
 			},
 			{
-				accessorKey: "title",
+				accessorKey: "name",
 				header: ({ column }) => (
 					<DataTableColumnHeader column={column} title="Title" />
 				),
@@ -90,7 +84,7 @@ export function ProjectsDataTable({
 						className="cursor-pointer font-medium"
 						onClick={() => onOpen(row.original)}
 					>
-						{row.getValue("title")}
+						{row.getValue("name")}
 					</span>
 				),
 			},
@@ -100,13 +94,6 @@ export function ProjectsDataTable({
 					<DataTableColumnHeader column={column} title="Description" />
 				),
 				cell: ({ row }) => row.getValue("description") || "-",
-			},
-			{
-				accessorKey: "filename",
-				header: ({ column }) => (
-					<DataTableColumnHeader column={column} title="Filename" />
-				),
-				cell: ({ row }) => row.getValue("filename") || "-",
 			},
 			{
 				id: "actions",
