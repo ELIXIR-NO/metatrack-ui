@@ -2,34 +2,45 @@ import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect } from "react";
-import { useAuth } from "@/providers/auth-provider";
 import { SidebarSkeleton } from "@/components/sidebar-skeleton";
+import { MeResponse } from "@/lib/types";
+import { getMe } from "@/lib/auth-client";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/dashboard")({
 	component: DashboardLayout,
 });
 
+export function useUser() {
+	return useQuery<MeResponse>({
+		queryKey: ["me"],
+		queryFn: getMe,
+	});
+}
+
 function DashboardLayout() {
-	const { user, loading } = useAuth();
+	const { data: user, isLoading } = useUser();
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!loading && !user) {
+		if (!isLoading && !user) {
 			navigate({ to: "/" });
 		}
-	}, [user, loading, navigate]);
+	}, [user, isLoading, navigate]);
 
-	if (loading)
+	if (isLoading) {
 		return (
 			<SidebarProvider>
-				<SidebarSkeleton></SidebarSkeleton>
+				<SidebarSkeleton />
 			</SidebarProvider>
 		);
+	}
+
 	if (!user) return null;
 
 	return (
 		<SidebarProvider className="min-h-full">
-			<AppSidebar variant="inset" user={user.firstName} />
+			<AppSidebar variant="inset" user={user.username ?? user.userId} />
 			<SidebarInset>
 				<Outlet />
 			</SidebarInset>
