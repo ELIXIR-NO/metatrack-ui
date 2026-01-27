@@ -64,9 +64,10 @@ export function NavMain({
 								className="group/collapsible"
 							>
 								<SidebarMenuItem>
-									<div>
+									<div className="flex items-center justify-between">
 										<SidebarMenuButton
 											asChild
+											tooltip="My Projects"
 											isActive={location.pathname === `/dashboard${item.url}`}
 											className="gap-x-2"
 										>
@@ -89,13 +90,16 @@ export function NavMain({
 										<SidebarMenuSub>
 											{item.items?.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton>
-														{item.isTeam ? (
-															<Flag className="!size-4" />
-														) : (
-															<FileText className="!size-4" />
-														)}
-														<a href={subItem.url}>
+													<SidebarMenuSubButton asChild>
+														<a
+															href={subItem.url}
+															className="flex items-center gap-2"
+														>
+															{item.isTeam ? (
+																<Flag className="!size-4" />
+															) : (
+																<FileText className="!size-4" />
+															)}
 															<span>{subItem.title}</span>
 														</a>
 													</SidebarMenuSubButton>
