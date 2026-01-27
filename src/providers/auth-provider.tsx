@@ -1,51 +1,55 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { fetchUserInfo, logout } from "@/lib/auth-client";
-import { useNavigate } from "@tanstack/react-router";
-import { User } from "@/lib/types";
+import { createContext, useContext, useEffect, useState } from "react";
+import { MeResponse } from "@/lib/types";
+import { getMe } from "@/lib/auth-client";
+import { AuthContext } from "./auth-context";
 
-type AuthUser = User | null;
-
-const AuthContext = createContext<{
-	user: AuthUser;
+type UserContextType = {
+	user: MeResponse | null;
 	loading: boolean;
-	setUser: (u: AuthUser) => void;
-	logoutUser: () => Promise<void>;
-}>({
+};
+
+const UserContext = createContext<UserContextType>({
 	user: null,
 	loading: true,
-	setUser: () => {},
-	logoutUser: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState<AuthUser>(null);
+	const [user, setUser] = useState<MeResponse | null>(null);
 	const [loading, setLoading] = useState(true);
-	const navigate = useNavigate();
+	const { isAuthenticated } = useContext(AuthContext);
+
+	console.log("isAuthenticated:", isAuthenticated);
 
 	useEffect(() => {
-		fetchUserInfo()
-			.then((data) => setUser(data))
-			.catch(() => setUser(null))
-			.finally(() => setLoading(false));
+		async function loadMe() {
+			if (!isAuthenticated) {
+				setUser(null);
+				setLoading(false);
+				return;
+			}
+
+			try {
+				const me = await getMe();
+				console.log("me1:", me);
+				setUser(me);
+			} catch (err) {
+				console.error("Failed to load /me", err);
+				setUser(null);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		loadMe();
 	}, []);
 
-	const logoutUser = async () => {
-		try {
-			await logout();
-			setUser(null);
-			navigate({ to: "/" });
-		} catch (err) {
-			console.error("Logout failed", err);
-		}
-	};
-
 	return (
-		<AuthContext.Provider value={{ user, loading, setUser, logoutUser }}>
+		<UserContext.Provider value={{ user, loading }}>
 			{children}
-		</AuthContext.Provider>
+		</UserContext.Provider>
 	);
 }
 
 export function useAuth() {
-	return useContext(AuthContext);
+	return useContext(UserContext);
 }
