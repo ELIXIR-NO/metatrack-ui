@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -9,15 +9,16 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { uploadSampleFile } from "@/lib/api-client";
+import { uploadSampleFileNew } from "@/lib/api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
+import { HardDriveUpload } from "lucide-react";
 
 interface UploadSampleDialogProps {
 	projectId: string;
-	studyId: string;
-	assayId: string;
+	studyId?: string;
+	assayId?: string;
 }
 
 export function UploadSampleDialog({
@@ -26,12 +27,12 @@ export function UploadSampleDialog({
 	assayId,
 }: UploadSampleDialogProps) {
 	const [file, setFile] = useState<File | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [open, setOpen] = useState(false);
 	const queryClient = useQueryClient();
 
 	const uploadMutation = useMutation({
-		mutationFn: (file: File) =>
-			uploadSampleFile(projectId, studyId, assayId, file),
+		mutationFn: (file: File) => uploadSampleFileNew(projectId, file),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["samples", projectId, studyId, assayId],
@@ -69,27 +70,78 @@ export function UploadSampleDialog({
 		uploadMutation.mutate(file);
 	};
 
+	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault();
+		const droppedFile = e.dataTransfer.files?.[0];
+		if (droppedFile) setFile(droppedFile);
+	};
+
+	const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault();
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>Upload Sample</Button>
+				<Button className="flex items-center gap-2">
+					<HardDriveUpload className="h-4 w-4" />
+					Upload Sample
+				</Button>
 			</DialogTrigger>
-			<DialogContent aria-describedby={undefined}>
+
+			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>Upload Sample File</DialogTitle>
 				</DialogHeader>
-				<Input
-					type="file"
-					accept=".csv,.xlsx,.tsv,.txt"
-					onChange={(e) => setFile(e.target.files?.[0] || null)}
-					className="my-4"
-				/>
-				<Button
-					onClick={handleUpload}
-					disabled={!file || uploadMutation.isPending}
+
+				{/* Dropzone */}
+				<div
+					onDrop={handleDrop}
+					onDragOver={handleDragOver}
+					className="hover:bg-muted flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition"
 				>
-					{uploadMutation.isPending ? "Uploading..." : "Upload"}
-				</Button>
+					<p className="text-muted-foreground text-sm">
+						Drag & drop your file here
+					</p>
+					<p className="text-muted-foreground text-xs">CSV, TSV, XLSX or TXT</p>
+
+					<Button
+						variant="secondary"
+						className="mt-3"
+						onClick={() => fileInputRef.current?.click()}
+					>
+						Choose file
+					</Button>
+
+					<Input
+						ref={fileInputRef}
+						type="file"
+						accept=".csv,.xlsx,.tsv,.txt"
+						className="hidden"
+						onChange={(e) => setFile(e.target.files?.[0] || null)}
+					/>
+				</div>
+
+				{/* Nome do arquivo */}
+				{file && (
+					<p className="mt-2 text-sm">
+						Selected file: <strong>{file.name}</strong>
+					</p>
+				)}
+
+				{/* Ações */}
+				<div className="mt-4 flex justify-end gap-2">
+					<Button variant="outline" onClick={() => setOpen(false)}>
+						Cancel
+					</Button>
+
+					<Button
+						onClick={handleUpload}
+						disabled={!file || uploadMutation.isPending}
+					>
+						{uploadMutation.isPending ? "Uploading..." : "Upload"}
+					</Button>
+				</div>
 			</DialogContent>
 		</Dialog>
 	);
