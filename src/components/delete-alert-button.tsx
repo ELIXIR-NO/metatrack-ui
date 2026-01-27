@@ -17,16 +17,12 @@ import { toast } from "sonner";
 
 interface DeleteAlertButtonProps {
 	projectId: string;
-	studyId: string;
-	assayId: string;
 	item: { id: string } | { id: string }[]; // aceita 1 ou várias rows
 	onDeleted?: (deletedIds: string[]) => void;
 }
 
 export const DeleteAlertButton = ({
 	projectId,
-	studyId,
-	assayId,
 	item,
 	onDeleted,
 }: DeleteAlertButtonProps) => {
@@ -38,8 +34,6 @@ export const DeleteAlertButton = ({
 		try {
 			const { success, failed } = await deleteSelectedSamples(
 				projectId,
-				studyId,
-				assayId,
 				itemsToDelete
 			);
 
@@ -56,7 +50,7 @@ export const DeleteAlertButton = ({
 					},
 				});
 				queryClient.invalidateQueries({
-					queryKey: ["samples", projectId, studyId, assayId],
+					queryKey: ["samples", projectId],
 				});
 			}
 
