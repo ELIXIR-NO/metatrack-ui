@@ -1,16 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import StatCardGrid from "@/components/cards/stat-card-grid";
-import { statCards } from "@/lib/data/statCards";
 import { ThemeImage } from "@/components/theme-image";
 import QuickStart from "@/components/quick-start";
 import { motion } from "framer-motion";
 import { ChartAreaHomePage } from "@/components/dashboard/chart-area-home-page";
+import { useDashboardStats } from "@/lib/data/statCards";
 
 export const Route = createFileRoute("/")({
 	component: Index,
 });
 
 function Index() {
+	const { data: statCards = [], isLoading } = useDashboardStats();
+
+	if (isLoading) {
+		return <div className="p-6">Loading…</div>;
+	}
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 30 }}
