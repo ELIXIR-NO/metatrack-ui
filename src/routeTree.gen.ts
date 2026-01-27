@@ -18,8 +18,6 @@ import { Route as AboutImport } from './routes/about'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
-import { Route as AccountRegisterImport } from './routes/account/register'
-import { Route as AccountLoginImport } from './routes/account/login'
 import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projects/index'
 import { Route as DashboardProjectsProjectIdImport } from './routes/dashboard/projects/$projectId'
 
@@ -65,18 +63,6 @@ const DashboardIndexRoute = DashboardIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
-} as any)
-
-const AccountRegisterRoute = AccountRegisterImport.update({
-  id: '/account/register',
-  path: '/account/register',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AccountLoginRoute = AccountLoginImport.update({
-  id: '/account/login',
-  path: '/account/login',
-  getParentRoute: () => rootRoute,
 } as any)
 
 const DashboardProjectsIndexRoute = DashboardProjectsIndexImport.update({
@@ -139,20 +125,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesImport
       parentRoute: typeof rootRoute
     }
-    '/account/login': {
-      id: '/account/login'
-      path: '/account/login'
-      fullPath: '/account/login'
-      preLoaderRoute: typeof AccountLoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/account/register': {
-      id: '/account/register'
-      path: '/account/register'
-      fullPath: '/account/register'
-      preLoaderRoute: typeof AccountRegisterImport
-      parentRoute: typeof rootRoute
-    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/'
@@ -202,8 +174,6 @@ export interface FileRoutesByFullPath {
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
-  '/account/login': typeof AccountLoginRoute
-  '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
@@ -215,8 +185,6 @@ export interface FileRoutesByTo {
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
-  '/account/login': typeof AccountLoginRoute
-  '/account/register': typeof AccountRegisterRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
@@ -230,8 +198,6 @@ export interface FileRoutesById {
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
-  '/account/login': typeof AccountLoginRoute
-  '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects/': typeof DashboardProjectsIndexRoute
@@ -246,8 +212,6 @@ export interface FileRouteTypes {
     | '/get-started'
     | '/public-data'
     | '/resources'
-    | '/account/login'
-    | '/account/register'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
@@ -258,8 +222,6 @@ export interface FileRouteTypes {
     | '/get-started'
     | '/public-data'
     | '/resources'
-    | '/account/login'
-    | '/account/register'
     | '/dashboard'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
@@ -271,8 +233,6 @@ export interface FileRouteTypes {
     | '/get-started'
     | '/public-data'
     | '/resources'
-    | '/account/login'
-    | '/account/register'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects/'
@@ -286,8 +246,6 @@ export interface RootRouteChildren {
   GetStartedRoute: typeof GetStartedRoute
   PublicDataRoute: typeof PublicDataRoute
   ResourcesRoute: typeof ResourcesRoute
-  AccountLoginRoute: typeof AccountLoginRoute
-  AccountRegisterRoute: typeof AccountRegisterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -297,8 +255,6 @@ const rootRouteChildren: RootRouteChildren = {
   GetStartedRoute: GetStartedRoute,
   PublicDataRoute: PublicDataRoute,
   ResourcesRoute: ResourcesRoute,
-  AccountLoginRoute: AccountLoginRoute,
-  AccountRegisterRoute: AccountRegisterRoute,
 }
 
 export const routeTree = rootRoute
@@ -316,9 +272,7 @@ export const routeTree = rootRoute
         "/about",
         "/get-started",
         "/public-data",
-        "/resources",
-        "/account/login",
-        "/account/register"
+        "/resources"
       ]
     },
     "/": {
@@ -343,12 +297,6 @@ export const routeTree = rootRoute
     },
     "/resources": {
       "filePath": "resources.tsx"
-    },
-    "/account/login": {
-      "filePath": "account/login.tsx"
-    },
-    "/account/register": {
-      "filePath": "account/register.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
