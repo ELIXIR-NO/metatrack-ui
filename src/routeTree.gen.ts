@@ -11,6 +11,9 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ResourcesImport } from './routes/resources'
+import { Route as PublicDataImport } from './routes/public-data'
+import { Route as GetStartedImport } from './routes/get-started'
 import { Route as AboutImport } from './routes/about'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
@@ -21,6 +24,24 @@ import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projec
 import { Route as DashboardProjectsProjectIdImport } from './routes/dashboard/projects/$projectId'
 
 // Create/Update Routes
+
+const ResourcesRoute = ResourcesImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PublicDataRoute = PublicDataImport.update({
+  id: '/public-data',
+  path: '/public-data',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GetStartedRoute = GetStartedImport.update({
+  id: '/get-started',
+  path: '/get-started',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AboutRoute = AboutImport.update({
   id: '/about',
@@ -97,6 +118,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/get-started': {
+      id: '/get-started'
+      path: '/get-started'
+      fullPath: '/get-started'
+      preLoaderRoute: typeof GetStartedImport
+      parentRoute: typeof rootRoute
+    }
+    '/public-data': {
+      id: '/public-data'
+      path: '/public-data'
+      fullPath: '/public-data'
+      preLoaderRoute: typeof PublicDataImport
+      parentRoute: typeof rootRoute
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesImport
+      parentRoute: typeof rootRoute
+    }
     '/account/login': {
       id: '/account/login'
       path: '/account/login'
@@ -157,6 +199,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/get-started': typeof GetStartedRoute
+  '/public-data': typeof PublicDataRoute
+  '/resources': typeof ResourcesRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -167,6 +212,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/get-started': typeof GetStartedRoute
+  '/public-data': typeof PublicDataRoute
+  '/resources': typeof ResourcesRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -179,6 +227,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/get-started': typeof GetStartedRoute
+  '/public-data': typeof PublicDataRoute
+  '/resources': typeof ResourcesRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -192,6 +243,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/get-started'
+    | '/public-data'
+    | '/resources'
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
@@ -201,6 +255,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/get-started'
+    | '/public-data'
+    | '/resources'
     | '/account/login'
     | '/account/register'
     | '/dashboard'
@@ -211,6 +268,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/get-started'
+    | '/public-data'
+    | '/resources'
     | '/account/login'
     | '/account/register'
     | '/dashboard/'
@@ -223,6 +283,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  GetStartedRoute: typeof GetStartedRoute
+  PublicDataRoute: typeof PublicDataRoute
+  ResourcesRoute: typeof ResourcesRoute
   AccountLoginRoute: typeof AccountLoginRoute
   AccountRegisterRoute: typeof AccountRegisterRoute
 }
@@ -231,6 +294,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  GetStartedRoute: GetStartedRoute,
+  PublicDataRoute: PublicDataRoute,
+  ResourcesRoute: ResourcesRoute,
   AccountLoginRoute: AccountLoginRoute,
   AccountRegisterRoute: AccountRegisterRoute,
 }
@@ -248,6 +314,9 @@ export const routeTree = rootRoute
         "/",
         "/dashboard",
         "/about",
+        "/get-started",
+        "/public-data",
+        "/resources",
         "/account/login",
         "/account/register"
       ]
@@ -265,6 +334,15 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.tsx"
+    },
+    "/get-started": {
+      "filePath": "get-started.tsx"
+    },
+    "/public-data": {
+      "filePath": "public-data.tsx"
+    },
+    "/resources": {
+      "filePath": "resources.tsx"
     },
     "/account/login": {
       "filePath": "account/login.tsx"
