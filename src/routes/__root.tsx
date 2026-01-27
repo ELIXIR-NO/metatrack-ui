@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { NavBarMobile } from "@/components/nav-bar/nav-bar-mobile";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { AuthProvider } from "@/providers/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/providers/auth-provider";
 
 const queryClient = new QueryClient();
 
@@ -17,23 +17,21 @@ export const Route = createRootRoute({
 		<>
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-					<AuthProvider>
-						<header>
-							<div className="lg:hidden">
-								<NavBarMobile />
-							</div>
-							<div className="hidden pb-35 lg:flex">
-								<NavBar />
-							</div>
-						</header>
-						<main className="mx-auto">
-							<Outlet />
-							<Toaster position="top-center" />
-						</main>
-						<Footer />
-						<TanStackRouterDevtools />
-						<ReactQueryDevtools initialIsOpen={false} />
-					</AuthProvider>
+					<header>
+						<div className="lg:hidden">
+							<NavBarMobile />
+						</div>
+						<div className="hidden lg:flex">
+							<NavBar />
+						</div>
+					</header>
+					<main className="mx-auto">
+						<Outlet />
+						<Toaster position="top-center" />
+					</main>
+					<Footer />
+					<TanStackRouterDevtools />
+					<ReactQueryDevtools initialIsOpen={false} />
 				</ThemeProvider>
 			</QueryClientProvider>
 		</>
