@@ -49,15 +49,21 @@ import {
 } from "../ui/drawer";
 import { Label } from "../ui/label";
 import { useState } from "react";
-import { batchEditSamples, updateSample } from "@/lib/api-client";
+import { updateSample } from "@/lib/api-client";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { Assay, Project, Sample, Study } from "@/lib/types";
-import { NON_EDITABLE_COLUMNS } from "@/lib/utils";
+import { Project, Sample } from "@/lib/types";
+import {
+	NON_EDITABLE_COLUMNS,
+	NON_VIEWED_COLUMNS,
+	QUICK_EDIT_LIMIT,
+} from "@/lib/utils";
 import { ProjectTree } from "../projectTree";
 import { buildProjectTree } from "@/lib/projectTree";
+import { UploadDataDialog } from "./upload-data";
+import { batchEditSamples } from "@/lib/api-keycloak";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -69,8 +75,6 @@ interface DataTableProps<T extends object> {
 	showAddButton?: React.ReactNode;
 	filterPlaceholder?: string;
 	project?: Project;
-	studies?: Study;
-	assays?: Assay;
 }
 
 export function DataTable<T extends object>({
@@ -81,8 +85,6 @@ export function DataTable<T extends object>({
 	onDelete,
 	showAddButton,
 	project,
-	studies,
-	assays,
 	filterPlaceholder = "Filter...",
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -101,13 +103,18 @@ export function DataTable<T extends object>({
 		if (data.length === 0) return [];
 
 		return (Object.keys(data[0]) as Array<keyof T>).map((key) => ({
+			id: String(key),
 			accessorKey: key,
+			enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
 			header: (props) => (
 				<DataTableColumnHeader
 					column={props.column}
 					title={String(key).charAt(0).toUpperCase() + String(key).slice(1)}
 				/>
 			),
+			meta: {
+				label: String(key),
+			},
 		}));
 	}, [columns, data]);
 
@@ -115,11 +122,6 @@ export function DataTable<T extends object>({
 		if (autoColumns.length === 0) return [];
 
 		if (initialColumnOrder.length === 0) {
-			setInitialColumnOrder(
-				autoColumns
-					.map((col) => col.id)
-					.filter((id): id is string => Boolean(id))
-			);
 			return autoColumns;
 		}
 
@@ -166,18 +168,20 @@ export function DataTable<T extends object>({
 										<TableCellViewer
 											item={row.original as Sample}
 											projectId={project?.id!}
-											studyId={studies?.id!}
-											assayId={assays?.id!}
 											onUpdated={() => {
 												if (onEdit) onEdit(row.original);
 											}}
 										/>
 									)}
+
+									<UploadDataDialog projectId={project?.id!} />
+									<Button className="" variant={"ghost"}>
+										<Download />
+										Download Data
+									</Button>
 									{onDelete && (
 										<DeleteAlertButton
 											projectId={project?.id!}
-											studyId={studies?.id!}
-											assayId={assays?.id!}
 											item={row.original as { id: string }[]}
 											onDeleted={() => table.resetRowSelection()}
 										/>
@@ -196,17 +200,18 @@ export function DataTable<T extends object>({
 
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
-			sample_alias: true,
-			study_accession: true,
-			instrument_model: true,
-			library_strategy: true,
-			library_layout: true,
-			library_name: false,
-			library_source: false,
-			library_selection: false,
-			insert_size: false,
-			forward_file_name: false,
-			reverse_file_name: false,
+			alias: true,
+			taxId: true,
+			mlst: true,
+			isolationSource: true,
+			collectionDate: true,
+			geoLocation: false,
+			sequencingLab: false,
+			institution: false,
+			hostHealthState: false,
+			createdOn: false,
+			lastUpdatedOn: false,
+			id: false,
 		});
 
 	const table = useReactTable({
@@ -229,6 +234,13 @@ export function DataTable<T extends object>({
 		enableRowSelection: true,
 		onColumnVisibilityChange: setColumnVisibility,
 	});
+
+	table
+		.getAllColumns()
+		.filter(
+			(column) =>
+				!column.getCanHide() && !NON_VIEWED_COLUMNS.includes(column.id)
+		);
 
 	const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
 	const prepareTableDataForDownload = (table: any) => {
@@ -267,78 +279,47 @@ export function DataTable<T extends object>({
 
 		try {
 			const sampleData = selectedRows.map((row: any) => {
-				console.log("row: ", row);
-				const updateSampleRequest = {
-					name: row.name,
-					rawAttributes: row.rawAttributes.map((attr: any) =>
-						attr.name === colName.toLowerCase()
-							? { attributeName: attr.name, value, unit: attr.unit ?? "" }
-							: {
-									attributeName: attr.name,
-									value: attr.value,
-									unit: attr.unit ?? "",
-								}
-					),
-				};
-
 				return {
-					id: row.id,
-					updateSampleRequest,
+					name: row.name,
+					alias: row.alias,
+					taxId: row.taxId,
+					hostTaxId: row.hostTaxId,
+					mlst: row.mlst,
+					isolationSource: row.isolationSource,
+					collectionDate: row.collectionDate,
+					location: row.location,
+					sequencingLab: row.sequencingLab,
+					institution: row.institution,
+					hostHealthState: row.hostHealthState,
+
+					[colName]: value,
 				};
 			});
 
-			const updated = await batchEditSamples(
-				project?.id!,
-				studies?.id!,
-				assays?.id!,
-				{
-					sampleData,
-				}
-			);
+			console.log("sampleData:", sampleData);
 
-			toast.success("Samples have been updated", {
-				description: `${formattedDate}.`,
-				action: {
-					label: "Undo",
-					onClick: () => console.log("Undo batch update"),
-				},
-			});
+			await batchEditSamples(project?.id!, { sampleData });
+
+			toast.success("Samples have been updated");
 
 			queryClient.invalidateQueries({
-				queryKey: ["samples", project?.id!, studies?.id!, assays?.id!],
+				queryKey: ["samples", project!.id],
 			});
-
-			if (onEdit) {
-				if (updated?.samples) {
-					updated.samples.forEach((s: T) => onEdit(s));
-				} else {
-					selectedRows.forEach((row: T) => onEdit(row));
-				}
-			}
 		} catch (err: any) {
-			console.error("Error to batch update samples:", err);
-			const message = err?.message || "Error to batch update samples";
-
-			toast.error(message, {
-				action: {
-					label: "Retry",
-					onClick: () => handleBatchUpdate(colName, value),
-				},
-			});
+			toast.error(err?.message ?? "Error updating samples");
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const studyArray = studies ? [studies] : [];
-	const assayArray = assays ? [assays] : [];
+	const treeData = buildProjectTree(project!, selectedRows as any);
 
-	const treeData = buildProjectTree(
-		project!,
-		studyArray,
-		assayArray,
-		selectedRows as any
+	const editableColumns = autoColumns.filter(
+		(col) => !NON_EDITABLE_COLUMNS.includes(String(col.header))
 	);
+
+	const quickEditColumns = editableColumns.slice(0, QUICK_EDIT_LIMIT);
+	const moreEditColumns = editableColumns.slice(QUICK_EDIT_LIMIT);
 
 	return (
 		<div className="space-y-4">
@@ -369,7 +350,7 @@ export function DataTable<T extends object>({
 						</div>
 
 						<Separator orientation="vertical" />
-						{autoColumns.slice(1, 4).map((col) => (
+						{quickEditColumns.map((col) => (
 							<>
 								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
@@ -388,8 +369,9 @@ export function DataTable<T extends object>({
 														e.preventDefault();
 														const form = e.currentTarget.form;
 														if (form) {
-															const formData = new FormData(form);
-															const value = formData.get("field") as string;
+															const value = new FormData(form).get(
+																"field"
+															) as string;
 															handleBatchUpdate(String(col.header), value);
 														}
 													}
@@ -401,6 +383,7 @@ export function DataTable<T extends object>({
 								<Separator orientation="vertical" />
 							</>
 						))}
+
 						<Tooltip>
 							<TooltipTrigger asChild>
 								<Button
@@ -447,14 +430,11 @@ export function DataTable<T extends object>({
 
 								<DropdownMenuSeparator />
 
-								{autoColumns.slice(4).map((col) => (
+								{moreEditColumns.map((col) => (
 									<DropdownMenuItem key={String(col.header)} asChild>
 										<Popover>
 											<PopoverTrigger asChild>
-												<Button
-													variant="ghost"
-													className="flex flex-col justify-start"
-												>
+												<Button variant="ghost" className="flex justify-start">
 													{String(col.header)}
 												</Button>
 											</PopoverTrigger>
@@ -468,8 +448,9 @@ export function DataTable<T extends object>({
 															e.preventDefault();
 															const form = e.currentTarget.form;
 															if (form) {
-																const formData = new FormData(form);
-																const value = formData.get("field") as string;
+																const value = new FormData(form).get(
+																	"field"
+																) as string;
 																handleBatchUpdate(String(col.header), value);
 															}
 														}
@@ -486,8 +467,6 @@ export function DataTable<T extends object>({
 								{/* Delete */}
 								<DeleteAlertButton
 									projectId={project?.id!}
-									studyId={studies?.id!}
-									assayId={assays?.id!}
 									item={selectedRows as { id: string }[]}
 									onDeleted={() => table.resetRowSelection()}
 								/>
@@ -579,14 +558,10 @@ export function DataTable<T extends object>({
 function TableCellViewer({
 	item,
 	projectId,
-	studyId,
-	assayId,
 	onUpdated,
 }: {
 	item: Sample;
 	projectId: string;
-	studyId: string;
-	assayId: string;
 	onUpdated?: () => void;
 }) {
 	const [loading, setLoading] = useState(false);
@@ -604,18 +579,23 @@ function TableCellViewer({
 			const formData = new FormData(e.currentTarget);
 			const updateData: any = { rawAttributes: [] };
 
-			updateData.name = item.name;
+			updateData.name = item.alias;
 
-			item.rawAttributes.forEach((attr: any) => {
-				const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
+			Object.keys(item)
+				.filter(
+					(field) => !NON_EDITABLE_COLUMNS.includes(field) && field !== "id"
+				)
+				.map((attr: any) => {
+					console.log("attr:", attr);
+					const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
 
-				updateData.rawAttributes.push({
-					id: attr.id,
-					attributeName: attr.name,
-					value: newValue,
-					units: attr.units ?? null,
+					updateData.rawAttributes.push({
+						id: attr.id,
+						attributeName: attr.name,
+						value: newValue,
+						units: attr.units ?? null,
+					});
 				});
-			});
 
 			if (updateData.name || updateData.rawAttributes.length > 0) {
 				console.log("Payload sended:", {
@@ -624,11 +604,9 @@ function TableCellViewer({
 				});
 				console.log("Payload sended:", {
 					projectId: projectId,
-					studyId: studyId,
-					assayId: assayId,
 					itemId: item.id,
 				});
-				await updateSample(projectId, studyId, assayId, item.id, updateData);
+				await updateSample(projectId, item.id, updateData);
 
 				toast.success("Sample has been updated", {
 					description: `${formattedDate}.`,
@@ -639,7 +617,7 @@ function TableCellViewer({
 				});
 
 				queryClient.invalidateQueries({
-					queryKey: ["samples", projectId, studyId, assayId],
+					queryKey: ["samples", projectId],
 				});
 
 				if (onUpdated) onUpdated();
@@ -674,7 +652,7 @@ function TableCellViewer({
 			</DrawerTrigger>
 			<DrawerContent aria-describedby={undefined}>
 				<DrawerHeader className="gap-1">
-					<DrawerTitle className="text-xl">Edit {item.name}</DrawerTitle>
+					<DrawerTitle className="text-xl">Edit {item.alias}</DrawerTitle>
 				</DrawerHeader>
 
 				<div className="flex-1 overflow-y-auto px-4">
@@ -683,17 +661,21 @@ function TableCellViewer({
 						onSubmit={handleSubmit}
 						className="flex flex-col gap-4"
 					>
-						{item.rawAttributes.map((attr: any) => (
-							<div key={attr.id} className="flex flex-col gap-3">
-								<Label htmlFor={attr.name}>{attr.name}</Label>
-								<Input
-									id={attr.name}
-									name={`rawAttributes.${attr.id}`}
-									defaultValue={attr.value}
-									disabled={NON_EDITABLE_COLUMNS.includes(attr.name)}
-								/>
-							</div>
-						))}
+						{Object.keys(item)
+							.filter(
+								(field) =>
+									!NON_EDITABLE_COLUMNS.includes(field) && field !== "id"
+							)
+							.map((field) => (
+								<div key={field} className="flex flex-col gap-3">
+									<Label htmlFor={field}>{field}</Label>
+									<Input
+										id={field}
+										name={field}
+										defaultValue={String(item[field as keyof Sample])}
+									/>
+								</div>
+							))}
 					</form>
 				</div>
 
