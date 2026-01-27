@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-	IconInnerShadowTop,
 	IconSettings,
 	IconBackpack,
 	IconInfoCircle,
@@ -10,6 +9,7 @@ import {
 	IconUpload,
 	IconDownload,
 	IconSubtask,
+	IconUserSquare,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -50,7 +50,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 							},
 						]
 					: projects.map((p: any) => ({
-							title: p.title,
+							title: p.name,
 							url: `/dashboard/projects/${p.id}`,
 						})),
 			},
@@ -92,16 +92,17 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 	};
 
 	return (
-		<Sidebar collapsible="offcanvas" {...props}>
+		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
+							tooltip="Home"
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<a href="/dashboard">
-								<IconInnerShadowTop className="!size-5" />
+								<IconUserSquare className="!size-6" />
 								<span className="text-base font-semibold">{user}</span>
 							</a>
 						</SidebarMenuButton>
