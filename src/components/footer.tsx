@@ -1,17 +1,24 @@
 import { Link } from "@tanstack/react-router";
 import { CreativeCommons } from "lucide-react";
 import { LogosModeToggle } from "./logos-mode-toggle";
+import { Sigma2Logo } from "./logos-sigma2-toggle";
 
 export default function Footer() {
 	return (
 		<footer className="bg-background text-foreground mt-8 w-full">
 			<hr />
 			<div className="container mx-auto w-3/4 px-4 py-8">
-				<div className="flex flex-wrap items-center justify-center gap-6">
+				<div className="flex flex-wrap items-center justify-center gap-24">
 					<a href="https://elixir.no" className="hover:underline">
 						<LogosModeToggle />
 					</a>
-					<a href="https://uit.no" className="hover:underline"></a>
+					<a
+						href="https://www.sigma2.no"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<Sigma2Logo />
+					</a>
 				</div>
 
 				<div className="mt-8 flex items-center justify-center gap-8 border-t pt-6">

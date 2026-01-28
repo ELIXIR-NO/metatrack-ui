@@ -31,7 +31,7 @@ export function LogosModeToggle({
 			alt="Logo of ELIXIR Norway"
 			width={width}
 			height={height}
-			className={cn("hover:ring-primary hover:ring-2", className)}
+			className={cn("opacity-90 transition hover:opacity-100", className)}
 		/>
 	);
 }
