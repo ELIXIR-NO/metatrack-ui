@@ -1,7 +1,8 @@
 import { keycloak } from "./keycloak";
 import { CreateSample, Project, Sample } from "./types";
+import { API_URL } from "./config";
 
-const API_URL = "/api";
+//const API_URL = "/api";
 
 export async function api<T = unknown>(
 	endpoint: string,
