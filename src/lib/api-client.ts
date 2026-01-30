@@ -110,7 +110,7 @@ export async function uploadSampleFileNew(investigationId: string, file: File) {
 	);
 
 	if (!response.ok) {
-		const text = await response.text(); // pega mensagem do backend
+		const text = await response.text();
 		console.error("Upload failed:", text);
 		throw new Error("Error uploading sample file.");
 	}

@@ -19,13 +19,13 @@ export default defineConfig({
 	server: {
 		proxy: {
 			"/keycloak": {
-				target: "https://keycloak.elixir-uit.sigma2.no/",
+				target: "https://auth.metatrack.no",
 				changeOrigin: true,
 				secure: true,
 				rewrite: (path) => path.replace(/^\/keycloak/, ""),
 			},
 			"/api": {
-				target: "https://api.elixir-uit.sigma2.no",
+				target: "https://api.metatrack.no",
 				changeOrigin: true,
 				secure: true,
 				rewrite: (path) => path.replace(/^\/api/, "/api"),
