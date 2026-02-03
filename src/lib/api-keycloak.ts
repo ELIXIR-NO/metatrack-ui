@@ -74,6 +74,11 @@ export async function getProjectsPublic() {
 	return apiPublic<Project[]>("projects");
 }
 
+export async function getProjectsByUser() {
+	console.log("chamou aqui");
+	return api<Project[]>("projects/me");
+}
+
 export async function createSample(
 	data: CreateSample,
 	projectId: string

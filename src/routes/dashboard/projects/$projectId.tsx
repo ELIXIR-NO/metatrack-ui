@@ -6,13 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiteHeader } from "@/components/dashboard/site-header";
 
-import { getInvestigationsByUserId, getSamplesNew } from "@/lib/api-client";
+import { getSamplesNew } from "@/lib/api-client";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
 import { Project, Sample } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
+import { getProjectsByUser } from "@/lib/api-keycloak";
 
 export const Route = createFileRoute("/dashboard/projects/$projectId")({
 	component: RouteComponent,
@@ -27,7 +28,7 @@ export function RouteComponent() {
 		error: projectError,
 	} = useQuery<Project[]>({
 		queryKey: ["projects"],
-		queryFn: () => getInvestigationsByUserId(),
+		queryFn: () => getProjectsByUser(),
 	});
 
 	const project = projects?.find((p) => String(p.id) === projectId);

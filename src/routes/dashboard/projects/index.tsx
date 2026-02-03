@@ -1,10 +1,10 @@
 import { SiteHeader } from "@/components/dashboard/site-header";
-import { getInvestigationsByUserId } from "@/lib/api-client";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProjectsDataTable } from "@/components/dashboard/project-card";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
+import { getProjectsByUser } from "@/lib/api-keycloak";
 
 export const Route = createFileRoute("/dashboard/projects/")({
 	component: RouteComponent,
@@ -16,7 +16,7 @@ function RouteComponent() {
 
 	const { data: projects = [], isLoading } = useQuery({
 		queryKey: ["projects"],
-		queryFn: getInvestigationsByUserId,
+		queryFn: getProjectsByUser,
 	});
 
 	const handleEdit = (project: any) => {

@@ -23,7 +23,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { getInvestigationsByUserId } from "@/lib/api-client";
+import { getProjectsByUser } from "@/lib/api-keycloak";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	user: string | undefined;
@@ -32,7 +32,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
 	const { data: projects = [], isLoading } = useQuery({
 		queryKey: ["projects"],
-		queryFn: getInvestigationsByUserId,
+		queryFn: getProjectsByUser,
 		enabled: !!user,
 	});
 
