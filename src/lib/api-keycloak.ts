@@ -1,5 +1,5 @@
 import { keycloak } from "./keycloak";
-import { CreateSample, Project, Sample } from "./types";
+import { CreateSample, Project, Sample, StatisticsResponse } from "./types";
 import { API_URL } from "./config";
 
 //const API_URL = "/api";
@@ -111,4 +111,8 @@ export async function batchEditSamples(
 		method: "PATCH",
 		body: JSON.stringify(data),
 	});
+}
+
+export async function getStatistics() {
+	return apiPublic<StatisticsResponse>("statistics");
 }

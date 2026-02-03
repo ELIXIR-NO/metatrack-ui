@@ -34,3 +34,10 @@ export interface Project {
 	name: string;
 	description?: string;
 }
+
+export interface StatisticsResponse {
+	projectCount: number;
+	sampleCount: number;
+	assayCount: number;
+	lastUpdated: string;
+}
