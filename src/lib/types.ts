@@ -41,3 +41,13 @@ export interface StatisticsResponse {
 	assayCount: number;
 	lastUpdated: string;
 }
+
+export interface PresignUploadRequest {
+	projectId: number;
+	sampleName: string;
+	file: File;
+}
+
+export interface PresignUploadResponse {
+	uploadUrl: string;
+}

@@ -1,5 +1,12 @@
 import { keycloak } from "./keycloak";
-import { CreateSample, Project, Sample, StatisticsResponse } from "./types";
+import {
+	CreateSample,
+	PresignUploadRequest,
+	PresignUploadResponse,
+	Project,
+	Sample,
+	StatisticsResponse,
+} from "./types";
 import { API_URL } from "./config";
 
 //const API_URL = "/api";
@@ -115,4 +122,31 @@ export async function batchEditSamples(
 
 export async function getStatistics() {
 	return apiPublic<StatisticsResponse>("statistics");
+}
+
+export async function requestPresignedUpload(
+	data: PresignUploadRequest
+): Promise<PresignUploadResponse> {
+	return api<PresignUploadResponse>("/api/files/presign-upload", {
+		method: "POST",
+		body: JSON.stringify({
+			projectId: data.projectId,
+			sampleName: data.sampleName,
+			fileName: data.file.name,
+		}),
+	});
+}
+
+export async function uploadFastaFile(
+	uploadUrl: string,
+	file: File
+): Promise<void> {
+	const res = await fetch(uploadUrl, {
+		method: "PUT",
+		body: file,
+	});
+
+	if (!res.ok) {
+		throw new Error("Error uploading file to storage");
+	}
 }

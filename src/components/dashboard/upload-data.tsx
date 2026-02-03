@@ -9,11 +9,11 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { uploadSampleFileNew } from "@/lib/api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { HardDriveUpload } from "lucide-react";
+import { requestPresignedUpload, uploadFastaFile } from "@/lib/api-keycloak";
 
 interface UploadSampleDialogProps {
 	projectId: string;
@@ -32,36 +32,29 @@ export function UploadDataDialog({
 	const queryClient = useQueryClient();
 
 	const uploadMutation = useMutation({
-		mutationFn: (file: File) => uploadSampleFileNew(projectId, file),
+		mutationFn: async (file: File) => {
+			const { uploadUrl } = await requestPresignedUpload({
+				projectId: Number(projectId),
+				sampleName: file.name.replace(/\.[^/.]+$/, ""),
+				file,
+			});
+
+			await uploadFastaFile(uploadUrl, file);
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["samples", projectId, studyId, assayId],
 			});
 
-			const now = new Date();
-			const formattedDate = now.toLocaleString();
-
 			toast.success("Upload completed successfully", {
-				description: `${formattedDate}.`,
-				action: {
-					label: "Undo",
-					onClick: () => console.log("Undo"),
-				},
+				description: new Date().toLocaleString(),
 			});
+
 			setFile(null);
 			setOpen(false);
 		},
 		onError: (error: any) => {
-			console.error(error);
-			const message =
-				error?.response?.data?.message || error?.message || "Uploading error";
-
-			toast.error(message, {
-				action: {
-					label: "Undo",
-					onClick: () => console.log("Undo"),
-				},
-			});
+			toast.error(error?.message || "Upload failed");
 		},
 	});
 
