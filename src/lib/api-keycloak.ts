@@ -20,20 +20,23 @@ export async function api<T = unknown>(
 	const res = await fetch(`${API_URL}/${endpoint}`, {
 		...options,
 		headers: {
-			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
 			...options.headers,
 		},
 	});
 
 	if (!res.ok) {
+		const text = await res.text();
 		let message = "API error";
+
 		try {
-			const data = await res.json();
+			const data = JSON.parse(text);
 			message = data?.message ?? message;
 		} catch {
-			message = await res.text();
+			message = text || message;
 		}
+
 		throw new Error(message);
 	}
 
