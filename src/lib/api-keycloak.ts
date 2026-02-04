@@ -127,7 +127,7 @@ export async function getStatistics() {
 export async function requestPresignedUpload(
 	data: PresignUploadRequest
 ): Promise<PresignUploadResponse> {
-	return api<PresignUploadResponse>("/api/files/presign-upload", {
+	return api<PresignUploadResponse>("files/presign-upload", {
 		method: "POST",
 		body: JSON.stringify({
 			projectId: data.projectId,
