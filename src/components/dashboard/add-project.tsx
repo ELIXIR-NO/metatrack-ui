@@ -32,7 +32,7 @@ export function AddProjectDialog() {
 		mutationFn: createInvestigation,
 		onSuccess: (newProject) => {
 			queryClient.setQueryData(["projects"], (old: any[] = []) => [
-				newProject.project,
+				newProject,
 				...old,
 			]);
 
