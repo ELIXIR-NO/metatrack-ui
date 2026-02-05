@@ -49,5 +49,8 @@ export interface PresignUploadRequest {
 }
 
 export interface PresignUploadResponse {
-	uploadUrl: string;
+	url: string;
+	objectKey: string;
+	expiresIn: number;
+	expiresAt: string;
 }

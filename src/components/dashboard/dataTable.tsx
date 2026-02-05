@@ -170,7 +170,10 @@ export function DataTable<T extends object>({
 										/>
 									)}
 
-									<UploadDataDialog projectId={project?.id!} />
+									<UploadDataDialog
+										projectId={project?.id!}
+										sampleName={(row.original as Sample).name}
+									/>
 									<Button className="" variant={"ghost"}>
 										<Download />
 										Download Data
@@ -291,8 +294,6 @@ export function DataTable<T extends object>({
 					[colName]: value,
 				};
 			});
-
-			console.log("sampleData:", sampleData);
 
 			await batchEditSamples(project?.id!, { sampleData });
 
@@ -464,6 +465,7 @@ export function DataTable<T extends object>({
 								<DeleteAlertButton
 									projectId={project?.id!}
 									item={selectedRows as { id: string }[]}
+									entityName="sample"
 									onDeleted={() => table.resetRowSelection()}
 								/>
 							</DropdownMenuContent>
@@ -582,7 +584,6 @@ function TableCellViewer({
 					(field) => !NON_EDITABLE_COLUMNS.includes(field) && field !== "id"
 				)
 				.map((attr: any) => {
-					console.log("attr:", attr);
 					const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
 
 					updateData.rawAttributes.push({
@@ -594,14 +595,6 @@ function TableCellViewer({
 				});
 
 			if (updateData.name || updateData.rawAttributes.length > 0) {
-				console.log("Payload sended:", {
-					name: updateData.name,
-					rawAttributes: updateData.rawAttributes,
-				});
-				console.log("Payload sended:", {
-					projectId: projectId,
-					itemId: item.id,
-				});
 				await updateSample(projectId, item.id, updateData);
 
 				toast.success("Sample has been updated", {

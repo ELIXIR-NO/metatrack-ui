@@ -17,12 +17,14 @@ import { requestPresignedUpload, uploadFastaFile } from "@/lib/api-keycloak";
 
 interface UploadSampleDialogProps {
 	projectId: string;
+	sampleName: string;
 	studyId?: string;
 	assayId?: string;
 }
 
 export function UploadDataDialog({
 	projectId,
+	sampleName,
 	studyId,
 	assayId,
 }: UploadSampleDialogProps) {
@@ -33,13 +35,13 @@ export function UploadDataDialog({
 
 	const uploadMutation = useMutation({
 		mutationFn: async (file: File) => {
-			const { uploadUrl } = await requestPresignedUpload({
+			const { url } = await requestPresignedUpload({
 				projectId: Number(projectId),
-				sampleName: file.name.replace(/\.[^/.]+$/, ""),
+				sampleName,
 				file,
 			});
 
-			await uploadFastaFile(uploadUrl, file);
+			await uploadFastaFile(url, file);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
