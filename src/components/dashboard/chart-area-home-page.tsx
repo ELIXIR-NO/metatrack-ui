@@ -25,86 +25,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useSampleStats } from "@/hooks/useSampleStats";
 
 export const description = "An interactive area chart";
-
-const chartData = [
-	{ date: "2025-08-01", sample: 15 },
-	{ date: "2025-08-02", sample: 18 },
-	{ date: "2025-08-03", sample: 12 },
-	{ date: "2025-08-04", sample: 26 },
-	{ date: "2025-08-05", sample: 29 },
-	{ date: "2025-08-06", sample: 34 },
-	{ date: "2025-08-07", sample: 18 },
-	{ date: "2025-08-08", sample: 32 },
-	{ date: "2025-08-09", sample: 11 },
-	{ date: "2025-08-10", sample: 19 },
-	{ date: "2025-08-11", sample: 35 },
-	{ date: "2025-08-12", sample: 21 },
-	{ date: "2025-08-13", sample: 38 },
-	{ date: "2025-08-14", sample: 22 },
-	{ date: "2025-08-15", sample: 17 },
-	{ date: "2025-08-16", sample: 19 },
-	{ date: "2025-08-17", sample: 36 },
-	{ date: "2025-08-18", sample: 41 },
-	{ date: "2025-08-19", sample: 18 },
-	{ date: "2025-08-20", sample: 15 },
-	{ date: "2025-08-21", sample: 20 },
-	{ date: "2025-08-22", sample: 17 },
-	{ date: "2025-08-23", sample: 23 },
-	{ date: "2025-08-24", sample: 29 },
-	{ date: "2025-08-25", sample: 25 },
-	{ date: "2025-08-26", sample: 13 },
-	{ date: "2025-08-27", sample: 42 },
-	{ date: "2025-08-28", sample: 18 },
-	{ date: "2025-08-29", sample: 24 },
-	{ date: "2025-08-30", sample: 38 },
-	{ date: "2025-09-01", sample: 22 },
-	{ date: "2025-09-02", sample: 31 },
-	{ date: "2025-09-03", sample: 19 },
-	{ date: "2025-09-04", sample: 42 },
-	{ date: "2025-09-05", sample: 39 },
-	{ date: "2025-09-06", sample: 52 },
-	{ date: "2025-09-07", sample: 30 },
-	{ date: "2025-09-08", sample: 21 },
-	{ date: "2025-09-09", sample: 18 },
-	{ date: "2025-09-10", sample: 33 },
-	{ date: "2025-09-11", sample: 27 },
-	{ date: "2025-09-12", sample: 24 },
-	{ date: "2025-09-13", sample: 16 },
-	{ date: "2025-09-14", sample: 49 },
-	{ date: "2025-09-15", sample: 38 },
-	{ date: "2025-09-16", sample: 40 },
-	{ date: "2025-09-17", sample: 42 },
-	{ date: "2025-09-18", sample: 35 },
-	{ date: "2025-09-19", sample: 18 },
-	{ date: "2025-09-20", sample: 23 },
-	{ date: "2025-09-21", sample: 14 },
-	{ date: "2025-09-22", sample: 12 },
-	{ date: "2025-09-23", sample: 29 },
-	{ date: "2025-09-24", sample: 22 },
-	{ date: "2025-09-25", sample: 25 },
-	{ date: "2025-09-26", sample: 17 },
-	{ date: "2025-09-27", sample: 46 },
-	{ date: "2025-09-28", sample: 19 },
-	{ date: "2025-09-29", sample: 13 },
-	{ date: "2025-09-30", sample: 28 },
-	{ date: "2025-09-31", sample: 23 },
-	{ date: "2025-10-01", sample: 20 },
-	{ date: "2025-10-02", sample: 41 },
-	{ date: "2025-10-03", sample: 16 },
-	{ date: "2025-10-04", sample: 38 },
-	{ date: "2025-10-05", sample: 14 },
-	{ date: "2025-10-06", sample: 25 },
-	{ date: "2025-10-07", sample: 37 },
-	{ date: "2025-10-08", sample: 32 },
-	{ date: "2025-10-09", sample: 48 },
-	{ date: "2025-10-10", sample: 20 },
-	{ date: "2025-10-11", sample: 15 },
-	{ date: "2025-10-12", sample: 42 },
-	{ date: "2025-10-13", sample: 13 },
-	{ date: "2025-10-14", sample: 38 },
-];
 
 const chartConfig = {
 	visitors: {
@@ -119,19 +42,17 @@ const chartConfig = {
 export function ChartAreaHomePage() {
 	const [timeRange, setTimeRange] = React.useState("90d");
 
-	const filteredData = chartData.filter((item) => {
-		const date = new Date(item.date);
-		const referenceDate = new Date();
-		let daysToSubtract = 90;
-		if (timeRange === "30d") {
-			daysToSubtract = 30;
-		} else if (timeRange === "7d") {
-			daysToSubtract = 7;
-		}
-		const startDate = new Date(referenceDate);
-		startDate.setDate(startDate.getDate() - daysToSubtract);
-		return date >= startDate;
-	});
+	const { data, isLoading, error } = useSampleStats(timeRange);
+
+	if (isLoading) {
+		return (
+			<div className="flex h-[250px] items-center justify-center">Loading…</div>
+		);
+	}
+
+	if (error || !data) {
+		return <div>Error loading chart</div>;
+	}
 
 	return (
 		<Card className="@container/card">
@@ -181,7 +102,7 @@ export function ChartAreaHomePage() {
 					config={chartConfig}
 					className="aspect-auto h-[250px] w-full"
 				>
-					<AreaChart data={filteredData}>
+					<AreaChart data={data}>
 						<defs>
 							<linearGradient id="fillSample" x1="0" y1="0" x2="0" y2="1">
 								<stop
