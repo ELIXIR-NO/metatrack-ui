@@ -5,6 +5,9 @@ import { ProjectsDataTable } from "@/components/dashboard/project-card";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { getProjectsByUser } from "@/lib/api-keycloak";
+import { useState } from "react";
+import { Project } from "@/lib/types";
+import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
 
 export const Route = createFileRoute("/dashboard/projects/")({
 	component: RouteComponent,
@@ -13,14 +16,17 @@ export const Route = createFileRoute("/dashboard/projects/")({
 function RouteComponent() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
+	const [editingProject, setEditingProject] = useState<Project | null>(null);
+	const [open, setOpen] = useState(false);
 
 	const { data: projects = [], isLoading } = useQuery({
 		queryKey: ["projects"],
 		queryFn: getProjectsByUser,
 	});
 
-	const handleEdit = (project: any) => {
-		console.log("Edit", project);
+	const handleEdit = (project: Project) => {
+		setEditingProject(project);
+		setOpen(true);
 	};
 
 	const handleDelete = (project: any) => {
@@ -51,6 +57,11 @@ function RouteComponent() {
 						onOpen={handleOpen}
 						onEdit={handleEdit}
 						onDelete={handleDelete}
+					/>
+					<EditProjectDialog
+						project={editingProject}
+						open={open}
+						onOpenChange={setOpen}
 					/>
 				</div>
 			)}

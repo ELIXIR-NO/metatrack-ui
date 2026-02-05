@@ -85,7 +85,6 @@ export async function getProjectsPublic() {
 }
 
 export async function getProjectsByUser() {
-	console.log("chamou aqui");
 	return api<Project[]>("projects/me");
 }
 
@@ -152,4 +151,59 @@ export async function uploadFastaFile(
 	if (!res.ok) {
 		throw new Error("Error uploading file to storage");
 	}
+}
+
+export async function deleteProject(projectId: string): Promise<void> {
+	const token = keycloak.token;
+	const res = await fetch(`${API_URL}/projects/${projectId}`, {
+		method: "DELETE",
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+	});
+
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(text || "Failed to delete project");
+	}
+}
+
+//projects
+export async function updateProject(
+	projectId: string,
+	data: { name?: string; description?: string }
+) {
+	return api(`projects/${projectId}`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
+	});
+}
+
+export async function addProjectMember(
+	projectId: string,
+	memberId: string,
+	role: string
+) {
+	return api(`projects/${projectId}/member/${memberId}`, {
+		method: "POST",
+		body: JSON.stringify({ role }),
+	});
+}
+
+export async function updateProjectMember(
+	projectId: string,
+	memberId: string,
+	role: string
+) {
+	return api(`projects/${projectId}/member/${memberId}`, {
+		method: "PUT",
+		body: JSON.stringify({ role }),
+	});
+}
+
+export async function removeProjectMember(projectId: string, memberId: string) {
+	return api(`projects/${projectId}/member/${memberId}`, {
+		method: "DELETE",
+	});
 }

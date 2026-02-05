@@ -34,6 +34,7 @@ import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
 import { Project } from "@/lib/types";
+import { DeleteAlertButton } from "../delete-alert-button";
 
 interface DataTableProps {
 	projects: Project[];
@@ -114,8 +115,13 @@ export function ProjectsDataTable({
 								<DropdownMenuItem onClick={() => onEdit(project)}>
 									Edit
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => onDelete(project)}>
-									Delete
+								<DropdownMenuItem asChild>
+									<DeleteAlertButton
+										projectId={project?.id}
+										item={{ id: project.id! }}
+										entityName="project"
+										onDeleted={() => onDelete(project)}
+									/>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
