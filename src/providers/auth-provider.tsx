@@ -18,8 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [loading, setLoading] = useState(true);
 	const { isAuthenticated } = useContext(AuthContext);
 
-	console.log("isAuthenticated:", isAuthenticated);
-
 	useEffect(() => {
 		async function loadMe() {
 			if (!isAuthenticated) {
@@ -30,7 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 			try {
 				const me = await getMe();
-				console.log("me1:", me);
 				setUser(me);
 			} catch (err) {
 				console.error("Failed to load /me", err);

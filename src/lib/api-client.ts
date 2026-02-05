@@ -6,7 +6,6 @@ import { API_URL } from "./config";
 
 export async function createInvestigation(data: Project) {
 	const token = keycloak.token;
-	console.log("data:", data);
 
 	const response = await fetch(`${API_URL}/projects`, {
 		method: "POST",
@@ -54,8 +53,6 @@ export async function getInvestigationsByUserId(): Promise<Project[]> {
 export async function getInvestigationId(projectId: string): Promise<Project> {
 	const token = keycloak.token;
 
-	console.log("token:", token);
-
 	const response = await fetch(`${API_URL}/projects/${projectId}`, {
 		method: "GET",
 		headers: {
@@ -93,10 +90,6 @@ export async function uploadSampleFileNew(investigationId: string, file: File) {
 	const formData = new FormData();
 	formData.append("file", file);
 	const token = keycloak.token;
-
-	console.log("file:", file);
-	console.log("formData:", formData);
-	console.log("investigationId:", investigationId);
 
 	const response = await fetch(
 		`${API_URL}/projects/${investigationId}/samples/samplesheet`,
