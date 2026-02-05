@@ -14,16 +14,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import { deleteSelectedSamples } from "@/lib/api-client";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { deleteProject } from "@/lib/api-keycloak";
 
 interface DeleteAlertButtonProps {
-	projectId: string;
-	item: { id: string } | { id: string }[]; // aceita 1 ou várias rows
+	projectId?: string;
+	item: { id: string } | { id: string }[];
+	entityName?: "sample" | "project";
 	onDeleted?: (deletedIds: string[]) => void;
 }
 
 export const DeleteAlertButton = ({
 	projectId,
 	item,
+	entityName,
 	onDeleted,
 }: DeleteAlertButtonProps) => {
 	const queryClient = useQueryClient();
@@ -32,46 +35,35 @@ export const DeleteAlertButton = ({
 		const itemsToDelete = Array.isArray(item) ? item : [item];
 
 		try {
-			const { success, failed } = await deleteSelectedSamples(
-				projectId,
-				itemsToDelete
-			);
+			if (entityName === "sample") {
+				const { success, failed } = await deleteSelectedSamples(
+					projectId!,
+					itemsToDelete
+				);
 
-			const now = new Date();
-			const formattedDate = now.toLocaleString();
+				if (success.length > 0) {
+					onDeleted?.(success);
+					queryClient.invalidateQueries({ queryKey: [entityName, projectId] });
+				}
 
-			if (success.length > 0) {
-				onDeleted?.(success);
-				toast.success("Sample has been deleted", {
-					description: `${formattedDate}.`,
-					action: {
-						label: "Undo",
-						onClick: () => console.log("Undo"),
-					},
-				});
-				queryClient.invalidateQueries({
-					queryKey: ["samples", projectId],
-				});
+				if (failed.length > 0) {
+					console.error("Failed to delete:", failed);
+				}
+			} else if (entityName === "project") {
+				await deleteProject(projectId!);
+				onDeleted?.([projectId!]);
+				queryClient.invalidateQueries({ queryKey: [entityName, projectId] });
 			}
 
-			if (failed.length > 0) {
-				console.error("Failed to delete:", failed);
-				toast.error(failed, {
-					action: {
-						label: "Undo",
-						onClick: () => console.log("Undo"),
-					},
-				});
-			}
-		} catch (error: any) {
-			const message = error?.message || "Error to delete";
-
-			toast.error(message, {
+			toast.success(`${entityName} deleted successfully!`, {
 				action: {
 					label: "Undo",
 					onClick: () => console.log("Undo"),
 				},
 			});
+		} catch (error: any) {
+			const message = error?.message || "Error deleting";
+			toast.error(message);
 		}
 	};
 
@@ -79,6 +71,7 @@ export const DeleteAlertButton = ({
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
 				<Button
+					autoFocus={false}
 					variant="ghost"
 					className="flex w-full gap-2 px-0 text-left text-red-500 hover:text-red-500"
 				>
@@ -91,7 +84,7 @@ export const DeleteAlertButton = ({
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete your{" "}
-						<strong>sample(s)</strong> from our servers.
+						<strong>{entityName}(s)</strong> from our servers.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
