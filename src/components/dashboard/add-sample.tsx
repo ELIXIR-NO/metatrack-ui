@@ -66,8 +66,8 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 		mutation.mutate({
 			name,
 			alias,
-			taxId: Number(taxId),
-			hostTaxId: Number(hostTaxId),
+			taxId: taxId === "" ? null : Number(taxId),
+			hostTaxId: hostTaxId === "" ? null : Number(hostTaxId),
 			mlst,
 			isolationSource,
 			collectionDate,
@@ -135,7 +135,6 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 									setTaxId(value);
 								}
 							}}
-							required
 						/>
 					</div>
 
@@ -155,7 +154,6 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 									setHostTaxId(value);
 								}
 							}}
-							required
 						/>
 					</div>
 

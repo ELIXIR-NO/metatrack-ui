@@ -4,8 +4,8 @@ export interface Sample {
 	name: string;
 	id: string;
 	alias: string;
-	taxId: number;
-	hostTaxId: number;
+	taxId: number | null;
+	hostTaxId: number | null;
 	mlst: string;
 	isolationSource: string;
 	collectionDate: string; // Date
