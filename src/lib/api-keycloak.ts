@@ -100,25 +100,25 @@ export async function createSample(
 	});
 }
 
+export async function updateSample(
+	projectId: string,
+	sampleId: string,
+	data: Partial<CreateSample> // partial porque nem todos os campos precisam ser enviados
+): Promise<void> {
+	await api(`projects/${projectId}/samples/${sampleId}`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
+	});
+}
+
+// Atualizar várias samples de uma vez
 export async function batchEditSamples(
 	projectId: string,
 	data: {
-		sampleData: {
-			name?: string;
-			alias?: string;
-			taxId?: number;
-			hostTaxId?: number;
-			mlst?: string;
-			isolationSource?: string;
-			collectionDate?: string;
-			location?: string;
-			sequencingLab?: string;
-			institution?: string;
-			hostHealthState?: string;
-		}[];
+		sampleData: Partial<CreateSample>[]; // cada sample pode ter apenas os campos que você quer atualizar
 	}
-) {
-	return api(`projects/${projectId}/samples`, {
+): Promise<void> {
+	await api(`projects/${projectId}/samples`, {
 		method: "PATCH",
 		body: JSON.stringify(data),
 	});

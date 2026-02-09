@@ -49,12 +49,11 @@ import {
 } from "../ui/drawer";
 import { Label } from "../ui/label";
 import { useState } from "react";
-import { updateSample } from "@/lib/api-client";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { Project, Sample } from "@/lib/types";
+import { CreateSample, Project, Sample } from "@/lib/types";
 import {
 	NON_EDITABLE_COLUMNS,
 	NON_VIEWED_COLUMNS,
@@ -63,7 +62,7 @@ import {
 import { ProjectTree } from "../projectTree";
 import { buildProjectTree } from "@/lib/projectTree";
 import { UploadDataDialog } from "./upload-data";
-import { batchEditSamples } from "@/lib/api-keycloak";
+import { batchEditSamples, updateSample } from "@/lib/api-keycloak";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -198,6 +197,30 @@ export function DataTable<T extends object>({
 		];
 	}, [autoColumns, onOpen, onEdit, onDelete]);
 
+	const enhancedColumnsWithDates: ColumnDef<T>[] = React.useMemo(() => {
+		return enhancedColumns.map((col) => {
+			if (
+				"accessorKey" in col &&
+				(col.accessorKey === "createdOn" || col.accessorKey === "modifiedOn")
+			) {
+				return {
+					...col,
+					cell: ({ row }) => {
+						const key = col.accessorKey as string;
+						const dateStr = row.getValue(key) as unknown as string;
+						if (!dateStr) return "";
+						const date = new Date(dateStr);
+						const yyyy = date.getFullYear();
+						const mm = String(date.getMonth() + 1).padStart(2, "0");
+						const dd = String(date.getDate()).padStart(2, "0");
+						return `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD
+					},
+				};
+			}
+			return col;
+		});
+	}, [enhancedColumns]);
+
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
 			alias: true,
@@ -210,13 +233,14 @@ export function DataTable<T extends object>({
 			institution: false,
 			hostHealthState: false,
 			createdOn: false,
+			modifiedOn: false,
 			lastUpdatedOn: false,
 			id: false,
 		});
 
 	const table = useReactTable({
 		data,
-		columns: enhancedColumns,
+		columns: enhancedColumnsWithDates,
 		initialState: {
 			pagination: { pageSize: 15 },
 		},
@@ -297,12 +321,12 @@ export function DataTable<T extends object>({
 				};
 			});
 
-			await batchEditSamples(project?.id!, { sampleData });
+			batchEditSamples(project?.id!, { sampleData });
 
 			toast.success("Samples have been updated");
 
 			queryClient.invalidateQueries({
-				queryKey: ["samples", project!.id],
+				queryKey: ["samples"],
 			});
 		} catch (err: any) {
 			toast.error(err?.message ?? "Error updating samples");
@@ -577,54 +601,37 @@ function TableCellViewer({
 
 		try {
 			const formData = new FormData(e.currentTarget);
-			const updateData: any = { rawAttributes: [] };
 
-			updateData.name = item.alias;
+			// Cria objeto para enviar só os campos que realmente existem
+			const updateData: Partial<CreateSample> = {
+				name: formData.get("name") as string,
+				alias: formData.get("alias") as string,
+				taxId: formData.get("taxId") ? Number(formData.get("taxId")) : null,
+				hostTaxId: formData.get("hostTaxId")
+					? Number(formData.get("hostTaxId"))
+					: null,
+				mlst: formData.get("mlst") as string,
+				isolationSource: formData.get("isolationSource") as string,
+				collectionDate: formData.get("collectionDate") as string,
+				location: formData.get("location") as string,
+				sequencingLab: formData.get("sequencingLab") as string,
+				institution: formData.get("institution") as string,
+				hostHealthState: formData.get("hostHealthState") as string,
+			};
 
-			Object.keys(item)
-				.filter(
-					(field) => !NON_EDITABLE_COLUMNS.includes(field) && field !== "id"
-				)
-				.map((attr: any) => {
-					const newValue = formData.get(`rawAttributes.${attr.id}`) as string;
+			await updateSample(projectId, item.id, updateData);
 
-					updateData.rawAttributes.push({
-						id: attr.id,
-						attributeName: attr.name,
-						value: newValue,
-						units: attr.units ?? null,
-					});
-				});
-
-			if (updateData.name || updateData.rawAttributes.length > 0) {
-				await updateSample(projectId, item.id, updateData);
-
-				toast.success("Sample has been updated", {
-					description: `${formattedDate}.`,
-					action: {
-						label: "Undo",
-						onClick: () => console.log("Undo"),
-					},
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: ["samples", projectId],
-				});
-
-				if (onUpdated) onUpdated();
-			} else {
-				console.log("No changes detected, nothing to save.");
-			}
-		} catch (err: any) {
-			console.error("Erro to updated sample:", err);
-			const message = err?.message || "Erro to updated sample";
-
-			toast.error(message, {
-				action: {
-					label: "Undo",
-					onClick: () => console.log("Undo"),
-				},
+			toast.success("Sample has been updated", {
+				description: `${new Date().toLocaleString()}.`,
 			});
+
+			queryClient.invalidateQueries({
+				queryKey: ["samples"],
+			});
+
+			if (onUpdated) onUpdated();
+		} catch (err: any) {
+			toast.error(err?.message || "Erro updating sample");
 		} finally {
 			setLoading(false);
 		}
