@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateSample, Sample } from "@/lib/types";
+import { CreateSample } from "@/lib/types";
 import { createSample } from "@/lib/api-keycloak";
 import { SquarePlus } from "lucide-react";
 import { FormField } from "../form-field";

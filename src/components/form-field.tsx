@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import {
 	Tooltip,
 	TooltipContent,
-	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
