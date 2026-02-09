@@ -182,6 +182,7 @@ export function DataTable<T extends object>({
 										<DeleteAlertButton
 											projectId={project?.id!}
 											item={row.original as { id: string }[]}
+											entityName="sample"
 											onDeleted={() => table.resetRowSelection()}
 										/>
 									)}
@@ -224,6 +225,7 @@ export function DataTable<T extends object>({
 			globalFilter,
 			columnVisibility,
 		},
+		autoResetPageIndex: false,
 		onSortingChange: setSorting,
 		onGlobalFilterChange: setGlobalFilter,
 		getCoreRowModel: getCoreRowModel(),

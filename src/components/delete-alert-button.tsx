@@ -11,10 +11,9 @@ import {
 	AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteSelectedSamples } from "@/lib/api-client";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
-import { deleteProject } from "@/lib/api-keycloak";
+import { deleteProject, deleteSelectedSamples } from "@/lib/api-keycloak";
 
 interface DeleteAlertButtonProps {
 	projectId?: string;
@@ -43,7 +42,9 @@ export const DeleteAlertButton = ({
 
 				if (success.length > 0) {
 					onDeleted?.(success);
-					queryClient.invalidateQueries({ queryKey: [entityName, projectId] });
+					queryClient.invalidateQueries({
+						queryKey: ["samples"],
+					});
 				}
 
 				if (failed.length > 0) {
@@ -52,7 +53,9 @@ export const DeleteAlertButton = ({
 			} else if (entityName === "project") {
 				await deleteProject(projectId!);
 				onDeleted?.([projectId!]);
-				queryClient.invalidateQueries({ queryKey: [entityName, projectId] });
+				queryClient.invalidateQueries({
+					queryKey: ["projects"],
+				});
 			}
 
 			toast.success(`${entityName} deleted successfully!`, {

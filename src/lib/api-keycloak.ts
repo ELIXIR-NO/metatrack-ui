@@ -4,7 +4,6 @@ import {
 	PresignUploadRequest,
 	PresignUploadResponse,
 	Project,
-	Sample,
 	StatisticsResponse,
 } from "./types";
 import { API_URL } from "./config";
@@ -27,17 +26,20 @@ export async function api<T = unknown>(
 	});
 
 	if (!res.ok) {
-		const text = await res.text();
-		let message = "API error";
+		const contentType = res.headers.get("content-type");
 
-		try {
-			const data = JSON.parse(text);
-			message = data?.message ?? message;
-		} catch {
-			message = text || message;
+		if (contentType?.includes("application/json")) {
+			const data = await res.json();
+			throw new Error(data?.message || data?.details || "API error");
 		}
 
-		throw new Error(message);
+		const text = await res.text();
+		throw new Error(text || "API error");
+	}
+
+	const contentType = res.headers.get("content-type");
+	if (!contentType || !contentType.includes("application/json")) {
+		return undefined as T;
 	}
 
 	return res.json();
@@ -91,8 +93,8 @@ export async function getProjectsByUser() {
 export async function createSample(
 	data: CreateSample,
 	projectId: string
-): Promise<Sample> {
-	return api(`projects/${projectId}/samples`, {
+): Promise<void> {
+	await api(`projects/${projectId}/samples`, {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
@@ -206,4 +208,49 @@ export async function removeProjectMember(projectId: string, memberId: string) {
 	return api(`projects/${projectId}/member/${memberId}`, {
 		method: "DELETE",
 	});
+}
+
+export async function deleteSelectedSamples<T extends { id: string }>(
+	projectId: string,
+	selectedRows: T[] | T
+): Promise<{ success: string[]; failed: string[] }> {
+	const token = keycloak.token;
+
+	const sampleIds = Array.isArray(selectedRows)
+		? selectedRows.map((row) => row.id)
+		: [selectedRows.id];
+
+	const results = await Promise.allSettled(
+		sampleIds.map(async (sampleId) => {
+			const res = await fetch(
+				`${API_URL}/projects/${projectId}/samples/${sampleId}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			return {
+				id: sampleId,
+				ok: res.ok,
+			};
+		})
+	);
+
+	const success: string[] = [];
+	const failed: string[] = [];
+
+	results.forEach((r) => {
+		if (r.status === "fulfilled" && r.value.ok) {
+			success.push(r.value.id);
+		} else if (r.status === "fulfilled") {
+			failed.push(r.value.id);
+		} else {
+			failed.push("unknown");
+		}
+	});
+
+	return { success, failed };
 }
