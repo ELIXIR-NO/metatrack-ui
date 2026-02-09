@@ -592,9 +592,6 @@ function TableCellViewer({
 
 	const queryClient = useQueryClient();
 
-	const now = new Date();
-	const formattedDate = now.toLocaleString();
-
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setLoading(true);
