@@ -15,9 +15,13 @@ export interface Sample {
 	hostHealthState: string;
 	createdOn: string; // Date
 	lastUpdatedOn: string; // Date
+	modifiedOn: string;
 }
 
-export type CreateSample = Omit<Sample, "id" | "createdOn" | "lastUpdatedOn">;
+export type CreateSample = Omit<
+	Sample,
+	"id" | "createdOn" | "lastUpdatedOn" | "modifiedOn"
+>;
 
 export type MeResponse = {
 	userId: string;
