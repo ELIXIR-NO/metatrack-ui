@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateSample, Sample } from "@/lib/types";
 import { createSample } from "@/lib/api-keycloak";
 import { SquarePlus } from "lucide-react";
+import { FormField } from "../form-field";
 
 interface AddSampleDialogProps {
 	projectId: string;
@@ -42,21 +43,16 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 	const mutation = useMutation({
 		mutationFn: (data: CreateSample) => createSample(data, projectId),
 
-		onSuccess: (newSample: Sample) => {
-			queryClient.setQueryData<Sample[]>(["samples"], (old = []) => [
-				newSample,
-				...old,
-			]);
-
+		onSuccess: () => {
 			setOpen(false);
 
-			const formattedDate = new Date().toLocaleString();
-
 			toast.success("Sample has been created", {
-				description: formattedDate,
+				description: new Date().toLocaleString(),
 			});
 
-			queryClient.invalidateQueries({ queryKey: ["samples"] });
+			queryClient.invalidateQueries({
+				queryKey: ["samples", projectId],
+			});
 		},
 
 		onError: (error: any) => {
@@ -71,7 +67,7 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 			name,
 			alias,
 			taxId: Number(taxId),
-			hostTaxId: 1,
+			hostTaxId: Number(hostTaxId),
 			mlst,
 			isolationSource,
 			collectionDate,
@@ -98,15 +94,18 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 
 					{/* Sample Name */}
 					<div>
-						<label htmlFor="sampleName" className="font-medium">
-							Sample Name
-						</label>
-						<Input
-							placeholder="Sample name"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
+						<FormField
+							label="Sample Name"
 							required
-						/>
+							tooltip="Unique identifier for the sample within this project."
+						>
+							<Input
+								placeholder="Sample name"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								required
+							/>
+						</FormField>
 					</div>
 
 					<div>
