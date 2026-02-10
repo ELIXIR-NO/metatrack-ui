@@ -3,19 +3,19 @@
 export interface Sample {
 	name: string;
 	id: string;
-	alias: string;
+	alias: string | null;
 	taxId: number | null;
 	hostTaxId: number | null;
-	mlst: string;
-	isolationSource: string;
-	collectionDate: string; // Date
-	location: string;
-	sequencingLab: string;
-	institution: string;
-	hostHealthState: string;
-	createdOn: string; // Date
-	lastUpdatedOn: string; // Date
-	modifiedOn: string;
+	mlst: string | null;
+	isolationSource: string | null;
+	collectionDate: string | null; // Date
+	location: string | null;
+	sequencingLab: string | null;
+	institution: string | null;
+	hostHealthState: string | null;
+	createdOn: string | null; // Date
+	lastUpdatedOn: string | null; // Date
+	modifiedOn: string | null;
 }
 
 export type CreateSample = Omit<

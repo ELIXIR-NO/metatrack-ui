@@ -55,6 +55,7 @@ import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
 import { CreateSample, Project, Sample } from "@/lib/types";
 import {
+	emptyToNull,
 	NON_EDITABLE_COLUMNS,
 	NON_VIEWED_COLUMNS,
 	QUICK_EDIT_LIMIT,
@@ -599,8 +600,7 @@ function TableCellViewer({
 		try {
 			const formData = new FormData(e.currentTarget);
 
-			// Cria objeto para enviar só os campos que realmente existem
-			const updateData: Partial<CreateSample> = {
+			const rawData: Partial<CreateSample> = {
 				name: formData.get("name") as string,
 				alias: formData.get("alias") as string,
 				taxId: formData.get("taxId") ? Number(formData.get("taxId")) : null,
@@ -615,6 +615,8 @@ function TableCellViewer({
 				institution: formData.get("institution") as string,
 				hostHealthState: formData.get("hostHealthState") as string,
 			};
+
+			const updateData = emptyToNull(rawData);
 
 			await updateSample(projectId, item.id, updateData);
 
