@@ -4,7 +4,7 @@ export function buildProjectTree(project: Project, samples: Sample[]) {
 	return {
 		name: project.name,
 		children: samples.map((sample) => ({
-			name: sample.alias,
+			name: sample.name,
 		})),
 	};
 }
