@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateSample } from "@/lib/types";
 import { createSample } from "@/lib/api-keycloak";
-import { SquarePlus } from "lucide-react";
+import { ChevronDown, ChevronUp, SquarePlus } from "lucide-react";
 import { FormField } from "../form-field";
 
 interface AddSampleDialogProps {
@@ -23,18 +23,169 @@ interface AddSampleDialogProps {
 	assayId?: string;
 }
 
+type FieldConfig = {
+	key: keyof CreateSample;
+	label: string;
+	placeholder?: string;
+	type?: string;
+	numeric?: boolean;
+	required?: boolean;
+	tooltip?: string;
+	advanced?: boolean;
+};
+
+const fields: FieldConfig[] = [
+	{
+		key: "name",
+		label: "Sample Name",
+		placeholder: "Sample name",
+		required: true,
+		tooltip: "Unique identifier for the sample within this project.",
+	},
+	{
+		key: "alias",
+		label: "Alias",
+		placeholder: "Alias",
+		tooltip:
+			'Unique ID for identification of a sample in ENA. This should be the "TEXT_ID" OR "SAMPLE_NUMBER"',
+	},
+	{
+		key: "taxId",
+		label: "Tax ID",
+		placeholder: "Tax ID",
+		tooltip:
+			"The Tax Id indicates the taxonomic classification(e.g. 9606 for human). ENA requires this information",
+		numeric: true,
+	},
+	{
+		key: "hostTaxId",
+		label: "Host Tax ID",
+		placeholder: "Host Tax ID",
+		numeric: true,
+		tooltip:
+			"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
+		advanced: true,
+	},
+	{
+		key: "mlst",
+		label: "MLST",
+		placeholder: "MLST",
+		tooltip: "",
+		advanced: true,
+	},
+	{
+		key: "isolationSource",
+		label: "Isolation Source",
+		placeholder: "Isolation Source",
+		tooltip:
+			"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived",
+		advanced: true,
+	},
+	{
+		key: "collectionDate",
+		label: "Collection Date",
+		placeholder: "Collection Date",
+		type: "date",
+		tooltip:
+			"The date the sample was collected with the intention of sequencing. Full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21",
+		advanced: true,
+	},
+	{
+		key: "location",
+		label: "Location",
+		placeholder: "Location",
+		tooltip:
+			"The geographical origin of the sample as defined by the specific region name followed by the locality name.",
+		advanced: true,
+	},
+	{
+		key: "sequencingLab",
+		label: "Sequencing Lab",
+		placeholder: "Sequencing Lab",
+		tooltip: "",
+		advanced: true,
+	},
+	{
+		key: "institution",
+		label: "Institution",
+		placeholder: "Institution",
+		tooltip: "",
+		advanced: true,
+	},
+	{
+		key: "hostHealthState",
+		label: "Host Health State",
+		placeholder: "Host Health State",
+		tooltip: "Health status of the host at the time of sample collection.",
+		advanced: true,
+	},
+];
+
+function RenderField({
+	field,
+	value,
+	onChange,
+}: {
+	field: FieldConfig;
+	value: string;
+	onChange: (value: string) => void;
+}) {
+	const input = (
+		<Input
+			type={field.type ?? "text"}
+			placeholder={field.placeholder}
+			value={value}
+			required={field.required}
+			onChange={(e) => {
+				const val = e.target.value;
+				if (field.numeric && !/^\d*$/.test(val)) return;
+				onChange(val);
+			}}
+			inputMode={field.numeric ? "numeric" : undefined}
+			pattern={field.numeric ? "[0-9]*" : undefined}
+		/>
+	);
+
+	if (field.tooltip || field.required) {
+		return (
+			<FormField
+				label={field.label}
+				required={field.required}
+				tooltip={field.tooltip}
+			>
+				{input}
+			</FormField>
+		);
+	}
+
+	return (
+		<div>
+			<label className="font-medium">{field.label}</label>
+			{input}
+		</div>
+	);
+}
+
 export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
-	const [name, setName] = useState("");
-	const [alias, setAlias] = useState("");
-	const [taxId, setTaxId] = useState("");
-	const [hostTaxId, setHostTaxId] = useState("");
-	const [mlst, setMlst] = useState("");
-	const [isolationSource, setIsolationSource] = useState("");
-	const [collectionDate, setCollectionDate] = useState("");
-	const [location, setLocation] = useState("");
-	const [sequencingLab, setSequencingLab] = useState("");
-	const [institution, setInstitution] = useState("");
-	const [hostHealthState, setHostHealthState] = useState("");
+	const [form, setForm] = useState({
+		name: "",
+		alias: "",
+		taxId: "",
+		hostTaxId: "",
+		mlst: "",
+		isolationSource: "",
+		collectionDate: "",
+		location: "",
+		sequencingLab: "",
+		institution: "",
+		hostHealthState: "",
+	});
+
+	const updateField = (key: keyof typeof form, value: string) => {
+		setForm((prev) => ({ ...prev, [key]: value }));
+	};
+
+	const [showAdvanced, setShowAdvanced] = useState(false);
 
 	const [open, setOpen] = useState(false);
 
@@ -64,17 +215,9 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 		e.preventDefault();
 
 		mutation.mutate({
-			name,
-			alias,
-			taxId: taxId === "" ? null : Number(taxId),
-			hostTaxId: hostTaxId === "" ? null : Number(hostTaxId),
-			mlst,
-			isolationSource,
-			collectionDate,
-			location,
-			sequencingLab,
-			institution,
-			hostHealthState,
+			...form,
+			taxId: form.taxId === "" ? null : Number(form.taxId),
+			hostTaxId: form.hostTaxId === "" ? null : Number(form.hostTaxId),
 		});
 	};
 
@@ -92,147 +235,52 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 						<DialogTitle>Create New Sample</DialogTitle>
 					</DialogHeader>
 
-					{/* Sample Name */}
-					<div>
-						<FormField
-							label="Sample Name"
-							required
-							tooltip="Unique identifier for the sample within this project."
-						>
-							<Input
-								placeholder="Sample name"
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								required
+					{fields
+						.filter((f) => !f.advanced)
+						.map((field) => (
+							<RenderField
+								key={field.key}
+								field={field}
+								value={form[field.key] ?? ""}
+								onChange={(value) => updateField(field.key, value)}
 							/>
-						</FormField>
+						))}
+
+					<div
+						className={`overflow-hidden transition-all duration-300 ease-in-out ${showAdvanced ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"} `}
+					>
+						<div className="space-y-4">
+							{fields
+								.filter((f) => f.advanced)
+								.map((field) => (
+									<RenderField
+										key={field.key}
+										field={field}
+										value={form[field.key] ?? ""}
+										onChange={(value) => updateField(field.key, value)}
+									/>
+								))}
+						</div>
 					</div>
 
-					<div>
-						<label htmlFor="attrName" className="font-medium">
-							Alias
-						</label>
-						<Input
-							placeholder="Alias"
-							value={alias}
-							onChange={(e) => setAlias(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrValue" className="font-medium">
-							Tax ID
-						</label>
-						<Input
-							type="text"
-							inputMode="numeric"
-							pattern="[0-9]*"
-							placeholder="Tax ID"
-							value={taxId}
-							onChange={(e) => {
-								const value = e.target.value;
-								if (/^\d*$/.test(value)) {
-									setTaxId(value);
-								}
-							}}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrValue" className="font-medium">
-							Host Tax ID
-						</label>
-						<Input
-							type="text"
-							inputMode="numeric"
-							pattern="[0-9]*"
-							placeholder="Tax ID"
-							value={hostTaxId}
-							onChange={(e) => {
-								const value = e.target.value;
-								if (/^\d*$/.test(value)) {
-									setHostTaxId(value);
-								}
-							}}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							MLST
-						</label>
-						<Input
-							placeholder="MLST"
-							value={mlst}
-							onChange={(e) => setMlst(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Isolation Source
-						</label>
-						<Input
-							placeholder="Isolation source"
-							value={isolationSource}
-							onChange={(e) => setIsolationSource(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Collection Date
-						</label>
-						<Input
-							type="date"
-							value={collectionDate}
-							onChange={(e) => setCollectionDate(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Location
-						</label>
-						<Input
-							placeholder="Geographical location"
-							value={location}
-							onChange={(e) => setLocation(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Sequence Lab
-						</label>
-						<Input
-							placeholder="Sequencing lab"
-							value={sequencingLab}
-							onChange={(e) => setSequencingLab(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Institution
-						</label>
-						<Input
-							placeholder="Institution"
-							value={institution}
-							onChange={(e) => setInstitution(e.target.value)}
-						/>
-					</div>
-
-					<div>
-						<label htmlFor="attrUnits" className="font-medium">
-							Host Health State
-						</label>
-						<Input
-							placeholder="Host health state"
-							value={hostHealthState}
-							onChange={(e) => setHostHealthState(e.target.value)}
-						/>
-					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						className="w-full justify-center gap-2 text-sm"
+						onClick={() => setShowAdvanced((prev) => !prev)}
+					>
+						{showAdvanced ? (
+							<>
+								<ChevronUp className="h-4 w-4" />
+								Hide additional fields
+							</>
+						) : (
+							<>
+								<ChevronDown className="h-4 w-4" />
+								Show additional fields
+							</>
+						)}
+					</Button>
 
 					<DialogFooter className="flex justify-between">
 						<DialogClose asChild>
