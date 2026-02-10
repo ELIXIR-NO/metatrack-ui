@@ -254,3 +254,23 @@ export async function deleteSelectedSamples<T extends { id: string }>(
 
 	return { success, failed };
 }
+
+export async function downloadSampleTemplate(): Promise<void> {
+	const res = await fetch("https://api.metatrack.no/templates/templateV1.csv");
+
+	if (!res.ok) {
+		throw new Error("Failed to download template");
+	}
+
+	const blob = await res.blob();
+	const url = window.URL.createObjectURL(blob);
+
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = "templateV1.csv";
+	document.body.appendChild(a);
+	a.click();
+
+	a.remove();
+	window.URL.revokeObjectURL(url);
+}

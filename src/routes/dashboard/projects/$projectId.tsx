@@ -14,6 +14,7 @@ import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
 import { getProjectsByUser } from "@/lib/api-keycloak";
+import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
 
 export const Route = createFileRoute("/dashboard/projects/$projectId")({
 	component: RouteComponent,
@@ -100,6 +101,7 @@ export function RouteComponent() {
 								project={project}
 								showAddButton={
 									<div className="flex gap-2">
+										<DownloadTemplateButton />
 										<AddSampleDialog projectId={projectId} />
 										<UploadSampleDialog projectId={projectId} />
 									</div>
