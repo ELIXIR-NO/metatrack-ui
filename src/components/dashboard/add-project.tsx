@@ -16,7 +16,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, SquarePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createInvestigation } from "@/lib/api-client";
@@ -78,7 +78,10 @@ export function AddProjectDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>Add Project</Button>
+				<Button>
+					<SquarePlus className="h-4 w-4" />
+					Add Project
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<form onSubmit={handleCreate} className="space-y-4">
