@@ -77,6 +77,38 @@ interface DataTableProps<T extends object> {
 	project?: Project;
 }
 
+const COLUMN_TOOLTIPS: Record<string, string> = {
+	name: "Unique identifier for the sample within this project.",
+	alias:
+		'Unique ID for identification of a sample in ENA. This should be the "TEXT_ID" OR "SAMPLE_NUMBER"',
+	taxId:
+		"The Tax Id indicates the taxonomic classification(e.g. 9606 for human). ENA requires this information.",
+	hostTaxId:
+		"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
+	mlst: "Multi-Locus Sequence Typing (MLST) scheme assigned to the isolate.",
+	isolationSource:
+		"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived.",
+	collectionDate:
+		"The date the sample was collected with the intention of sequencing. Full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21.",
+	location:
+		"The geographical origin of the sample as defined by the specific region name followed by the locality name.",
+	sequencingLab:
+		"Typically the laboratory that carried out the sequencing of the samples.",
+	institution:
+		"Typically the institution or organization responsible for the project and its data.",
+	hostHealthState:
+		"Health status of the host at the time of sample collection.",
+	createdOn: "Date of creation",
+	modifiedOn: "Last modification date",
+};
+
+function getColumnTooltip(key: string) {
+	return COLUMN_TOOLTIPS[key] ?? "";
+}
+
+const formatDateToYMD = (dateStr?: string | null) =>
+	dateStr ? new Date(dateStr).toISOString().split("T")[0] : "";
+
 export function DataTable<T extends object>({
 	data,
 	columns,
@@ -94,13 +126,11 @@ export function DataTable<T extends object>({
 	const queryClient = useQueryClient();
 
 	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
-		if (columns && columns.length > 0) return columns;
-
 		if (data.length === 0) return [];
 
 		return (Object.keys(data[0]) as Array<keyof T>).map((key) => ({
 			id: String(key),
-			accessorKey: key,
+			accessorKey: String(key),
 			enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
 			header: (props) => (
 				<DataTableColumnHeader
@@ -109,7 +139,7 @@ export function DataTable<T extends object>({
 				/>
 			),
 			meta: {
-				label: String(key),
+				label: String(key).charAt(0).toUpperCase() + String(key).slice(1),
 			},
 		}));
 	}, [columns, data]);
@@ -210,11 +240,7 @@ export function DataTable<T extends object>({
 						const key = col.accessorKey as string;
 						const dateStr = row.getValue(key) as unknown as string;
 						if (!dateStr) return "";
-						const date = new Date(dateStr);
-						const yyyy = date.getFullYear();
-						const mm = String(date.getMonth() + 1).padStart(2, "0");
-						const dd = String(date.getDate()).padStart(2, "0");
-						return `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD
+						return formatDateToYMD(dateStr);
 					},
 				};
 			}
@@ -224,12 +250,12 @@ export function DataTable<T extends object>({
 
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
-			alias: true,
+			alias: false,
 			taxId: true,
-			mlst: true,
+			hostTaxId: true,
 			isolationSource: true,
 			collectionDate: true,
-			geoLocation: false,
+			geoLocation: true,
 			sequencingLab: false,
 			institution: false,
 			hostHealthState: false,
@@ -237,6 +263,7 @@ export function DataTable<T extends object>({
 			modifiedOn: false,
 			lastUpdatedOn: false,
 			id: false,
+			mlst: false,
 		});
 
 	const table = useReactTable({
@@ -342,7 +369,7 @@ export function DataTable<T extends object>({
 		(col) => !NON_EDITABLE_COLUMNS.includes(String(col.header))
 	);
 
-	const quickEditColumns = editableColumns.slice(0, QUICK_EDIT_LIMIT);
+	const quickEditColumns = editableColumns.slice(1, QUICK_EDIT_LIMIT);
 	const moreEditColumns = editableColumns.slice(QUICK_EDIT_LIMIT);
 
 	return (
@@ -379,14 +406,14 @@ export function DataTable<T extends object>({
 								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
 										<Button variant="ghost" size="sm" className="rounded-none">
-											{String(col.header)}
+											{col.meta?.label}
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
 										<form>
 											<Input
 												name="field"
-												placeholder={String(col.header)}
+												placeholder={String(col.meta?.label)}
 												className="w-auto"
 												onKeyDown={(e) => {
 													if (e.key === "Enter") {
@@ -396,7 +423,7 @@ export function DataTable<T extends object>({
 															const value = new FormData(form).get(
 																"field"
 															) as string;
-															handleBatchUpdate(String(col.header), value);
+															handleBatchUpdate(String(col.id), value);
 														}
 													}
 												}}
@@ -455,17 +482,17 @@ export function DataTable<T extends object>({
 								<DropdownMenuSeparator />
 
 								{moreEditColumns.map((col) => (
-									<DropdownMenuItem key={String(col.header)} asChild>
+									<DropdownMenuItem key={String(col.meta?.label)} asChild>
 										<Popover>
 											<PopoverTrigger asChild>
 												<Button variant="ghost" className="flex justify-start">
-													{String(col.header)}
+													{String(col.meta?.label)}
 												</Button>
 											</PopoverTrigger>
 											<PopoverContent className="p-1">
 												<Input
 													name="field"
-													placeholder={String(col.header)}
+													placeholder={String(col.meta?.label)}
 													className="w-auto"
 													onKeyDown={(e) => {
 														if (e.key === "Enter") {
@@ -475,7 +502,7 @@ export function DataTable<T extends object>({
 																const value = new FormData(form).get(
 																	"field"
 																) as string;
-																handleBatchUpdate(String(col.header), value);
+																handleBatchUpdate(String(col.id), value);
 															}
 														}
 													}}
@@ -525,7 +552,6 @@ export function DataTable<T extends object>({
 					<Download className="h-4 w-4" />
 				</Button>
 			</div>
-
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader className="bg-muted sticky top-0">
@@ -533,12 +559,23 @@ export function DataTable<T extends object>({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
 									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-												)}
+										{header.isPlaceholder ? null : (
+											<div className="flex items-center gap-1">
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<div>
+															{flexRender(
+																header.column.columnDef.header,
+																header.getContext()
+															)}
+														</div>
+													</TooltipTrigger>
+													<TooltipContent>
+														<p>{getColumnTooltip(header.id)}</p>
+													</TooltipContent>
+												</Tooltip>
+											</div>
+										)}
 									</TableHead>
 								))}
 							</TableRow>
@@ -574,7 +611,6 @@ export function DataTable<T extends object>({
 					</TableBody>
 				</Table>
 			</div>
-
 			<DataTablePagination table={table} />
 		</div>
 	);
@@ -590,6 +626,8 @@ function TableCellViewer({
 	onUpdated?: () => void;
 }) {
 	const [loading, setLoading] = useState(false);
+
+	const [openDrawer, setOpenDrawer] = useState(false);
 
 	const queryClient = useQueryClient();
 
@@ -637,7 +675,12 @@ function TableCellViewer({
 	};
 
 	return (
-		<Drawer direction="right">
+		<Drawer
+			direction="right"
+			open={openDrawer}
+			onOpenChange={setOpenDrawer}
+			autoFocus={openDrawer}
+		>
 			<DrawerTrigger asChild>
 				<Button
 					variant="ghost"
@@ -649,7 +692,7 @@ function TableCellViewer({
 			</DrawerTrigger>
 			<DrawerContent aria-describedby={undefined}>
 				<DrawerHeader className="gap-1">
-					<DrawerTitle className="text-xl">Edit {item.alias}</DrawerTitle>
+					<DrawerTitle className="text-xl">Edit {item.name}</DrawerTitle>
 				</DrawerHeader>
 
 				<div className="flex-1 overflow-y-auto px-4">
@@ -663,16 +706,32 @@ function TableCellViewer({
 								(field) =>
 									!NON_EDITABLE_COLUMNS.includes(field) && field !== "id"
 							)
-							.map((field) => (
-								<div key={field} className="flex flex-col gap-3">
-									<Label htmlFor={field}>{field}</Label>
-									<Input
-										id={field}
-										name={field}
-										defaultValue={String(item[field as keyof Sample])}
-									/>
-								</div>
-							))}
+							.map((field) => {
+								const rawValue = item[field as keyof Sample];
+
+								const isDateField = field.toLowerCase().includes("date");
+
+								const formattedValue = isDateField
+									? formatDateToYMD(rawValue as string)
+									: String(rawValue ?? "");
+
+								return (
+									<div key={field} className="flex flex-col gap-3">
+										<Label htmlFor={field}>
+											{field.charAt(0).toUpperCase() + field.slice(1)}
+										</Label>
+
+										<Input
+											id={field}
+											name={field}
+											type={isDateField ? "date" : "text"}
+											onPointerDown={(e) => e.stopPropagation()}
+											defaultValue={formattedValue}
+											className="grid grid-cols-1 place-content-around"
+										/>
+									</div>
+								);
+							})}
 					</form>
 				</div>
 

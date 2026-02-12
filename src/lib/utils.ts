@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export const QUICK_EDIT_LIMIT = 3;
-export const NON_EDITABLE_COLUMNS = ["alias"];
+export const QUICK_EDIT_LIMIT = 4;
+export const NON_EDITABLE_COLUMNS = ["name", "createdOn", "modifiedOn"];
 export const NON_VIEWED_COLUMNS = ["id", "lastUpdatedOn"];
 
 declare module "@tanstack/react-table" {
