@@ -48,6 +48,7 @@ const fields: FieldConfig[] = [
 		placeholder: "Alias",
 		tooltip:
 			'Unique ID for identification of a sample in ENA. This should be the "TEXT_ID" OR "SAMPLE_NUMBER"',
+		advanced: true,
 	},
 	{
 		key: "taxId",
@@ -64,13 +65,13 @@ const fields: FieldConfig[] = [
 		numeric: true,
 		tooltip:
 			"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
-		advanced: true,
 	},
 	{
 		key: "mlst",
 		label: "MLST",
 		placeholder: "MLST",
-		tooltip: "",
+		tooltip:
+			"Multi-Locus Sequence Typing (MLST) scheme assigned to the isolate.",
 		advanced: true,
 	},
 	{
@@ -78,8 +79,7 @@ const fields: FieldConfig[] = [
 		label: "Isolation Source",
 		placeholder: "Isolation Source",
 		tooltip:
-			"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived",
-		advanced: true,
+			"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived.",
 	},
 	{
 		key: "collectionDate",
@@ -87,8 +87,7 @@ const fields: FieldConfig[] = [
 		placeholder: "Collection Date",
 		type: "date",
 		tooltip:
-			"The date the sample was collected with the intention of sequencing. Full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21",
-		advanced: true,
+			"The date the sample was collected with the intention of sequencing. Full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21.",
 	},
 	{
 		key: "location",
@@ -96,21 +95,19 @@ const fields: FieldConfig[] = [
 		placeholder: "Location",
 		tooltip:
 			"The geographical origin of the sample as defined by the specific region name followed by the locality name.",
-		advanced: true,
-	},
-	{
-		key: "sequencingLab",
-		label: "Sequencing Lab",
-		placeholder: "Sequencing Lab",
-		tooltip: "",
-		advanced: true,
 	},
 	{
 		key: "institution",
 		label: "Institution",
 		placeholder: "Institution",
 		tooltip: "",
-		advanced: true,
+	},
+	{
+		key: "sequencingLab",
+		label: "Sequencing Lab",
+		placeholder: "Sequencing Lab",
+		tooltip:
+			"Typically the laboratory that carried out the sequencing of the samples.",
 	},
 	{
 		key: "hostHealthState",
