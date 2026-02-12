@@ -29,8 +29,8 @@ export function NavBar() {
 	const { isAuthenticated, loading, login, logout } = useContext(AuthContext);
 
 	return (
-		<nav className="px-12 py-4">
-			<div className="flex w-screen justify-around">
+		<nav className="flex w-full justify-between py-4">
+			<div className="flex w-full justify-around">
 				<div>
 					<Link to="/">
 						<img
@@ -42,8 +42,8 @@ export function NavBar() {
 					</Link>
 				</div>
 
-				<div className="flex flex-row items-center gap-x-4 pb-4">
-					<ul className="flex flex-row items-center gap-x-4">
+				<div className="flex items-center gap-6">
+					<ul className="flex items-center gap-4">
 						{!loading && !isAuthenticated ? null : (
 							<Button
 								variant="secondary"
