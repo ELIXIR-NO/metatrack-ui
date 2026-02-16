@@ -14,10 +14,10 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ResourcesImport } from './routes/resources'
 import { Route as PublicDataImport } from './routes/public-data'
 import { Route as GetStartedImport } from './routes/get-started'
-import { Route as AboutImport } from './routes/about'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projects/index'
 import { Route as DashboardProjectsProjectIdImport } from './routes/dashboard/projects/$projectId'
 
@@ -41,12 +41,6 @@ const GetStartedRoute = GetStartedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const DashboardRouteRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -63,6 +57,12 @@ const DashboardIndexRoute = DashboardIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
+} as any)
+
+const AboutIndexRoute = AboutIndexImport.update({
+  id: '/about/',
+  path: '/about/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const DashboardProjectsIndexRoute = DashboardProjectsIndexImport.update({
@@ -97,13 +97,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
-      parentRoute: typeof rootRoute
-    }
     '/get-started': {
       id: '/get-started'
       path: '/get-started'
@@ -123,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesImport
+      parentRoute: typeof rootRoute
+    }
+    '/about/': {
+      id: '/about/'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutIndexImport
       parentRoute: typeof rootRoute
     }
     '/dashboard/': {
@@ -170,10 +170,10 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/about': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
@@ -181,10 +181,10 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/about': typeof AboutIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
@@ -194,10 +194,10 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/get-started': typeof GetStartedRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/about/': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects/': typeof DashboardProjectsIndexRoute
@@ -208,20 +208,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/about'
     | '/get-started'
     | '/public-data'
     | '/resources'
+    | '/about'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/get-started'
     | '/public-data'
     | '/resources'
+    | '/about'
     | '/dashboard'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
@@ -229,10 +229,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/about'
     | '/get-started'
     | '/public-data'
     | '/resources'
+    | '/about/'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects/'
@@ -242,19 +242,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
   GetStartedRoute: typeof GetStartedRoute
   PublicDataRoute: typeof PublicDataRoute
   ResourcesRoute: typeof ResourcesRoute
+  AboutIndexRoute: typeof AboutIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
   GetStartedRoute: GetStartedRoute,
   PublicDataRoute: PublicDataRoute,
   ResourcesRoute: ResourcesRoute,
+  AboutIndexRoute: AboutIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -269,10 +269,10 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard",
-        "/about",
         "/get-started",
         "/public-data",
-        "/resources"
+        "/resources",
+        "/about/"
       ]
     },
     "/": {
@@ -286,9 +286,6 @@ export const routeTree = rootRoute
         "/dashboard/projects/"
       ]
     },
-    "/about": {
-      "filePath": "about.tsx"
-    },
     "/get-started": {
       "filePath": "get-started.tsx"
     },
@@ -297,6 +294,9 @@ export const routeTree = rootRoute
     },
     "/resources": {
       "filePath": "resources.tsx"
+    },
+    "/about/": {
+      "filePath": "about/index.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
