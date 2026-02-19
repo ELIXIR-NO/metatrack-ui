@@ -52,16 +52,16 @@ const fields: FieldConfig[] = [
 	},
 	{
 		key: "taxId",
-		label: "Tax ID",
-		placeholder: "Tax ID",
+		label: "Taxonomic Identifier",
+		placeholder: "NCBI TaxId",
 		tooltip:
 			"The Tax Id indicates the taxonomic classification(e.g. 9606 for human). ENA requires this information",
 		numeric: true,
 	},
 	{
 		key: "hostTaxId",
-		label: "Host Tax ID",
-		placeholder: "Host Tax ID",
+		label: "Host Taxonomic Identifier",
+		placeholder: "Host NCBI TaxId",
 		numeric: true,
 		tooltip:
 			"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
@@ -91,21 +91,22 @@ const fields: FieldConfig[] = [
 	},
 	{
 		key: "location",
-		label: "Location",
-		placeholder: "Location",
+		label: "Geographic Location",
+		placeholder: "Geographic Location",
 		tooltip:
 			"The geographical origin of the sample as defined by the specific region name followed by the locality name.",
 	},
 	{
 		key: "institution",
-		label: "Institution",
-		placeholder: "Institution",
-		tooltip: "",
+		label: "Institution (Data owner)",
+		placeholder: "Institution (Data owner)",
+		tooltip:
+			"Typically the institution or organization responsible for the project and its data.",
 	},
 	{
 		key: "sequencingLab",
-		label: "Sequencing Lab",
-		placeholder: "Sequencing Lab",
+		label: "Sequencing lab",
+		placeholder: "Sequencing lab",
 		tooltip:
 			"Typically the laboratory that carried out the sequencing of the samples.",
 	},

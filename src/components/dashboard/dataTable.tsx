@@ -102,8 +102,28 @@ const COLUMN_TOOLTIPS: Record<string, string> = {
 	modifiedOn: "Last modification date",
 };
 
+const COLUMN_NAMES: Record<string, string> = {
+	name: "Sample Name",
+	alias: "Alias",
+	taxId: "Taxonomic Identifier",
+	hostTaxId: "Host Taxonomic Identifier",
+	mlst: "MLST",
+	isolationSource: "Isolation Source",
+	collectionDate: "Collection Date",
+	location: "Geographical Location",
+	sequencingLab: "Sequencing Lab",
+	institution: "Institution(Data owner)",
+	hostHealthState: "Host Health State",
+	createdOn: "Created On",
+	modifiedOn: "Modified On",
+};
+
 function getColumnTooltip(key: string) {
 	return COLUMN_TOOLTIPS[key] ?? "";
+}
+
+function getColumnNewName(key: string) {
+	return COLUMN_NAMES[key] ?? "";
 }
 
 const formatDateToYMD = (dateStr?: string | null) =>
@@ -135,11 +155,11 @@ export function DataTable<T extends object>({
 			header: (props) => (
 				<DataTableColumnHeader
 					column={props.column}
-					title={String(key).charAt(0).toUpperCase() + String(key).slice(1)}
+					title={getColumnNewName(String(key))}
 				/>
 			),
 			meta: {
-				label: String(key).charAt(0).toUpperCase() + String(key).slice(1),
+				label: getColumnNewName(String(key)),
 			},
 		}));
 	}, [columns, data]);
@@ -674,6 +694,8 @@ function TableCellViewer({
 		}
 	};
 
+	console.log("item:", item);
+
 	return (
 		<Drawer
 			direction="right"
@@ -717,9 +739,7 @@ function TableCellViewer({
 
 								return (
 									<div key={field} className="flex flex-col gap-3">
-										<Label htmlFor={field}>
-											{field.charAt(0).toUpperCase() + field.slice(1)}
-										</Label>
+										<Label htmlFor={field}>{getColumnNewName(field)}</Label>
 
 										<Input
 											id={field}
