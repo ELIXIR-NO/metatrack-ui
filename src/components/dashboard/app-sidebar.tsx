@@ -3,13 +3,14 @@
 import * as React from "react";
 import {
 	IconSettings,
-	IconBackpack,
 	IconInfoCircle,
 	IconMessageDots,
-	IconUpload,
-	IconDownload,
-	IconSubtask,
+	IconDatabase,
+	IconRocket,
+	IconBook,
+	IconBriefcase,
 	IconUserSquare,
+	IconMessageQuestion,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -21,9 +22,12 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	useSidebar,
 } from "@/components/ui/sidebar";
+
 import { useQuery } from "@tanstack/react-query";
 import { getProjectsByUser } from "@/lib/api-keycloak";
+import { Link } from "@tanstack/react-router";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	user: string | undefined;
@@ -36,12 +40,38 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 		enabled: !!user,
 	});
 
+	const { state } = useSidebar();
+	const isCollapsed = state === "collapsed";
+
 	const data = {
+		navPlatform: [
+			{
+				title: "About",
+				url: "/about",
+				icon: IconMessageQuestion,
+			},
+			{
+				title: "Public Data",
+				url: "/public-data",
+				icon: IconDatabase,
+			},
+			{
+				title: "Get Started",
+				url: "/get-started",
+				icon: IconRocket,
+			},
+			{
+				title: "Resources",
+				url: "/resources",
+				icon: IconBook,
+			},
+		],
+
 		navMain: [
 			{
 				title: "My Projects",
 				url: "/projects",
-				icon: IconBackpack,
+				icon: IconBriefcase,
 				items: isLoading
 					? [
 							{
@@ -55,7 +85,13 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 						})),
 			},
 		],
+
 		navSecondary: [
+			{
+				title: String(user),
+				url: "/",
+				icon: IconUserSquare,
+			},
 			{
 				title: "Settings",
 				url: "#",
@@ -72,23 +108,6 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 				icon: IconMessageDots,
 			},
 		],
-		documents: [
-			{
-				title: "Upload Data",
-				url: "#",
-				icon: IconUpload,
-			},
-			{
-				title: "Download Data",
-				url: "#",
-				icon: IconDownload,
-			},
-			{
-				title: "Pipelines",
-				url: "#",
-				icon: IconSubtask,
-			},
-		],
 	};
 
 	return (
@@ -98,18 +117,29 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							tooltip="Home"
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
+							tooltip="MetaTrack Home"
+							className="group-data-[collapsible=icon]:!size-12 data-[slot=sidebar-menu-button]:!p-6"
+							size={null}
 						>
-							<a href="/dashboard">
-								<IconUserSquare className="!size-6" />
-								<span className="text-base font-semibold">{user}</span>
-							</a>
+							<Link to="/">
+								<img
+									src={
+										isCollapsed
+											? "/Metatrack-logo.svg"
+											: "/Metatrack_logo_advanced.svg"
+									}
+									alt="MetaTrack Logo"
+									className={isCollapsed ? "w-auto" : "h-16 w-auto"}
+								/>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
+
 			<SidebarContent>
+				<NavMain items={data.navPlatform} />
+
 				<NavMain items={data.navMain} />
 
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
