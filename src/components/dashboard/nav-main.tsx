@@ -1,6 +1,6 @@
 "use client";
 
-import { IconReportAnalytics, type Icon } from "@tabler/icons-react";
+import { type Icon } from "@tabler/icons-react";
 import { ChevronRight, FileText, Flag } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 
@@ -40,20 +40,6 @@ export function NavMain({
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
-				<SidebarMenu>
-					<SidebarMenuItem className="flex items-center gap-2">
-						<SidebarMenuButton
-							tooltip="Overview"
-							isActive={location.pathname === "/dashboard"}
-							className={"min-w-8 gap-x-2 duration-200 ease-linear"}
-						>
-							<IconReportAnalytics className="!size-6" />
-							<a href="/dashboard">
-								<span>Overview</span>
-							</a>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
 				<SidebarMenu>
 					{items.map((item) => {
 						return (
