@@ -1,5 +1,5 @@
 import Footer from "@/components/footer";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useMatchRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "@/index.css";
 import { NavBar } from "@/components/nav-bar/nav-bar";
@@ -11,11 +11,15 @@ import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 
-export const Route = createRootRoute({
-	component: () => (
-		<>
-			<QueryClientProvider client={queryClient}>
-				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+function RootLayout() {
+	const matchRoute = useMatchRoute();
+
+	const matchedLoginRoute = matchRoute({ to: "/dashboard", fuzzy: true });
+
+	return (
+		<QueryClientProvider client={queryClient}>
+			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+				{!matchedLoginRoute ? (
 					<header>
 						<div className="lg:hidden">
 							<NavBarMobile />
@@ -24,15 +28,22 @@ export const Route = createRootRoute({
 							<NavBar />
 						</div>
 					</header>
-					<main className="mx-auto">
-						<Outlet />
-						<Toaster position="top-center" />
-					</main>
-					<Footer />
-					<TanStackRouterDevtools />
-					<ReactQueryDevtools initialIsOpen={false} />
-				</ThemeProvider>
-			</QueryClientProvider>
-		</>
-	),
+				) : undefined}
+
+				<main className="mx-auto">
+					<Outlet />
+					<Toaster position="top-center" />
+				</main>
+
+				<Footer />
+
+				<TanStackRouterDevtools />
+				<ReactQueryDevtools initialIsOpen={false} />
+			</ThemeProvider>
+		</QueryClientProvider>
+	);
+}
+
+export const Route = createRootRoute({
+	component: RootLayout,
 });
