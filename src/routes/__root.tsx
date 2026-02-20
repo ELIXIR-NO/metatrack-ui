@@ -19,23 +19,25 @@ function RootLayout() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-				{!matchedLoginRoute ? (
-					<header>
-						<div className="lg:hidden">
-							<NavBarMobile />
-						</div>
-						<div className="hidden lg:flex">
-							<NavBar />
-						</div>
-					</header>
-				) : undefined}
+				<div className="flex min-h-screen flex-col">
+					{!matchedLoginRoute ? (
+						<header>
+							<div className="lg:hidden">
+								<NavBarMobile />
+							</div>
+							<div className="hidden lg:flex">
+								<NavBar />
+							</div>
+						</header>
+					) : undefined}
 
-				<main className="mx-auto">
-					<Outlet />
-					<Toaster position="top-center" />
-				</main>
+					<main className="mx-auto w-full flex-1">
+						<Outlet />
+						<Toaster position="top-center" />
+					</main>
 
-				<Footer />
+					<Footer />
+				</div>
 
 				<TanStackRouterDevtools />
 				<ReactQueryDevtools initialIsOpen={false} />
