@@ -112,7 +112,7 @@ const COLUMN_NAMES: Record<string, string> = {
 	collectionDate: "Collection Date",
 	location: "Geographical Location",
 	sequencingLab: "Sequencing Lab",
-	institution: "Institution(Data owner)",
+	institution: "Institution (Data owner)",
 	hostHealthState: "Host Health State",
 	createdOn: "Created On",
 	modifiedOn: "Modified On",
