@@ -18,15 +18,11 @@ import { requestPresignedUpload, uploadFastaFile } from "@/lib/api-keycloak";
 interface UploadSampleDialogProps {
 	projectId: string;
 	sampleName: string;
-	studyId?: string;
-	assayId?: string;
 }
 
 export function UploadDataDialog({
 	projectId,
 	sampleName,
-	studyId,
-	assayId,
 }: UploadSampleDialogProps) {
 	const [file, setFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,9 +39,9 @@ export function UploadDataDialog({
 
 			await uploadFastaFile(url, file);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["samples", projectId, studyId, assayId],
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: ["samples", projectId],
 			});
 
 			toast.success("Upload completed successfully", {
@@ -111,7 +107,7 @@ export function UploadDataDialog({
 					<Input
 						ref={fileInputRef}
 						type="file"
-						accept=".fastq,.fasta,.fastq.gz"
+						accept=".fastq,.fasta,.gz"
 						className="hidden"
 						onChange={(e) => setFile(e.target.files?.[0] || null)}
 					/>
