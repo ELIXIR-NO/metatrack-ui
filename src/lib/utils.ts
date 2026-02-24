@@ -7,7 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const QUICK_EDIT_LIMIT = 4;
-export const NON_EDITABLE_COLUMNS = ["name", "createdOn", "modifiedOn"];
+export const NON_EDITABLE_COLUMNS = [
+	"name",
+	"createdOn",
+	"modifiedOn",
+	"files",
+];
 export const NON_VIEWED_COLUMNS = ["id", "lastUpdatedOn"];
 
 declare module "@tanstack/react-table" {

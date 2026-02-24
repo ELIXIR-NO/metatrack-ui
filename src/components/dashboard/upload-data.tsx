@@ -117,14 +117,12 @@ export function UploadDataDialog({
 					/>
 				</div>
 
-				{/* Nome do arquivo */}
 				{file && (
 					<p className="mt-2 text-sm">
 						Selected file: <strong>{file.name}</strong>
 					</p>
 				)}
 
-				{/* Ações */}
 				<div className="mt-4 flex justify-end gap-2">
 					<Button variant="outline" onClick={() => setOpen(false)}>
 						Cancel
