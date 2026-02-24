@@ -9,11 +9,11 @@ import { SiteHeader } from "@/components/dashboard/site-header";
 import { getSamplesNew } from "@/lib/api-client";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
-import { Project, Sample } from "@/lib/types";
+import { Project, Sample, SampleFile } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
-import { getProjectsByUser } from "@/lib/api-keycloak";
+import { getProjectsByUser, getSampleFiles } from "@/lib/api-keycloak";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
 
 export const Route = createFileRoute("/dashboard/projects/$projectId")({
@@ -34,9 +34,33 @@ export function RouteComponent() {
 
 	const project = projects?.find((p) => String(p.id) === projectId);
 
-	const { data: samples = [], isLoading: samplesLoading } = useQuery<Sample[]>({
+	const { data: samples = [], isLoading: samplesLoading } = useQuery<
+		(Sample & { files?: SampleFile[] })[]
+	>({
 		queryKey: ["samples", projectId],
-		queryFn: () => getSamplesNew(projectId),
+		queryFn: async () => {
+			const baseSamples = await getSamplesNew(projectId);
+
+			const samplesWithFiles = await Promise.all(
+				baseSamples.map(async (sample) => {
+					try {
+						const files = await getSampleFiles(Number(projectId), sample.id);
+
+						return {
+							...sample,
+							files,
+						};
+					} catch {
+						return {
+							...sample,
+							files: [],
+						};
+					}
+				})
+			);
+
+			return samplesWithFiles;
+		},
 		enabled: !!projectId,
 	});
 
