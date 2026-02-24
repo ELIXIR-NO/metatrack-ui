@@ -16,11 +16,16 @@ export interface Sample {
 	createdOn: string | null; // Date
 	lastUpdatedOn: string | null; // Date
 	modifiedOn: string | null;
+	files?: SampleFile[];
+}
+
+export interface SampleFile {
+	name: string;
 }
 
 export type CreateSample = Omit<
 	Sample,
-	"id" | "createdOn" | "lastUpdatedOn" | "modifiedOn"
+	"id" | "createdOn" | "lastUpdatedOn" | "modifiedOn" | "files"
 >;
 
 export type MeResponse = {
@@ -50,6 +55,12 @@ export interface PresignUploadRequest {
 	projectId: number;
 	sampleName: string;
 	file: File;
+}
+
+export interface PresignDownloadRequest {
+	projectId: number;
+	sampleName: string;
+	fileName: string;
 }
 
 export interface PresignUploadResponse {

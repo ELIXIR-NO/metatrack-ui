@@ -1,9 +1,11 @@
 import { keycloak } from "./keycloak";
 import {
 	CreateSample,
+	PresignDownloadRequest,
 	PresignUploadRequest,
 	PresignUploadResponse,
 	Project,
+	SampleFile,
 	StatisticsResponse,
 } from "./types";
 import { API_URL } from "./config";
@@ -103,7 +105,7 @@ export async function createSample(
 export async function updateSample(
 	projectId: string,
 	sampleId: string,
-	data: Partial<CreateSample> // partial porque nem todos os campos precisam ser enviados
+	data: Partial<CreateSample>
 ): Promise<void> {
 	await api(`projects/${projectId}/samples/${sampleId}`, {
 		method: "PATCH",
@@ -111,11 +113,10 @@ export async function updateSample(
 	});
 }
 
-// Atualizar várias samples de uma vez
 export async function batchEditSamples(
 	projectId: string,
 	data: {
-		sampleData: Partial<CreateSample>[]; // cada sample pode ter apenas os campos que você quer atualizar
+		sampleData: Partial<CreateSample>[];
 	}
 ): Promise<void> {
 	await api(`projects/${projectId}/samples`, {
@@ -138,6 +139,28 @@ export async function requestPresignedUpload(
 			sampleName: data.sampleName,
 			fileName: data.file.name,
 		}),
+	});
+}
+
+export async function requestPresignedDownload(
+	data: PresignDownloadRequest
+): Promise<PresignUploadResponse> {
+	return api<PresignUploadResponse>("files/presign-download", {
+		method: "POST",
+		body: JSON.stringify({
+			projectId: data.projectId,
+			sampleName: data.sampleName,
+			fileName: data.fileName,
+		}),
+	});
+}
+
+export async function getSampleFiles(
+	projectId: number,
+	sampleId: string
+): Promise<SampleFile[]> {
+	return api<SampleFile[]>(`projects/${projectId}/samples/${sampleId}/files`, {
+		method: "GET",
 	});
 }
 

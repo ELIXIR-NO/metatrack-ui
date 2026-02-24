@@ -63,7 +63,11 @@ import {
 import { ProjectTree } from "../projectTree";
 import { buildProjectTree } from "@/lib/projectTree";
 import { UploadDataDialog } from "./upload-data";
-import { batchEditSamples, updateSample } from "@/lib/api-keycloak";
+import {
+	batchEditSamples,
+	requestPresignedDownload,
+	updateSample,
+} from "@/lib/api-keycloak";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -100,6 +104,7 @@ const COLUMN_TOOLTIPS: Record<string, string> = {
 		"Health status of the host at the time of sample collection.",
 	createdOn: "Date of creation",
 	modifiedOn: "Last modification date",
+	files: "FASTQ files linked to the sample",
 };
 
 const COLUMN_NAMES: Record<string, string> = {
@@ -116,6 +121,7 @@ const COLUMN_NAMES: Record<string, string> = {
 	hostHealthState: "Host Health State",
 	createdOn: "Created On",
 	modifiedOn: "Modified On",
+	files: "FASTQ Files",
 };
 
 function getColumnTooltip(key: string) {
@@ -148,20 +154,22 @@ export function DataTable<T extends object>({
 	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
 		if (data.length === 0) return [];
 
-		return (Object.keys(data[0]) as Array<keyof T>).map((key) => ({
-			id: String(key),
-			accessorKey: String(key),
-			enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
-			header: (props) => (
-				<DataTableColumnHeader
-					column={props.column}
-					title={getColumnNewName(String(key))}
-				/>
-			),
-			meta: {
-				label: getColumnNewName(String(key)),
-			},
-		}));
+		return (Object.keys(data[0]) as Array<keyof T>)
+			.filter((key) => key !== "files")
+			.map((key) => ({
+				id: String(key),
+				accessorKey: String(key),
+				enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
+				header: (props) => (
+					<DataTableColumnHeader
+						column={props.column}
+						title={getColumnNewName(String(key))}
+					/>
+				),
+				meta: {
+					label: getColumnNewName(String(key)),
+				},
+			}));
 	}, [columns, data]);
 
 	const orderedColumns = React.useMemo(() => {
@@ -197,6 +205,51 @@ export function DataTable<T extends object>({
 			enableHiding: false,
 		};
 
+		const fileColumn: ColumnDef<T> = {
+			id: "files",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					title={getColumnNewName("files")}
+				/>
+			),
+			cell: ({ row }) => {
+				const sample = row.original as Sample;
+
+				if (!sample.files || sample.files.length === 0) {
+					return null;
+				}
+
+				return (
+					<div className="flex flex-col gap-1">
+						{sample.files.map((file, index) => (
+							<button
+								key={index}
+								onClick={async () => {
+									try {
+										const { url } = await requestPresignedDownload({
+											projectId: Number(project?.id),
+											sampleName: sample.name,
+											fileName: file.name,
+										});
+
+										window.open(url, "_blank");
+									} catch (err: any) {
+										toast.error(err?.message ?? "Download failed");
+									}
+								}}
+								className="text-left text-blue-600 hover:underline"
+							>
+								{file.name}
+							</button>
+						))}
+					</div>
+				);
+			},
+			enableSorting: false,
+			enableHiding: true,
+		};
+
 		const actionColumn: ColumnDef<T> | undefined =
 			onEdit || onDelete
 				? {
@@ -224,10 +277,6 @@ export function DataTable<T extends object>({
 										projectId={project?.id!}
 										sampleName={(row.original as Sample).name}
 									/>
-									<Button className="" variant={"ghost"}>
-										<Download />
-										Download Data
-									</Button>
 									{onDelete && (
 										<DeleteAlertButton
 											projectId={project?.id!}
@@ -244,6 +293,7 @@ export function DataTable<T extends object>({
 		return [
 			selectionColumn,
 			...orderedColumns,
+			fileColumn,
 			...(actionColumn ? [actionColumn] : []),
 		];
 	}, [autoColumns, onOpen, onEdit, onDelete]);
@@ -284,6 +334,7 @@ export function DataTable<T extends object>({
 			lastUpdatedOn: false,
 			id: false,
 			mlst: false,
+			files: true,
 		});
 
 	const table = useReactTable({
@@ -391,6 +442,8 @@ export function DataTable<T extends object>({
 
 	const quickEditColumns = editableColumns.slice(1, QUICK_EDIT_LIMIT);
 	const moreEditColumns = editableColumns.slice(QUICK_EDIT_LIMIT);
+
+	console.log("table:", table);
 
 	return (
 		<div className="space-y-4">
