@@ -76,7 +76,7 @@ export const DeleteAlertButton = ({
 				<Button
 					autoFocus={false}
 					variant="ghost"
-					className="flex w-full gap-2 px-0 text-left text-red-500 hover:text-red-500"
+					className="w-full justify-start !px-2 text-red-500 hover:text-red-500"
 				>
 					<Trash2 />
 					Delete
