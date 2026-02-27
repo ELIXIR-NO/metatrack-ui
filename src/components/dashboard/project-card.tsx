@@ -28,7 +28,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { FolderOpen, MoreHorizontal, SquarePen } from "lucide-react";
 import { AddProjectDialog } from "./add-project";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
@@ -110,12 +110,22 @@ export function ProjectsDataTable({
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent>
-								<DropdownMenuItem onClick={() => onOpen(project)}>
+								<DropdownMenuItem
+									onClick={() => onOpen(project)}
+									className="flex items-center gap-2"
+								>
+									<FolderOpen />
 									Open
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => onEdit(project)}>
+
+								<DropdownMenuItem
+									onClick={() => onEdit(project)}
+									className="flex items-center gap-2"
+								>
+									<SquarePen />
 									Edit
 								</DropdownMenuItem>
+
 								<DropdownMenuItem asChild>
 									<DeleteAlertButton
 										projectId={project?.id}
