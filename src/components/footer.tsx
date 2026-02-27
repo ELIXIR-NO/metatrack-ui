@@ -29,12 +29,12 @@ export default function Footer() {
 							</Link>
 						</li>
 						<li>
-							<Link to="/" className="hover:underline">
+							<Link to="/privacy-policy" className="hover:underline">
 								Privacy Policy
 							</Link>
 						</li>
 						<li>
-							<Link to="/" className="hover:underline">
+							<Link to="/terms-of-use" className="hover:underline">
 								Terms of Use
 							</Link>
 						</li>

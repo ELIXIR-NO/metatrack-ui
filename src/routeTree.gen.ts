@@ -11,8 +11,10 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TermsOfUseImport } from './routes/terms-of-use'
 import { Route as ResourcesImport } from './routes/resources'
 import { Route as PublicDataImport } from './routes/public-data'
+import { Route as PrivacyPolicyImport } from './routes/privacy-policy'
 import { Route as GetStartedImport } from './routes/get-started'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
@@ -23,6 +25,12 @@ import { Route as DashboardProjectsProjectIdImport } from './routes/dashboard/pr
 
 // Create/Update Routes
 
+const TermsOfUseRoute = TermsOfUseImport.update({
+  id: '/terms-of-use',
+  path: '/terms-of-use',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ResourcesRoute = ResourcesImport.update({
   id: '/resources',
   path: '/resources',
@@ -32,6 +40,12 @@ const ResourcesRoute = ResourcesImport.update({
 const PublicDataRoute = PublicDataImport.update({
   id: '/public-data',
   path: '/public-data',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PrivacyPolicyRoute = PrivacyPolicyImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -104,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GetStartedImport
       parentRoute: typeof rootRoute
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyImport
+      parentRoute: typeof rootRoute
+    }
     '/public-data': {
       id: '/public-data'
       path: '/public-data'
@@ -116,6 +137,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesImport
+      parentRoute: typeof rootRoute
+    }
+    '/terms-of-use': {
+      id: '/terms-of-use'
+      path: '/terms-of-use'
+      fullPath: '/terms-of-use'
+      preLoaderRoute: typeof TermsOfUseImport
       parentRoute: typeof rootRoute
     }
     '/about/': {
@@ -171,8 +199,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/get-started': typeof GetStartedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/about': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
@@ -182,8 +212,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/get-started': typeof GetStartedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/about': typeof AboutIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
@@ -195,8 +227,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/get-started': typeof GetStartedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/terms-of-use': typeof TermsOfUseRoute
   '/about/': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
@@ -209,8 +243,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/get-started'
+    | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/terms-of-use'
     | '/about'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
@@ -219,8 +255,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/get-started'
+    | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/terms-of-use'
     | '/about'
     | '/dashboard'
     | '/dashboard/projects/$projectId'
@@ -230,8 +268,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/get-started'
+    | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/terms-of-use'
     | '/about/'
     | '/dashboard/'
     | '/dashboard/projects/$projectId'
@@ -243,8 +283,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   GetStartedRoute: typeof GetStartedRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PublicDataRoute: typeof PublicDataRoute
   ResourcesRoute: typeof ResourcesRoute
+  TermsOfUseRoute: typeof TermsOfUseRoute
   AboutIndexRoute: typeof AboutIndexRoute
 }
 
@@ -252,8 +294,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   GetStartedRoute: GetStartedRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   PublicDataRoute: PublicDataRoute,
   ResourcesRoute: ResourcesRoute,
+  TermsOfUseRoute: TermsOfUseRoute,
   AboutIndexRoute: AboutIndexRoute,
 }
 
@@ -270,8 +314,10 @@ export const routeTree = rootRoute
         "/",
         "/dashboard",
         "/get-started",
+        "/privacy-policy",
         "/public-data",
         "/resources",
+        "/terms-of-use",
         "/about/"
       ]
     },
@@ -289,11 +335,17 @@ export const routeTree = rootRoute
     "/get-started": {
       "filePath": "get-started.tsx"
     },
+    "/privacy-policy": {
+      "filePath": "privacy-policy.tsx"
+    },
     "/public-data": {
       "filePath": "public-data.tsx"
     },
     "/resources": {
       "filePath": "resources.tsx"
+    },
+    "/terms-of-use": {
+      "filePath": "terms-of-use.tsx"
     },
     "/about/": {
       "filePath": "about/index.tsx"
