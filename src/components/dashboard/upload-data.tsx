@@ -96,7 +96,7 @@ export function UploadDataDialog({
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button className="flex w-full items-center gap-2" variant={"ghost"}>
+				<Button className="flex w-full gap-2 !px-2" variant={"ghost"}>
 					<HardDriveUpload />
 					Upload Data
 				</Button>

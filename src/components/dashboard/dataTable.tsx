@@ -759,9 +759,10 @@ function TableCellViewer({
 			<DrawerTrigger asChild>
 				<Button
 					variant="ghost"
-					className="text-foreground w-full px-0 text-left"
+					className="text-foreground w-full justify-start gap-2 text-left"
+					size={"sm"}
 				>
-					<SquarePen />
+					<SquarePen size={6} />
 					Edit
 				</Button>
 			</DrawerTrigger>
