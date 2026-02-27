@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { HardDriveUpload } from "lucide-react";
 import { requestPresignedUpload, uploadFastaFile } from "@/lib/api-keycloak";
+import { Spinner } from "../spinner";
 
 interface UploadSampleDialogProps {
 	projectId: string;
@@ -31,28 +32,49 @@ export function UploadDataDialog({
 
 	const uploadMutation = useMutation({
 		mutationFn: async (file: File) => {
-			const { url } = await requestPresignedUpload({
-				projectId: Number(projectId),
-				sampleName,
-				file,
-			});
+			return toast.promise(
+				async () => {
+					const { url } = await requestPresignedUpload({
+						projectId: Number(projectId),
+						sampleName,
+						file,
+					});
 
-			await uploadFastaFile(url, file);
+					setOpen(false);
+
+					await uploadFastaFile(url, file);
+
+					return { completedAt: new Date() };
+				},
+				{
+					loading: (
+						<div className="flex items-center gap-2">
+							<Spinner size={24} />
+							<span>
+								Uploading {file.name} to {sampleName}...
+							</span>
+						</div>
+					),
+					icon: null,
+					position: "bottom-right",
+					success: (data) => ({
+						message: "Upload completed successfully",
+						description: data.completedAt.toLocaleString(),
+						position: "top-center",
+					}),
+					error: (error: any) => ({
+						message: error?.message || "Upload failed",
+						position: "top-center",
+					}),
+				}
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: ["samples", projectId],
 			});
 
-			toast.success("Upload completed successfully", {
-				description: new Date().toLocaleString(),
-			});
-
 			setFile(null);
-			setOpen(false);
-		},
-		onError: (error: any) => {
-			toast.error(error?.message || "Upload failed");
 		},
 	});
 
@@ -124,12 +146,7 @@ export function UploadDataDialog({
 						Cancel
 					</Button>
 
-					<Button
-						onClick={handleUpload}
-						disabled={!file || uploadMutation.isPending}
-					>
-						{uploadMutation.isPending ? "Uploading..." : "Upload"}
-					</Button>
+					<Button onClick={handleUpload}>Upload</Button>
 				</div>
 			</DialogContent>
 		</Dialog>
