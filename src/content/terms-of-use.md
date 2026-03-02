@@ -85,7 +85,7 @@ Metadata may remain discoverable even when data access is restricted, in order t
 
 ---
 
-#### **4.5 Early Metadata Discoverability**
+#### 4.5 Early Metadata Discoverability
 
 To promote early discoverability and foster scientific collaboration, MetaTrack enables limited search functionality across selected non-sensitive contextual metadata fields prior to formal publication of the underlying datasets.
 
