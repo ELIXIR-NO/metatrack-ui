@@ -1,14 +1,17 @@
 import { keycloak } from "./keycloak";
 import {
+	Assay,
 	CreateSample,
 	PresignDownloadRequest,
 	PresignUploadRequest,
 	PresignUploadResponse,
 	Project,
+	Sample,
 	SampleFile,
 	StatisticsResponse,
 } from "./types";
 import { API_URL } from "./config";
+import axios from "axios";
 
 //const API_URL = "/api";
 
@@ -296,4 +299,185 @@ export async function downloadSampleTemplate(): Promise<void> {
 
 	a.remove();
 	window.URL.revokeObjectURL(url);
+}
+
+export async function getAssays(projectId: string): Promise<Assay[]> {
+	const token = keycloak.token;
+
+	const response = await fetch(`${API_URL}/projects/${projectId}/assays`, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error("Erro ao buscar assays");
+	}
+
+	const data = await response.json();
+	return data.assays ?? data;
+}
+
+export async function getAssayById(
+	projectId: string,
+	assayId: string
+): Promise<Assay> {
+	const token = keycloak.token;
+
+	const response = await fetch(
+		`${API_URL}/projects/${projectId}/assays/${assayId}`,
+		{
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao buscar assay");
+	}
+
+	return response.json();
+}
+
+export async function createAssay(
+	projectId: string,
+	payload: Partial<Assay>
+): Promise<Assay> {
+	const token = keycloak.token;
+
+	const response = await fetch(`${API_URL}/projects/${projectId}/assays`, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			name: payload.name,
+			studyAccession: payload.studyAccession ?? null,
+			instrumentModel: payload.instrumentModel ?? null,
+			libraryName: payload.libraryName ?? null,
+			librarySource: payload.librarySource ?? null,
+			libraryStrategy: payload.libraryStrategy ?? null,
+			librarySelection: payload.librarySelection ?? null,
+			libraryLayout: payload.libraryLayout ?? null,
+			insertSize: payload.insertSize ?? null,
+		}),
+	});
+
+	if (!response.ok) {
+		throw new Error("Erro ao criar assay");
+	}
+
+	return response.json();
+}
+
+export async function updateAssay(
+	projectId: string,
+	assayId: string,
+	payload: Partial<Assay>
+) {
+	const token = keycloak.token;
+
+	const response = await fetch(
+		`${API_URL}/projects/${projectId}/assays/${assayId}`,
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(payload),
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao atualizar assay");
+	}
+
+	return response.json();
+}
+
+export async function deleteAssay(projectId: string, assayId: string) {
+	const token = keycloak.token;
+
+	const response = await fetch(
+		`${API_URL}/projects/${projectId}/assays/${assayId}`,
+		{
+			method: "DELETE",
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao deletar assay");
+	}
+}
+
+export async function getSamplesInAssay(
+	projectId: string,
+	assayId: string
+): Promise<Sample[]> {
+	const token = keycloak.token;
+
+	const response = await fetch(
+		`${API_URL}/projects/${projectId}/assays/${assayId}/samples`,
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error("Erro ao buscar samples do assay");
+	}
+
+	return response.json();
+}
+
+export async function addSamplesToAssay(
+	projectId: string,
+	assayId: string,
+	sampleNames: string[]
+): Promise<void> {
+	const token = keycloak.token;
+
+	const response = await fetch(
+		`${API_URL}/projects/${projectId}/assays/${assayId}/samples`,
+		{
+			method: "PUT",
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ sampleNames }),
+		}
+	);
+
+	if (!response.ok) {
+		const text = await response.text();
+		throw new Error(text || "Failed to add samples to assay");
+	}
+}
+
+export async function progressUploadFastaFile(
+	url: string,
+	file: File,
+	onProgress?: (progress: number) => void
+) {
+	await axios.put(url, file, {
+		headers: {
+			"Content-Type": file.type || "application/octet-stream",
+		},
+		onUploadProgress: (event) => {
+			if (!event.total) return;
+			const percent = Math.round((event.loaded * 100) / event.total);
+			onProgress?.(percent);
+		},
+	});
 }
