@@ -53,7 +53,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { CreateSample, Project, Sample } from "@/lib/types";
+import { CreateSample, Project, Sample, SampleFile } from "@/lib/types";
 import {
 	emptyToNull,
 	NON_EDITABLE_COLUMNS,
@@ -79,6 +79,7 @@ interface DataTableProps<T extends object> {
 	showAddButton?: React.ReactNode;
 	filterPlaceholder?: string;
 	project?: Project;
+	dataType?: "sample" | "assay";
 }
 
 const COLUMN_TOOLTIPS: Record<string, string> = {
@@ -105,6 +106,19 @@ const COLUMN_TOOLTIPS: Record<string, string> = {
 	createdOn: "Date of creation",
 	modifiedOn: "Last modification date",
 	files: "FASTQ files linked to the sample",
+	sampleName: "Unique identifier for the sample within this project.",
+	studyAccession: "Study accession or unique name.",
+	instrumentModel: "Model of the sequencing instrument.",
+	libraryName: "The submitter's name for this library.",
+	librarySource:
+		"The library_source specifies the type of source material that is being sequenced.",
+	libraryStrategy: "Sequencing technique intended for this library.",
+	librarySelection:
+		"Method used to enrich the target in the sequence library preparation.",
+	libraryLayout:
+		"Library_layout specifies whether to expect single, paired, or other configuration of reads. in the case of paired reads, information about the relative distance and orientation is specified.",
+	insertSize:
+		"The size (The distance between paired reads) of the DNA fragment that is sequenced in bp. A typical example for Nextseq is 500 or 550. MiSeq system are 50, 150, 250 and 300 bp.",
 };
 
 const COLUMN_NAMES: Record<string, string> = {
@@ -122,6 +136,15 @@ const COLUMN_NAMES: Record<string, string> = {
 	createdOn: "Created On",
 	modifiedOn: "Modified On",
 	files: "FASTQ Files",
+	sampleName: "Sample Name",
+	studyAccession: "Study Accession",
+	instrumentModel: "Instrument Model",
+	libraryName: "Library Name",
+	librarySource: "Library Source",
+	libraryStrategy: "LibraryStrategy",
+	librarySelection: "Library Selection",
+	libraryLayout: "Library Layout",
+	insertSize: "Insert Size",
 };
 
 function getColumnTooltip(key: string) {
@@ -144,6 +167,7 @@ export function DataTable<T extends object>({
 	showAddButton,
 	project,
 	filterPlaceholder = "Filter...",
+	dataType,
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
@@ -214,7 +238,7 @@ export function DataTable<T extends object>({
 				/>
 			),
 			cell: ({ row }) => {
-				const sample = row.original as Sample;
+				const sample = row.original as { name: string; files?: SampleFile[] };
 
 				if (!sample.files || sample.files.length === 0) {
 					return null;
@@ -293,7 +317,7 @@ export function DataTable<T extends object>({
 		return [
 			selectionColumn,
 			...orderedColumns,
-			fileColumn,
+			...(dataType === "assay" ? [fileColumn] : []),
 			...(actionColumn ? [actionColumn] : []),
 		];
 	}, [autoColumns, onOpen, onEdit, onDelete]);
@@ -442,8 +466,6 @@ export function DataTable<T extends object>({
 
 	const quickEditColumns = editableColumns.slice(1, QUICK_EDIT_LIMIT);
 	const moreEditColumns = editableColumns.slice(QUICK_EDIT_LIMIT);
-
-	console.log("table:", table);
 
 	return (
 		<div className="space-y-4">
@@ -746,8 +768,6 @@ function TableCellViewer({
 			setLoading(false);
 		}
 	};
-
-	console.log("item:", item);
 
 	return (
 		<Drawer
