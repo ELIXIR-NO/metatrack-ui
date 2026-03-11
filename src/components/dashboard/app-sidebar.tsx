@@ -9,7 +9,6 @@ import {
 	IconRocket,
 	IconBook,
 	IconBriefcase,
-	IconUserSquare,
 	IconMessageQuestion,
 } from "@tabler/icons-react";
 
@@ -18,6 +17,7 @@ import { NavSecondary } from "@/components/dashboard/nav-secondary";
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -28,9 +28,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getProjectsByUser } from "@/lib/api-keycloak";
 import { Link } from "@tanstack/react-router";
+import { NavUser } from "./nav-user";
+import { MeResponse } from "@/lib/types";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-	user: string | undefined;
+	user: MeResponse;
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
@@ -79,19 +81,14 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 								url: "#",
 							},
 						]
-					: projects.map((p: any) => ({
-							title: p.name,
-							url: `/dashboard/projects/${p.id}`,
+					: projects.map((project: any) => ({
+							title: project.name,
+							url: `/dashboard/projects/${project.id}`,
 						})),
 			},
 		],
 
 		navSecondary: [
-			{
-				title: String(user),
-				url: "/",
-				icon: IconUserSquare,
-			},
 			{
 				title: "Settings",
 				url: "#",
@@ -144,6 +141,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
 			</SidebarContent>
+			<SidebarFooter>
+				<NavUser user={user} />
+			</SidebarFooter>
 		</Sidebar>
 	);
 }
