@@ -40,7 +40,7 @@ function DashboardLayout() {
 
 	return (
 		<SidebarProvider className="min-h-full">
-			<AppSidebar variant="inset" user={user.username ?? user.userId} />
+			<AppSidebar variant="inset" user={user} />
 			<SidebarInset>
 				<Outlet />
 			</SidebarInset>
