@@ -35,7 +35,8 @@ export type MeResponse = {
 	firstName?: string;
 	lastName?: string;
 	isAuthenticated: boolean;
-	roles: string;
+	roles: string[];
+	avatar?: string;
 };
 
 export interface Project {
@@ -69,3 +70,21 @@ export interface PresignUploadResponse {
 	expiresIn: number;
 	expiresAt: string;
 }
+
+export interface Assay {
+	id: string;
+	name: string;
+	studyAccession?: string | null;
+	instrumentModel?: string | null;
+	libraryName?: string | null;
+	librarySource?: string | null;
+	libraryStrategy?: string | null;
+	librarySelection?: string | null;
+	libraryLayout?: string | null;
+	insertSize?: number | null;
+	createdOn?: string | null;
+	modifiedOn?: string | null;
+	files?: SampleFile[];
+}
+
+export type AssaySampleRow = Omit<Assay, "id">;
