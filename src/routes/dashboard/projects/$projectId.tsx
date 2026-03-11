@@ -9,12 +9,18 @@ import { SiteHeader } from "@/components/dashboard/site-header";
 import { getSamplesNew } from "@/lib/api-client";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
-import { Project, Sample, SampleFile } from "@/lib/types";
+import { Project, Sample } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
-import { getProjectsByUser, getSampleFiles } from "@/lib/api-keycloak";
+import { getProjectsByUser } from "@/lib/api-keycloak";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useState } from "react";
+import { getAssays } from "@/lib/api-keycloak";
+import { Assay } from "@/lib/types";
+import { AssayTable } from "@/components/dashboard/assayTable";
+import { AddAssayDialog } from "@/components/dashboard/add-assay";
 
 export const Route = createFileRoute("/dashboard/projects/$projectId")({
 	component: RouteComponent,
@@ -22,6 +28,7 @@ export const Route = createFileRoute("/dashboard/projects/$projectId")({
 
 export function RouteComponent() {
 	const { projectId } = Route.useParams();
+	const [activeTab, setActiveTab] = useState("samples");
 
 	const {
 		data: projects,
@@ -34,35 +41,21 @@ export function RouteComponent() {
 
 	const project = projects?.find((p) => String(p.id) === projectId);
 
-	const { data: samples = [], isLoading: samplesLoading } = useQuery<
-		(Sample & { files?: SampleFile[] })[]
-	>({
+	const { data: samples = [] } = useQuery<Sample[]>({
 		queryKey: ["samples", projectId],
-		queryFn: async () => {
-			const baseSamples = await getSamplesNew(projectId);
-
-			const samplesWithFiles = await Promise.all(
-				baseSamples.map(async (sample) => {
-					try {
-						const files = await getSampleFiles(Number(projectId), sample.id);
-
-						return {
-							...sample,
-							files,
-						};
-					} catch {
-						return {
-							...sample,
-							files: [],
-						};
-					}
-				})
-			);
-
-			return samplesWithFiles;
-		},
+		queryFn: () => getSamplesNew(projectId),
 		enabled: !!projectId,
 	});
+
+	const { data: assays = [] } = useQuery<Assay[]>({
+		queryKey: ["assays", projectId],
+		queryFn: () => getAssays(projectId),
+		enabled: !!projectId,
+	});
+
+	const [activeAssayTab, setActiveAssayTab] = useState<string | undefined>(
+		assays.length > 0 ? assays[0].id : ""
+	);
 
 	if (projectLoading) {
 		return (
@@ -109,30 +102,83 @@ export function RouteComponent() {
 					</CardContent>
 				</Card>
 
-				<Card>
-					<CardHeader>
-						<CardTitle>Samples</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{samplesLoading ? (
-							<Skeleton className="h-40 w-full" />
-						) : (
-							<DataTable
-								data={samples}
-								columns={dynamicColumns}
-								onEdit={(sample) => console.log("Edit sample", sample)}
-								onDelete={(sample) => console.log("Delete sample", sample)}
-								project={project}
-								showAddButton={
-									<div className="flex gap-2">
-										<DownloadTemplateButton />
-										<AddSampleDialog projectId={projectId} />
-										<UploadSampleDialog projectId={projectId} />
+				<Card className="pt-2">
+					<Tabs value={activeTab} onValueChange={setActiveTab}>
+						<CardHeader className="pb-0">
+							<TabsList className="bg-transparent p-0">
+								<TabsTrigger
+									value="samples"
+									variant="underline"
+									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
+								>
+									Samples
+								</TabsTrigger>
+
+								<TabsTrigger
+									value="runs"
+									variant="default"
+									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
+								>
+									Runs
+								</TabsTrigger>
+							</TabsList>
+						</CardHeader>
+
+						<CardContent className="pt-6">
+							<TabsContent value="samples">
+								<DataTable
+									data={samples}
+									columns={dynamicColumns}
+									onEdit={(sample) => console.log("Edit sample", sample)}
+									onDelete={(sample) => console.log("Delete sample", sample)}
+									dataType="sample"
+									project={project}
+									showAddButton={
+										<div className="flex gap-2">
+											<DownloadTemplateButton />
+											<AddSampleDialog projectId={projectId} />
+											<UploadSampleDialog projectId={projectId} />
+										</div>
+									}
+								/>
+							</TabsContent>
+
+							<TabsContent value="runs">
+								{assays.length > 0 ? (
+									<Tabs
+										value={activeAssayTab}
+										onValueChange={setActiveAssayTab}
+									>
+										<div className="mb-4 flex items-center gap-2">
+											<TabsList>
+												{assays.map((assay) => (
+													<TabsTrigger key={assay.id} value={assay.id}>
+														{assay.name}
+													</TabsTrigger>
+												))}
+											</TabsList>
+
+											<AddAssayDialog projectId={projectId}></AddAssayDialog>
+										</div>
+
+										{assays.map((assay) => (
+											<TabsContent key={assay.id} value={assay.id}>
+												<Card>
+													<CardContent className="pt-6">
+														<AssayTable assay={assay} project={project} />
+													</CardContent>
+												</Card>
+											</TabsContent>
+										))}
+									</Tabs>
+								) : (
+									<div className="flex justify-center py-8">
+										<AddAssayDialog projectId={projectId}></AddAssayDialog>
 									</div>
-								}
-							/>
-						)}
-					</CardContent>
+								)}
+							</TabsContent>
+						</CardContent>
+					</Tabs>
 				</Card>
 			</div>
 		</div>
