@@ -13,8 +13,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { HardDriveUpload } from "lucide-react";
-import { requestPresignedUpload, uploadFastaFile } from "@/lib/api-keycloak";
-import { Spinner } from "../spinner";
+import {
+	progressUploadFastaFile,
+	requestPresignedUpload,
+} from "@/lib/api-keycloak";
+import { Progress } from "../ui/progress";
+import { Field, FieldLabel } from "../ui/field";
 
 interface UploadSampleDialogProps {
 	projectId: string;
@@ -29,45 +33,45 @@ export function UploadDataDialog({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [open, setOpen] = useState(false);
 	const queryClient = useQueryClient();
+	const [, setProgress] = useState(0);
+
+	const renderUploadToast = (fileName: string, progress: number) => (
+		<Field className="w-xs">
+			<FieldLabel>
+				<span>Uploading {fileName}:</span>
+				<span className="ml-auto">{progress}%</span>
+			</FieldLabel>
+			<Progress
+				value={progress}
+				className="h-3 rounded-md bg-gray-800 [&>div]:bg-green-500"
+			/>
+		</Field>
+	);
 
 	const uploadMutation = useMutation({
 		mutationFn: async (file: File) => {
-			return toast.promise(
-				async () => {
-					const { url } = await requestPresignedUpload({
-						projectId: Number(projectId),
-						sampleName,
-						file,
-					});
+			const { url } = await requestPresignedUpload({
+				projectId: Number(projectId),
+				sampleName,
+				file,
+			});
 
-					setOpen(false);
+			setOpen(false);
 
-					await uploadFastaFile(url, file);
+			const toastId = toast.loading(renderUploadToast(file.name, 0), {
+				position: "bottom-right",
+				icon: null,
+			});
 
-					return { completedAt: new Date() };
-				},
-				{
-					loading: (
-						<div className="flex items-center gap-2">
-							<Spinner size={24} />
-							<span>
-								Uploading {file.name} to {sampleName}...
-							</span>
-						</div>
-					),
-					icon: null,
-					position: "bottom-right",
-					success: (data) => ({
-						message: "Upload completed successfully",
-						description: data.completedAt.toLocaleString(),
-						position: "top-center",
-					}),
-					error: (error: any) => ({
-						message: error?.message || "Upload failed",
-						position: "top-center",
-					}),
-				}
-			);
+			await progressUploadFastaFile(url, file, (p) => {
+				setProgress(p);
+
+				toast.loading(renderUploadToast(file.name, p), {
+					id: toastId,
+				});
+			});
+
+			toast.success("Upload completed", { id: toastId });
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
