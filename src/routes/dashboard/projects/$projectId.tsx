@@ -16,11 +16,14 @@ import { NON_VIEWED_COLUMNS } from "@/lib/utils";
 import { getProjectsByUser } from "@/lib/api-keycloak";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAssays } from "@/lib/api-keycloak";
 import { Assay } from "@/lib/types";
 import { AssayTable } from "@/components/dashboard/assayTable";
 import { AddAssayDialog } from "@/components/dashboard/add-assay";
+import { Button } from "@/components/ui/button";
+import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
+import { SquarePen, UserRoundCog } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/projects/$projectId")({
 	component: RouteComponent,
@@ -29,6 +32,15 @@ export const Route = createFileRoute("/dashboard/projects/$projectId")({
 export function RouteComponent() {
 	const { projectId } = Route.useParams();
 	const [activeTab, setActiveTab] = useState("samples");
+	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [editDialogInitialTab, setEditDialogInitialTab] = useState<
+		"general" | "members"
+	>("general");
+
+	const openEditProjectDialog = (tab: "general" | "members") => {
+		setEditDialogInitialTab(tab);
+		setEditDialogOpen(true);
+	};
 
 	const {
 		data: projects,
@@ -54,8 +66,14 @@ export function RouteComponent() {
 	});
 
 	const [activeAssayTab, setActiveAssayTab] = useState<string | undefined>(
-		assays.length > 0 ? assays[0].id : ""
+		undefined
 	);
+
+	useEffect(() => {
+		if (assays.length > 0) {
+			setActiveAssayTab(assays[0].id);
+		}
+	}, [assays]);
 
 	if (projectLoading) {
 		return (
@@ -93,14 +111,33 @@ export function RouteComponent() {
 				]}
 			/>
 			<div className="space-y-6 p-4">
-				<Card>
-					<CardHeader>
+				<Card className="grid grid-flow-col grid-rows-3 gap-4">
+					<CardHeader className="row-span-1">
 						<CardTitle className="text-2xl font-bold">{project.name}</CardTitle>
 					</CardHeader>
-					<CardContent>
-						<p className="text-muted-foreground">{project.description}</p>
+
+					<CardContent className="row-span-2 space-y-4">
+						<p>Number of samples: {samples.length}</p>
+						<p>Description: {project.description}</p>
 					</CardContent>
+					<div className="col-span-1 row-span-2 row-start-2 space-x-6 justify-self-center">
+						<Button size="lg" onClick={() => openEditProjectDialog("general")}>
+							<SquarePen />
+							Edit Project
+						</Button>
+						<Button size="lg" onClick={() => openEditProjectDialog("members")}>
+							<UserRoundCog />
+							Manage Members
+						</Button>
+					</div>
 				</Card>
+
+				<EditProjectDialog
+					project={project}
+					open={editDialogOpen}
+					onOpenChange={setEditDialogOpen}
+					initialTab={editDialogInitialTab}
+				/>
 
 				<Card className="pt-2">
 					<Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -116,7 +153,7 @@ export function RouteComponent() {
 
 								<TabsTrigger
 									value="runs"
-									variant="default"
+									variant="underline"
 									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
 								>
 									Runs
@@ -135,7 +172,7 @@ export function RouteComponent() {
 									project={project}
 									showAddButton={
 										<div className="flex gap-2">
-											<DownloadTemplateButton />
+											<DownloadTemplateButton type="sample" />
 											<AddSampleDialog projectId={projectId} />
 											<UploadSampleDialog projectId={projectId} />
 										</div>
