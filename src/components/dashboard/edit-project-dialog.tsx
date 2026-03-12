@@ -10,28 +10,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Project } from "@/lib/types";
 import { ProjectGeneralTab } from "./tabs/project-general-tab";
 import { ProjectMembersTab } from "./tabs/project-members-tab";
+import { useEffect, useState } from "react";
 
 interface EditProjectDialogProps {
 	project: Project | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	initialTab?: "general" | "members";
 }
 
 export function EditProjectDialog({
 	project,
 	open,
 	onOpenChange,
+	initialTab = "general",
 }: EditProjectDialogProps) {
+	if (!project) return null;
+
+	const [activeTab, setActiveTab] = useState<"general" | "members">(initialTab);
+
+	useEffect(() => {
+		if (open) {
+			setActiveTab(initialTab);
+		}
+	}, [open, initialTab]);
+
 	if (!project) return null;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-3xl">
+			<DialogContent className="max-w-3xl" aria-describedby={undefined}>
 				<DialogHeader>
 					<DialogTitle>Edit project</DialogTitle>
 				</DialogHeader>
 
-				<Tabs defaultValue="general" className="mt-4">
+				<Tabs
+					value={activeTab}
+					onValueChange={(val: string) =>
+						setActiveTab(val as "general" | "members")
+					}
+					className="mt-4"
+				>
 					<TabsList>
 						<TabsTrigger value="general">General</TabsTrigger>
 						<TabsTrigger value="members">Members</TabsTrigger>
