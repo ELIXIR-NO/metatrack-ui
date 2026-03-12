@@ -210,8 +210,8 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button size="sm" className="flex items-center gap-2">
-					<SquarePlus className="h-4 w-4" />
+				<Button className="flex items-center gap-2">
+					<SquarePlus />
 					Add Run
 				</Button>
 			</DialogTrigger>
