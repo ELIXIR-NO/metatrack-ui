@@ -405,8 +405,6 @@ export async function updateAssay(
 	if (!response.ok) {
 		throw new Error("Erro ao atualizar assay");
 	}
-
-	return response.json();
 }
 
 export async function deleteAssay(projectId: string, assayId: string) {
