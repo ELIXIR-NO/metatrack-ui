@@ -3,6 +3,8 @@ import type { Assay, AssaySampleRow, Project, Sample } from "@/lib/types";
 import { DataTable } from "./dataTable";
 import { getSamplesInAssay, getSampleFiles } from "@/lib/api-keycloak";
 import { AddSamplesToAssayDialog } from "./add-samples-assay";
+import { DownloadTemplateButton } from "./download-template-button";
+import { EditAssayDialog } from "./edit-assay-dialog";
 
 interface AssayTableProps {
 	assay: Assay;
@@ -60,6 +62,8 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 			onDelete={(sample) => console.log("Delete sample", sample)}
 			showAddButton={
 				<div className="flex gap-2">
+					<EditAssayDialog assay={assay} projectId={project?.id!} />
+					<DownloadTemplateButton type="assay" />
 					<AddSamplesToAssayDialog
 						projectId={project?.id!}
 						assayId={assay.id}
