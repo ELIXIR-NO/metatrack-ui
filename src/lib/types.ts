@@ -39,6 +39,11 @@ export type MeResponse = {
 	avatar?: string;
 };
 
+export type Member = {
+	memberId: string | null;
+	role: string | null;
+};
+
 export interface Project {
 	id?: string;
 	name: string;
