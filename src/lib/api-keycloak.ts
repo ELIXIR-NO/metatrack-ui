@@ -2,6 +2,7 @@ import { keycloak } from "./keycloak";
 import {
 	Assay,
 	CreateSample,
+	Member,
 	PresignDownloadRequest,
 	PresignUploadRequest,
 	PresignUploadResponse,
@@ -205,6 +206,14 @@ export async function updateProject(
 	return api(`projects/${projectId}`, {
 		method: "PATCH",
 		body: JSON.stringify(data),
+	});
+}
+
+export async function getAllProjectMembers(
+	projectId: string
+): Promise<Member[]> {
+	return api<Member[]>(`projects/${projectId}/members`, {
+		method: "GET",
 	});
 }
 
