@@ -6,13 +6,22 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { downloadSampleTemplate } from "@/lib/api-keycloak";
 
-export function DownloadTemplateButton() {
+interface DownloadTemplateButtonProps {
+	type: "sample" | "assay";
+}
+
+export function DownloadTemplateButton({ type }: DownloadTemplateButtonProps) {
 	const [loading, setLoading] = useState(false);
 
 	const handleDownload = async () => {
 		try {
 			setLoading(true);
-			await downloadSampleTemplate();
+
+			if (type === "sample") {
+				await downloadSampleTemplate();
+			} else if (type === "assay") {
+				await downloadSampleTemplate(); // ADD ASSAY TEMPLATE HERE
+			}
 
 			toast.success("Template downloaded successfully");
 		} catch (err: any) {
@@ -25,7 +34,7 @@ export function DownloadTemplateButton() {
 	return (
 		<Button variant="default" onClick={handleDownload} disabled={loading}>
 			<Download className="h-4 w-4" />
-			Download template
+			Download {type === "sample" ? "Sample" : "Assay"} Template
 		</Button>
 	);
 }
