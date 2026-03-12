@@ -1,0 +1,128 @@
+"use client";
+
+import { useState } from "react";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogFooter,
+	DialogClose,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateAssay, deleteAssay } from "@/lib/api-keycloak";
+import { Assay } from "@/lib/types";
+import { SquarePen } from "lucide-react";
+
+interface EditAssayDialogProps {
+	assay: Assay;
+	projectId: string;
+}
+
+export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
+	const [open, setOpen] = useState(false);
+	const [form, setForm] = useState({
+		name: assay.name ?? "Unknown",
+		studyAccession: assay.studyAccession ?? "",
+		instrumentModel: assay.instrumentModel ?? "",
+		libraryName: assay.libraryName ?? "",
+		librarySource: assay.librarySource ?? "",
+		libraryStrategy: assay.libraryStrategy ?? "",
+		librarySelection: assay.librarySelection ?? "",
+		libraryLayout: assay.libraryLayout ?? "",
+		insertSize: assay.insertSize ?? 0,
+	});
+
+	const queryClient = useQueryClient();
+
+	const updateMutation = useMutation({
+		mutationFn: () => updateAssay(projectId, assay.id, form),
+		onSuccess: () => {
+			toast.success("Assay updated successfully!");
+			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
+			setOpen(false);
+		},
+		onError: (err: any) =>
+			toast.error(err?.message ?? "Failed to update assay"),
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: () => deleteAssay(projectId, assay.id),
+		onSuccess: () => {
+			toast.success("Assay deleted successfully!");
+			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
+			setOpen(false);
+		},
+		onError: (err: any) =>
+			toast.error(err?.message ?? "Failed to delete assay"),
+	});
+
+	const handleChange = (key: keyof typeof form, value: string | number) => {
+		setForm((prev) => ({ ...prev, [key]: value }));
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button>
+					<SquarePen />
+					Edit Run
+				</Button>
+			</DialogTrigger>
+
+			<DialogContent className="max-w-lg">
+				<DialogHeader>
+					<DialogTitle>Edit Assay</DialogTitle>
+				</DialogHeader>
+
+				<div className="space-y-4">
+					{Object.keys(form).map((key) => (
+						<div key={key} className="space-y-1">
+							<label className="text-sm font-medium">{key}</label>
+							<Input
+								type={key === "insertSize" ? "number" : "text"}
+								value={(form as any)[key]}
+								onChange={(e) =>
+									handleChange(
+										key as keyof typeof form,
+										key === "insertSize"
+											? Number(e.target.value)
+											: e.target.value
+									)
+								}
+							/>
+						</div>
+					))}
+				</div>
+
+				<DialogFooter className="w-full !justify-between">
+					<div className="mt-4 flex w-full justify-between">
+						<Button
+							variant="destructive"
+							onClick={() => deleteMutation.mutate()}
+							disabled={deleteMutation.isPending}
+						>
+							{deleteMutation.isPending ? "Deleting..." : "Delete Assay"}
+						</Button>
+
+						<div className="flex gap-2">
+							<DialogClose asChild>
+								<Button variant="outline">Cancel</Button>
+							</DialogClose>
+							<Button
+								onClick={() => updateMutation.mutate()}
+								disabled={updateMutation.isPending}
+							>
+								{updateMutation.isPending ? "Saving..." : "Save Changes"}
+							</Button>
+						</div>
+					</div>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
