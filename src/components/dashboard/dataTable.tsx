@@ -297,10 +297,14 @@ export function DataTable<T extends object>({
 										/>
 									)}
 
-									<UploadDataDialog
-										projectId={project?.id!}
-										sampleName={(row.original as Sample).name}
-									/>
+									{dataType === "assay" ? (
+										<UploadDataDialog
+											projectId={project?.id!}
+											sampleName={(row.original as Sample).name}
+										/>
+									) : (
+										[]
+									)}
 									{onDelete && (
 										<DeleteAlertButton
 											projectId={project?.id!}
