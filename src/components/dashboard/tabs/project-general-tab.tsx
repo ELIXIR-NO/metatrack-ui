@@ -24,7 +24,7 @@ export function ProjectGeneralTab({ project }: { project: Project }) {
 	});
 
 	return (
-		<div className="max-w-xl space-y-4">
+		<div className="w-full space-y-4">
 			<Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
 
 			<Textarea
