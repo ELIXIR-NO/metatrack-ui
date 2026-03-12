@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSamplesNew } from "@/lib/api-client";
 import { addSamplesToAssay } from "@/lib/api-keycloak";
+import { Input } from "@/components/ui/input";
+import { SquarePlus } from "lucide-react";
 
 interface AddSamplesToAssayDialogProps {
 	projectId: string;
@@ -26,6 +28,7 @@ export function AddSamplesToAssayDialog({
 }: AddSamplesToAssayDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [selectedSamples, setSelectedSamples] = useState<string[]>([]);
+	const [search, setSearch] = useState("");
 
 	const queryClient = useQueryClient();
 
@@ -33,6 +36,10 @@ export function AddSamplesToAssayDialog({
 		queryKey: ["samples", projectId],
 		queryFn: () => getSamplesNew(projectId),
 	});
+
+	const filteredSamples = samples.filter((sample) =>
+		sample.name.toLowerCase().includes(search.toLowerCase())
+	);
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: () => addSamplesToAssay(projectId, assayId, selectedSamples),
@@ -55,10 +62,21 @@ export function AddSamplesToAssayDialog({
 		);
 	};
 
+	const toggleSelectAll = () => {
+		if (selectedSamples.length === filteredSamples.length) {
+			setSelectedSamples([]);
+		} else {
+			setSelectedSamples(filteredSamples.map((s) => s.name));
+		}
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button size="sm">Add Samples</Button>
+				<Button>
+					<SquarePlus />
+					Add Samples
+				</Button>
 			</DialogTrigger>
 
 			<DialogContent className="max-w-lg">
@@ -66,22 +84,42 @@ export function AddSamplesToAssayDialog({
 					<DialogTitle>Select Samples to Add</DialogTitle>
 				</DialogHeader>
 
-				<div className="max-h-96 space-y-2 overflow-y-auto">
-					{isPending ? (
-						<p>Loading samples...</p>
-					) : samples.length === 0 ? (
-						<p>No samples available in this project</p>
-					) : (
-						samples.map((sample) => (
-							<div key={sample.id} className="flex items-center gap-2">
-								<Checkbox
-									checked={selectedSamples.includes(sample.name)}
-									onCheckedChange={() => toggleSample(sample.name)}
-								/>
-								<span>{sample.name}</span>
-							</div>
-						))
-					)}
+				<div className="space-y-3">
+					{/* SEARCH */}
+					<Input
+						placeholder="Search samples..."
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+
+					{/* SELECT ALL */}
+					<div className="flex items-center gap-2 border-b pb-2">
+						<Checkbox
+							checked={
+								filteredSamples.length > 0 &&
+								selectedSamples.length === filteredSamples.length
+							}
+							onCheckedChange={toggleSelectAll}
+						/>
+						<span className="text-sm font-medium">Select All</span>
+					</div>
+
+					{/* SAMPLE LIST */}
+					<div className="max-h-72 space-y-2 overflow-y-auto">
+						{filteredSamples.length === 0 ? (
+							<p className="text-muted-foreground text-sm">No samples found</p>
+						) : (
+							filteredSamples.map((sample) => (
+								<div key={sample.id} className="flex items-center gap-2">
+									<Checkbox
+										checked={selectedSamples.includes(sample.name)}
+										onCheckedChange={() => toggleSample(sample.name)}
+									/>
+									<span className="text-sm">{sample.name}</span>
+								</div>
+							))
+						)}
+					</div>
 				</div>
 
 				<DialogFooter className="flex justify-between">
