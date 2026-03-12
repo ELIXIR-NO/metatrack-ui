@@ -12,7 +12,7 @@ interface AssayTableProps {
 }
 
 export function AssayTable({ assay, project }: AssayTableProps) {
-	const { data: rows = [] } = useQuery<AssaySampleRow[]>({
+	const { data } = useQuery({
 		queryKey: ["assaySamples", assay.id],
 		queryFn: async () => {
 			const samples: Sample[] =
@@ -36,22 +36,27 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 				})
 			);
 
-			return samplesWithFiles.map<AssaySampleRow>((sample) => ({
-				name: sample.name ?? "Unknown",
-				studyAccession: assay.studyAccession,
-				instrumentModel: assay.instrumentModel,
-				libraryName: assay.libraryName,
-				librarySource: assay.librarySource,
-				libraryStrategy: assay.libraryStrategy,
-				librarySelection: assay.librarySelection,
-				libraryLayout: assay.libraryLayout,
-				insertSize: assay.insertSize,
-				createdOn: assay.createdOn,
-				modifiedOn: assay.modifiedOn,
-				files: sample.files,
-			}));
+			return {
+				samples: samplesWithFiles,
+				rows: samplesWithFiles.map<AssaySampleRow>((sample) => ({
+					name: sample.name ?? "Unknown",
+					studyAccession: assay.studyAccession,
+					instrumentModel: assay.instrumentModel,
+					libraryName: assay.libraryName,
+					librarySource: assay.librarySource,
+					libraryStrategy: assay.libraryStrategy,
+					librarySelection: assay.librarySelection,
+					libraryLayout: assay.libraryLayout,
+					insertSize: assay.insertSize,
+					createdOn: assay.createdOn,
+					modifiedOn: assay.modifiedOn,
+					files: sample.files,
+				})),
+			};
 		},
 	});
+
+	const rows = data?.rows ?? [];
 
 	return (
 		<DataTable
@@ -60,6 +65,7 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 			dataType="assay"
 			onEdit={(sample) => console.log("Edit sample", sample)}
 			onDelete={(sample) => console.log("Delete sample", sample)}
+			assay={assay}
 			showAddButton={
 				<div className="flex gap-2">
 					<EditAssayDialog assay={assay} projectId={project?.id!} />
