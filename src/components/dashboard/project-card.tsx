@@ -35,7 +35,6 @@ import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
 import { Project } from "@/lib/types";
 import { DeleteAlertButton } from "../delete-alert-button";
-import { DownloadTemplateButton } from "./download-template-button";
 
 interface DataTableProps {
 	projects: Project[];
@@ -173,7 +172,6 @@ export function ProjectsDataTable({
 					className="max-w-sm"
 				/>
 				<DataTableViewOptions table={table} />
-				<DownloadTemplateButton />
 				<AddProjectDialog />
 			</div>
 
