@@ -34,7 +34,7 @@ export function DownloadTemplateButton({ type }: DownloadTemplateButtonProps) {
 	return (
 		<Button variant="default" onClick={handleDownload} disabled={loading}>
 			<Download className="h-4 w-4" />
-			Download {type === "sample" ? "Sample" : "Assay"} Template
+			{type === "sample" ? "Sample" : "Assay"} Template
 		</Button>
 	);
 }
