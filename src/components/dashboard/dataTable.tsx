@@ -53,7 +53,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { CreateSample, Project, Sample, SampleFile } from "@/lib/types";
+import { Assay, CreateSample, Project, Sample, SampleFile } from "@/lib/types";
 import {
 	emptyToNull,
 	NON_EDITABLE_COLUMNS,
@@ -61,7 +61,10 @@ import {
 	QUICK_EDIT_LIMIT,
 } from "@/lib/utils";
 import { ProjectTree } from "../projectTree";
-import { buildProjectTree } from "@/lib/projectTree";
+import {
+	buildProjectTree,
+	buildProjectTreeSampleAssay,
+} from "@/lib/projectTree";
 import { UploadDataDialog } from "./upload-data";
 import {
 	batchEditSamples,
@@ -80,6 +83,7 @@ interface DataTableProps<T extends object> {
 	filterPlaceholder?: string;
 	project?: Project;
 	dataType?: "sample" | "assay";
+	assay?: Assay;
 }
 
 const COLUMN_TOOLTIPS: Record<string, string> = {
@@ -168,6 +172,7 @@ export function DataTable<T extends object>({
 	project,
 	filterPlaceholder = "Filter...",
 	dataType,
+	assay,
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
@@ -462,7 +467,10 @@ export function DataTable<T extends object>({
 		}
 	};
 
-	const treeData = buildProjectTree(project!, selectedRows as any);
+	const treeData =
+		dataType === "assay"
+			? buildProjectTreeSampleAssay(project!, selectedRows as any, assay!)
+			: buildProjectTree(project!, selectedRows as any);
 
 	const editableColumns = autoColumns.filter(
 		(col) => !NON_EDITABLE_COLUMNS.includes(String(col.header))
