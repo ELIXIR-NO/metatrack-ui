@@ -101,7 +101,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 			},
 			{
 				title: "Help and Support",
-				url: "#",
+				url: "/help-and-support",
 				icon: IconMessageDots,
 			},
 		],

@@ -18,6 +18,7 @@ import { Route as PrivacyPolicyImport } from './routes/privacy-policy'
 import { Route as GetStartedImport } from './routes/get-started'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as HelpAndSupportIndexImport } from './routes/help-and-support/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as AboutIndexImport } from './routes/about/index'
 import { Route as DashboardProjectsIndexImport } from './routes/dashboard/projects/index'
@@ -64,6 +65,12 @@ const DashboardRouteRoute = DashboardRouteImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const HelpAndSupportIndexRoute = HelpAndSupportIndexImport.update({
+  id: '/help-and-support/',
+  path: '/help-and-support/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -160,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof DashboardRouteImport
     }
+    '/help-and-support/': {
+      id: '/help-and-support/'
+      path: '/help-and-support'
+      fullPath: '/help-and-support'
+      preLoaderRoute: typeof HelpAndSupportIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/dashboard/projects/$projectId': {
       id: '/dashboard/projects/$projectId'
       path: '/projects/$projectId'
@@ -205,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/terms-of-use': typeof TermsOfUseRoute
   '/about': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/help-and-support': typeof HelpAndSupportIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
@@ -218,6 +233,7 @@ export interface FileRoutesByTo {
   '/terms-of-use': typeof TermsOfUseRoute
   '/about': typeof AboutIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/help-and-support': typeof HelpAndSupportIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects': typeof DashboardProjectsIndexRoute
 }
@@ -233,6 +249,7 @@ export interface FileRoutesById {
   '/terms-of-use': typeof TermsOfUseRoute
   '/about/': typeof AboutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/help-and-support/': typeof HelpAndSupportIndexRoute
   '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
   '/dashboard/projects/': typeof DashboardProjectsIndexRoute
 }
@@ -249,6 +266,7 @@ export interface FileRouteTypes {
     | '/terms-of-use'
     | '/about'
     | '/dashboard/'
+    | '/help-and-support'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
   fileRoutesByTo: FileRoutesByTo
@@ -261,6 +279,7 @@ export interface FileRouteTypes {
     | '/terms-of-use'
     | '/about'
     | '/dashboard'
+    | '/help-and-support'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects'
   id:
@@ -274,6 +293,7 @@ export interface FileRouteTypes {
     | '/terms-of-use'
     | '/about/'
     | '/dashboard/'
+    | '/help-and-support/'
     | '/dashboard/projects/$projectId'
     | '/dashboard/projects/'
   fileRoutesById: FileRoutesById
@@ -288,6 +308,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   TermsOfUseRoute: typeof TermsOfUseRoute
   AboutIndexRoute: typeof AboutIndexRoute
+  HelpAndSupportIndexRoute: typeof HelpAndSupportIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -299,6 +320,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   TermsOfUseRoute: TermsOfUseRoute,
   AboutIndexRoute: AboutIndexRoute,
+  HelpAndSupportIndexRoute: HelpAndSupportIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -318,7 +340,8 @@ export const routeTree = rootRoute
         "/public-data",
         "/resources",
         "/terms-of-use",
-        "/about/"
+        "/about/",
+        "/help-and-support/"
       ]
     },
     "/": {
@@ -353,6 +376,9 @@ export const routeTree = rootRoute
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
       "parent": "/dashboard"
+    },
+    "/help-and-support/": {
+      "filePath": "help-and-support/index.tsx"
     },
     "/dashboard/projects/$projectId": {
       "filePath": "dashboard/projects/$projectId.tsx",
