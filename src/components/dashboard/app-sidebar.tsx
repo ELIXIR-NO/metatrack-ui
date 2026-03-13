@@ -72,7 +72,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 		navMain: [
 			{
 				title: "My Projects",
-				url: "/projects",
+				url: "/dashboard/projects",
 				icon: IconBriefcase,
 				items: isLoading
 					? [
