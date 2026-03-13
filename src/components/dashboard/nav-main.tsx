@@ -57,7 +57,7 @@ export function NavMain({
 											isActive={location.pathname === `/dashboard${item.url}`}
 											className="gap-x-2"
 										>
-											<a href={`/dashboard${item.url}`}>
+											<a href={`${item.url}`}>
 												{item.icon && <item.icon className="!size-6" />}
 												<span>{item.title}</span>
 											</a>
