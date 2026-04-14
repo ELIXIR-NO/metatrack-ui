@@ -12,7 +12,6 @@ import {
 	StatisticsResponse,
 } from "./types";
 import { API_URL } from "./config";
-import axios from "axios";
 
 //const API_URL = "/api";
 
@@ -477,14 +476,30 @@ export async function progressUploadFastaFile(
 	file: File,
 	onProgress?: (progress: number) => void
 ) {
-	await axios.put(url, file, {
-		headers: {
-			"Content-Type": file.type || "application/octet-stream",
-		},
-		onUploadProgress: (event) => {
-			if (!event.total) return;
-			const percent = Math.round((event.loaded * 100) / event.total);
-			onProgress?.(percent);
-		},
+	return new Promise<void>((resolve, reject) => {
+		const xhr = new XMLHttpRequest();
+		xhr.open("PUT", url);
+		xhr.setRequestHeader(
+			"Content-Type",
+			file.type || "application/octet-stream"
+		);
+
+		if (onProgress) {
+			xhr.upload.onprogress = (event) => {
+				if (!event.lengthComputable) return;
+				const percent = Math.round((event.loaded * 100) / event.total);
+				onProgress(percent);
+			};
+		}
+
+		xhr.onload = () => {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				resolve();
+			} else {
+				reject(new Error(`Upload failed with status ${xhr.status}`));
+			}
+		};
+		xhr.onerror = () => reject(new Error("Upload failed"));
+		xhr.send(file);
 	});
 }
