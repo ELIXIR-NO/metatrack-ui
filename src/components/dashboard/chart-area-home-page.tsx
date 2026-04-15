@@ -137,8 +137,8 @@ export function ChartAreaHomePage() {
 							cursor={false}
 							content={
 								<ChartTooltipContent
-									labelFormatter={(value: string | number | Date) => {
-										return new Date(value).toLocaleDateString("en-US", {
+									labelFormatter={(value: unknown) => {
+										return new Date(value as string).toLocaleDateString("en-US", {
 											month: "short",
 											day: "numeric",
 										});
