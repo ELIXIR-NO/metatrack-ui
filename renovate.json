@@ -15,5 +15,9 @@
         "patch"
       ]
     }
-  ]
+  ],
+  "constraints": {
+    "bun": ">=1.0.0"
+  },
+  "enabledManagers": ["bun"]
 }
