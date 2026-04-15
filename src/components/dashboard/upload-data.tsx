@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { HardDriveUpload } from "lucide-react";
 import {
-	progressUploadFastaFile,
+	progressUploadFile,
 	requestPresignedUpload,
 } from "@/lib/api-keycloak";
 import { Progress } from "../ui/progress";
@@ -63,7 +63,7 @@ export function UploadDataDialog({
 				icon: null,
 			});
 
-			await progressUploadFastaFile(url, file, (p) => {
+			await progressUploadFile(url, file, (p) => {
 				setProgress(p);
 
 				toast.loading(renderUploadToast(file.name, p), {
@@ -120,7 +120,7 @@ export function UploadDataDialog({
 					<p className="text-muted-foreground text-sm">
 						Drag & drop your file here
 					</p>
-					<p className="text-muted-foreground text-xs">FASTQ, FASTA</p>
+					<p className="text-muted-foreground text-xs">Any file type</p>
 
 					<Button
 						variant="secondary"
@@ -133,7 +133,6 @@ export function UploadDataDialog({
 					<Input
 						ref={fileInputRef}
 						type="file"
-						accept=".fastq,.fasta,.gz"
 						className="hidden"
 						onChange={(e) => setFile(e.target.files?.[0] || null)}
 					/>

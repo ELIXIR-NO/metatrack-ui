@@ -167,7 +167,7 @@ export async function getSampleFiles(
 	});
 }
 
-export async function uploadFastaFile(
+export async function uploadFile(
 	uploadUrl: string,
 	file: File
 ): Promise<void> {
@@ -471,7 +471,7 @@ export async function addSamplesToAssay(
 	}
 }
 
-export async function progressUploadFastaFile(
+export async function progressUploadFile(
 	url: string,
 	file: File,
 	onProgress?: (progress: number) => void
