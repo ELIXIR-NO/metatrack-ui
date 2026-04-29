@@ -1,7 +1,9 @@
 "use server";
 
 //import { Resend } from "resend";
-import contactFormSchema, { HelpAndSupportFormSchema } from "./helpAndSupportFormSchema";
+import contactFormSchema, {
+	HelpAndSupportFormSchema,
+} from "./helpAndSupportFormSchema";
 //import EmailTemplate from "./email-template";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
@@ -49,7 +51,6 @@ export async function sendEmailToElixir(values: HelpAndSupportFormSchema) {
 
 		return { success: true, data };
 		*/
-
 	} catch (error) {
 		return { error };
 	}

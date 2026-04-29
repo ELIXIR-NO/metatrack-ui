@@ -13,10 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { HardDriveUpload } from "lucide-react";
-import {
-	progressUploadFile,
-	requestPresignedUpload,
-} from "@/lib/api-keycloak";
+import { progressUploadFile, requestPresignedUpload } from "@/lib/api-keycloak";
 import { Progress } from "../ui/progress";
 import { Field, FieldLabel } from "../ui/field";
 
