@@ -6,19 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiteHeader } from "@/components/dashboard/site-header";
 
-import { getSamplesNew } from "@/lib/api-client";
+import {
+	getAssays,
+	getProjectsByUser,
+	getSamples as getSamplesNew,
+} from "@/lib/api-keycloak";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
-import { Project, Sample } from "@/lib/types";
+import { Assay, Project, Sample } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
-import { getProjectsByUser } from "@/lib/api-keycloak";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { getAssays } from "@/lib/api-keycloak";
-import { Assay } from "@/lib/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 import { AssayTable } from "@/components/dashboard/assayTable";
 import { AddAssayDialog } from "@/components/dashboard/add-assay";
 import { Button } from "@/components/ui/button";
@@ -68,12 +69,6 @@ export function RouteComponent() {
 	const [activeAssayTab, setActiveAssayTab] = useState<string | undefined>(
 		undefined
 	);
-
-	useEffect(() => {
-		if (assays.length > 0) {
-			setActiveAssayTab(assays[0].id);
-		}
-	}, [assays]);
 
 	if (projectLoading) {
 		return (
@@ -183,7 +178,7 @@ export function RouteComponent() {
 							<TabsContent value="runs">
 								{assays.length > 0 ? (
 									<Tabs
-										value={activeAssayTab}
+										value={activeAssayTab ?? assays[0].id}
 										onValueChange={setActiveAssayTab}
 									>
 										<div className="mb-4 flex items-center gap-2">

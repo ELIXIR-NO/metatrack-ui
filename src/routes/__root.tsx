@@ -5,11 +5,10 @@ import "@/index.css";
 import { NavBar } from "@/components/nav-bar/nav-bar";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { NavBarMobile } from "@/components/nav-bar/nav-bar-mobile";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "@/components/ui/sonner";
-
-const queryClient = new QueryClient();
+import { queryClient } from "@/lib/query-client";
 
 function RootLayout() {
 	const matchRoute = useMatchRoute();

@@ -1,5 +1,4 @@
 import { createContext } from "react";
-import { MeResponse } from "@/lib/types";
 
 export const AuthContext = createContext({
 	isAuthenticated: false,
@@ -7,14 +6,4 @@ export const AuthContext = createContext({
 	loading: false,
 	login: () => {},
 	logout: () => {},
-});
-
-type AuthContextType = {
-	user: MeResponse | null;
-	loading: boolean;
-};
-
-export const UserContext = createContext<AuthContextType>({
-	user: null,
-	loading: true,
 });

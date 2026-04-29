@@ -1,4 +1,4 @@
-const DownloadTSV = <T extends Record<string, any>>(
+const DownloadTSV = <T extends Record<string, unknown>>(
 	data: T[],
 	fileName: string
 ) => {

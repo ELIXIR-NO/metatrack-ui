@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
-	DialogClose,
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -197,7 +197,7 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 			});
 		},
 
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error?.message ?? "Error creating run");
 		},
 	});

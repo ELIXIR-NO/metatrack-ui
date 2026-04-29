@@ -9,7 +9,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { uploadSampleFileNew } from "@/lib/api-client";
+import { uploadSamplesheet as uploadSampleFileNew } from "@/lib/api-keycloak";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
@@ -51,10 +51,9 @@ export function UploadSampleDialog({
 			setFile(null);
 			setOpen(false);
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			console.error(error);
-			const message =
-				error?.response?.data?.message || error?.message || "Uploading error";
+			const message = error?.message || "Uploading error";
 
 			toast.error(message, {
 				action: {

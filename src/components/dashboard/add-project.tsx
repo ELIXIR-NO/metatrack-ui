@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
-	DialogClose,
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,8 @@ import {
 import { HelpCircle, SquarePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createInvestigation } from "@/lib/api-client";
+import { createInvestigation } from "@/lib/api-keycloak";
+import { Project } from "@/lib/types";
 
 export function AddProjectDialog() {
 	const [name, setName] = useState("");
@@ -31,7 +32,7 @@ export function AddProjectDialog() {
 	const mutation = useMutation({
 		mutationFn: createInvestigation,
 		onSuccess: (newProject) => {
-			queryClient.setQueryData(["projects"], (old: any[] = []) => [
+			queryClient.setQueryData(["projects"], (old: Project[] = []) => [
 				newProject,
 				...old,
 			]);
@@ -52,11 +53,8 @@ export function AddProjectDialog() {
 			});
 		},
 
-		onError: (error: any) => {
-			const message =
-				error?.response?.data?.message ||
-				error?.message ||
-				"Error creating project";
+		onError: (error: Error) => {
+			const message = error?.message || "Error creating project";
 
 			toast.error(message, {
 				action: {

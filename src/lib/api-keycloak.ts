@@ -21,13 +21,18 @@ export async function api<T = unknown>(
 ): Promise<T> {
 	const token = keycloak.token;
 
+	const headers: Record<string, string> = {
+		Authorization: `Bearer ${token}`,
+		...((options.headers as Record<string, string>) || {}),
+	};
+
+	if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
+		headers["Content-Type"] = "application/json";
+	}
+
 	const res = await fetch(`${API_URL}/${endpoint}`, {
 		...options,
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-			...options.headers,
-		},
+		headers,
 	});
 
 	if (!res.ok) {
@@ -93,6 +98,26 @@ export async function getProjectsPublic() {
 
 export async function getProjectsByUser() {
 	return api<Project[]>("projects/me");
+}
+
+export async function getSamples(projectId: string): Promise<Sample[]> {
+	const data = await api<Sample[] | { samples: Sample[] }>(
+		`projects/${projectId}/samples`
+	);
+	return Array.isArray(data) ? data : (data.samples ?? []);
+}
+
+export async function uploadSamplesheet(
+	projectId: string,
+	file: File
+): Promise<unknown> {
+	const formData = new FormData();
+	formData.append("file", file);
+
+	return api(`projects/${projectId}/samples/samplesheet`, {
+		method: "POST",
+		body: formData,
+	});
 }
 
 export async function createSample(
@@ -167,10 +192,7 @@ export async function getSampleFiles(
 	});
 }
 
-export async function uploadFile(
-	uploadUrl: string,
-	file: File
-): Promise<void> {
+export async function uploadFile(uploadUrl: string, file: File): Promise<void> {
 	const res = await fetch(uploadUrl, {
 		method: "PUT",
 		body: file,
@@ -182,19 +204,9 @@ export async function uploadFile(
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-	const token = keycloak.token;
-	const res = await fetch(`${API_URL}/projects/${projectId}`, {
+	await api(`projects/${projectId}`, {
 		method: "DELETE",
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
 	});
-
-	if (!res.ok) {
-		const text = await res.text();
-		throw new Error(text || "Failed to delete project");
-	}
 }
 
 //projects
@@ -248,27 +260,19 @@ export async function deleteSelectedSamples<T extends { id: string }>(
 	projectId: string,
 	selectedRows: T[] | T
 ): Promise<{ success: string[]; failed: string[] }> {
-	const token = keycloak.token;
-
 	const sampleIds = Array.isArray(selectedRows)
 		? selectedRows.map((row) => row.id)
 		: [selectedRows.id];
 
 	const results = await Promise.allSettled(
 		sampleIds.map(async (sampleId) => {
-			const res = await fetch(
-				`${API_URL}/projects/${projectId}/samples/${sampleId}`,
-				{
-					method: "DELETE",
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
+			await api(`projects/${projectId}/samples/${sampleId}`, {
+				method: "DELETE",
+			});
 
 			return {
 				id: sampleId,
-				ok: res.ok,
+				ok: true,
 			};
 		})
 	);

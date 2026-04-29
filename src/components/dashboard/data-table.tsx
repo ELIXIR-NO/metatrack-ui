@@ -4,13 +4,13 @@ import * as React from "react";
 import {
 	closestCenter,
 	DndContext,
+	type DragEndEvent,
 	KeyboardSensor,
 	MouseSensor,
 	TouchSensor,
+	type UniqueIdentifier,
 	useSensor,
 	useSensors,
-	type DragEndEvent,
-	type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -51,7 +51,6 @@ import {
 } from "@tanstack/react-table";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -101,15 +100,15 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const schema = z.object({
-	id: z.number(),
-	header: z.string(),
-	type: z.string(),
-	status: z.string(),
-	target: z.string(),
-	limit: z.string(),
-	reviewer: z.string(),
-});
+interface TableDataSchema {
+	id: number;
+	header: string;
+	type: string;
+	status: string;
+	target: string;
+	limit: string;
+	reviewer: string;
+}
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
@@ -131,7 +130,7 @@ function DragHandle({ id }: { id: number }) {
 	);
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<TableDataSchema>[] = [
 	{
 		id: "drag",
 		header: () => null,
@@ -305,7 +304,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 	},
 ];
 
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
+function DraggableRow({ row }: { row: Row<TableDataSchema> }) {
 	const { transform, transition, setNodeRef, isDragging } = useSortable({
 		id: row.original.id,
 	});
@@ -330,11 +329,7 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 	);
 }
 
-export function DataTable({
-	data: initialData,
-}: {
-	data: z.infer<typeof schema>[];
-}) {
+export function DataTable({ data: initialData }: { data: TableDataSchema[] }) {
 	const [data, setData] = React.useState(() => initialData);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -359,6 +354,7 @@ export function DataTable({
 		[data]
 	);
 
+	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
 		data,
 		columns,
@@ -453,7 +449,7 @@ export function DataTable({
 											className="capitalize"
 											checked={column.getIsVisible()}
 											onCheckedChange={(value) =>
-												column.toggleVisibility(!!value)
+												column.toggleVisibility(value)
 											}
 										>
 											{column.id}
@@ -640,7 +636,7 @@ const chartConfig = {
 	},
 } satisfies ChartConfig;
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item }: { item: TableDataSchema }) {
 	const isMobile = useIsMobile();
 
 	return (
@@ -660,7 +656,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
 				<div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
 					{!isMobile && (
 						<>
-							<ChartContainer config={chartConfig} className="aspect-auto h-[200px] w-full">
+							<ChartContainer
+								config={chartConfig}
+								className="aspect-auto h-[200px] w-full"
+							>
 								<AreaChart
 									accessibilityLayer
 									data={chartData}

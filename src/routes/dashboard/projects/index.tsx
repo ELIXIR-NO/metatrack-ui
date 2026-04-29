@@ -1,8 +1,7 @@
 import { SiteHeader } from "@/components/dashboard/site-header";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProjectsDataTable } from "@/components/dashboard/project-card";
-import { useNavigate } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { getProjectsByUser } from "@/lib/api-keycloak";
 import { useState } from "react";
@@ -29,13 +28,13 @@ function RouteComponent() {
 		setOpen(true);
 	};
 
-	const handleDelete = (project: any) => {
-		queryClient.setQueryData(["projects"], (old: any[] = []) =>
+	const handleDelete = (project: Project) => {
+		queryClient.setQueryData(["projects"], (old: Project[] = []) =>
 			old.filter((p) => p.id !== project.id)
 		);
 	};
 
-	const handleOpen = (project: any) => {
+	const handleOpen = (project: Project) => {
 		navigate({ to: `/dashboard/projects/${project.id}` });
 	};
 

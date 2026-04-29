@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import {
-	IconSettings,
-	IconInfoCircle,
-	IconMessageDots,
-	IconDatabase,
-	IconRocket,
 	IconBook,
 	IconBriefcase,
+	IconDatabase,
+	IconInfoCircle,
+	IconMessageDots,
 	IconMessageQuestion,
+	IconRocket,
+	IconSettings,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -27,9 +27,9 @@ import {
 
 import { useQuery } from "@tanstack/react-query";
 import { getProjectsByUser } from "@/lib/api-keycloak";
+import { MeResponse, Project } from "@/lib/types";
 import { Link } from "@tanstack/react-router";
 import { NavUser } from "./nav-user";
-import { MeResponse } from "@/lib/types";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	user: MeResponse;
@@ -81,7 +81,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 								url: "#",
 							},
 						]
-					: projects.map((project: any) => ({
+					: projects.map((project: Project) => ({
 							title: project.name,
 							url: `/dashboard/projects/${project.id}`,
 						})),

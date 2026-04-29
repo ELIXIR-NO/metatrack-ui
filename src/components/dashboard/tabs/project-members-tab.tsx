@@ -11,12 +11,12 @@ import {
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
 	addProjectMember,
@@ -24,23 +24,23 @@ import {
 	removeProjectMember,
 	updateProjectMember,
 } from "@/lib/api-keycloak";
-import { Project } from "@/lib/types";
+import { Member, Project } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
-	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
-	AlertDialogHeader,
-	AlertDialogTitle,
 	AlertDialogDescription,
 	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 import { MoreVertical } from "lucide-react";
@@ -57,8 +57,8 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 	const [email, setEmail] = useState("");
 	const [message, setMessage] = useState("");
 	const [role, setRole] = useState("MEMBER");
-	const [editingMember, setEditingMember] = useState<any | null>(null);
-	const [removingMember, setRemovingMember] = useState<any | null>(null);
+	const [editingMember, setEditingMember] = useState<Member | null>(null);
+	const [removingMember, setRemovingMember] = useState<Member | null>(null);
 	const [editRole, setEditRole] = useState("");
 
 	/* ------------------ GET MEMBERS ------------------ */
@@ -80,12 +80,15 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 			setOpenAdd(false);
 			setMemberId("");
 		},
-		onError: () => toast.error("Error adding member"),
+		onError: (err: unknown) =>
+			toast.error((err as Error)?.message || "Error adding member"),
 	});
 
 	const updateRoleMutation = useMutation({
-		mutationFn: () =>
-			updateProjectMember(project.id!, editingMember.memberId, editRole),
+		mutationFn: () => {
+			if (!editingMember) throw new Error("No member selected");
+			return updateProjectMember(project.id!, editingMember.memberId, editRole);
+		},
 
 		onSuccess: () => {
 			toast.success("Role updated");
@@ -97,11 +100,15 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 			setEditingMember(null);
 		},
 
-		onError: () => toast.error("Error updating role"),
+		onError: (err: unknown) =>
+			toast.error((err as Error)?.message || "Error updating role"),
 	});
 
 	const removeMutation = useMutation({
-		mutationFn: () => removeProjectMember(project.id!, removingMember.memberId),
+		mutationFn: () => {
+			if (!removingMember) throw new Error("No member selected");
+			return removeProjectMember(project.id!, removingMember.memberId);
+		},
 
 		onSuccess: () => {
 			toast.success("Member removed");
@@ -113,7 +120,8 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 			setRemovingMember(null);
 		},
 
-		onError: () => toast.error("Error removing member"),
+		onError: (err: unknown) =>
+			toast.error((err as Error)?.message || "Error removing member"),
 	});
 
 	/* ------------------ INVITE MEMBER (future) ------------------ */
@@ -142,7 +150,7 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 				{members.length === 0 ? (
 					<p className="text-muted-foreground text-sm">No members yet</p>
 				) : (
-					members.map((member: any) => (
+					members.map((member: Member) => (
 						<div
 							key={member.memberId}
 							className="flex items-center justify-between rounded-md border p-3"

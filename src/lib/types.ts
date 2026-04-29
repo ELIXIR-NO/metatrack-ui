@@ -40,8 +40,9 @@ export type MeResponse = {
 };
 
 export type Member = {
-	memberId: string | null;
-	role: string | null;
+	memberId: string;
+	role: string;
+	email?: string | null;
 };
 
 export interface Project {

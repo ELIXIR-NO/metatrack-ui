@@ -7,12 +7,7 @@ export function KeycloakProvider({ children }: { children: React.ReactNode }) {
 	const [token, setToken] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const [initialized, setInitialized] = useState(false);
-
 	useEffect(() => {
-		if (initialized) return;
-		setInitialized(true);
-
 		keycloak
 			.init({
 				onLoad: "check-sso",
@@ -34,7 +29,7 @@ export function KeycloakProvider({ children }: { children: React.ReactNode }) {
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [initialized]);
+	}, []);
 
 	const login = () =>
 		keycloak.login({

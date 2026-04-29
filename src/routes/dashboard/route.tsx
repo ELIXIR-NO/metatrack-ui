@@ -1,22 +1,14 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useEffect } from "react";
 import { SidebarSkeleton } from "@/components/sidebar-skeleton";
-import { MeResponse } from "@/lib/types";
-import { getMe } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
+import { useUser } from "@/hooks/use-user";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/dashboard")({
 	component: DashboardLayout,
 });
-
-export function useUser() {
-	return useQuery<MeResponse>({
-		queryKey: ["me"],
-		queryFn: getMe,
-	});
-}
 
 function DashboardLayout() {
 	const { data: user, isLoading } = useUser();

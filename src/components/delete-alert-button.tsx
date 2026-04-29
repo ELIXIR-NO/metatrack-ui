@@ -1,14 +1,14 @@
 import { Trash2 } from "lucide-react";
 import {
 	AlertDialog,
-	AlertDialogTrigger,
+	AlertDialogAction,
+	AlertDialogCancel,
 	AlertDialogContent,
-	AlertDialogHeader,
-	AlertDialogTitle,
 	AlertDialogDescription,
 	AlertDialogFooter,
-	AlertDialogCancel,
-	AlertDialogAction,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
@@ -64,8 +64,8 @@ export const DeleteAlertButton = ({
 					onClick: () => console.log("Undo"),
 				},
 			});
-		} catch (error: any) {
-			const message = error?.message || "Error deleting";
+		} catch (error: unknown) {
+			const message = (error as Error)?.message || "Error deleting";
 			toast.error(message);
 		}
 	};

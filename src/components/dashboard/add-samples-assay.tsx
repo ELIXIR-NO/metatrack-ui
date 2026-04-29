@@ -1,19 +1,21 @@
 import { useState } from "react";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
-	DialogClose,
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getSamplesNew } from "@/lib/api-client";
-import { addSamplesToAssay } from "@/lib/api-keycloak";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	addSamplesToAssay,
+	getSamples as getSamplesNew,
+} from "@/lib/api-keycloak";
 import { Input } from "@/components/ui/input";
 import { SquarePlus } from "lucide-react";
 
@@ -49,7 +51,7 @@ export function AddSamplesToAssayDialog({
 			setOpen(false);
 			setSelectedSamples([]);
 		},
-		onError: (err: any) => {
+		onError: (err: Error) => {
 			toast.error(err?.message ?? "Failed to add samples");
 		},
 	});

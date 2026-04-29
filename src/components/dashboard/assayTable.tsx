@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Assay, AssaySampleRow, Project, Sample } from "@/lib/types";
 import { DataTable } from "./dataTable";
-import { getSamplesInAssay, getSampleFiles } from "@/lib/api-keycloak";
+import { getSampleFiles, getSamplesInAssay } from "@/lib/api-keycloak";
 import { AddSamplesToAssayDialog } from "./add-samples-assay";
 import { DownloadTemplateButton } from "./download-template-button";
 import { EditAssayDialog } from "./edit-assay-dialog";
@@ -16,7 +16,7 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 		queryKey: ["assaySamples", assay.id],
 		queryFn: async () => {
 			const samples: Sample[] =
-				(await getSamplesInAssay(project?.id!, assay.id)) ?? [];
+				(await getSamplesInAssay(project?.id ?? "", assay.id)) ?? [];
 
 			const samplesWithFiles = await Promise.all(
 				samples.map(async (sample) => {
@@ -68,10 +68,10 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 			assay={assay}
 			showAddButton={
 				<div className="flex gap-2">
-					<EditAssayDialog assay={assay} projectId={project?.id!} />
+					<EditAssayDialog assay={assay} projectId={project?.id ?? ""} />
 					<DownloadTemplateButton type="assay" />
 					<AddSamplesToAssayDialog
-						projectId={project?.id!}
+						projectId={project?.id ?? ""}
 						assayId={assay.id}
 					/>
 				</div>
