@@ -1,15 +1,20 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
 import {
-	useReactTable,
+	type Cell,
+	ColumnDef,
+	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getSortedRowModel,
 	getPaginationRowModel,
-	flexRender,
-	ColumnDef,
+	getSortedRowModel,
+	type Header,
+	type Row,
 	SortingState,
+	type Table as TanStackTable,
+	useReactTable,
 	VisibilityState,
 } from "@tanstack/react-table";
 import {
@@ -48,7 +53,6 @@ import {
 	DrawerTrigger,
 } from "../ui/drawer";
 import { Label } from "../ui/label";
-import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
@@ -164,7 +168,6 @@ const formatDateToYMD = (dateStr?: string | null) =>
 
 export function DataTable<T extends object>({
 	data,
-	columns,
 	onOpen,
 	onEdit,
 	onDelete,
@@ -199,7 +202,7 @@ export function DataTable<T extends object>({
 					label: getColumnNewName(String(key)),
 				},
 			}));
-	}, [columns, data]);
+	}, [data]);
 
 	const orderedColumns = React.useMemo(() => {
 		if (autoColumns.length === 0) return [];
@@ -263,8 +266,8 @@ export function DataTable<T extends object>({
 										});
 
 										window.open(url, "_blank");
-									} catch (err: any) {
-										toast.error(err?.message ?? "Download failed");
+									} catch (err: unknown) {
+										toast.error((err as Error)?.message ?? "Download failed");
 									}
 								}}
 								className="text-left text-blue-600 hover:underline"
@@ -295,7 +298,7 @@ export function DataTable<T extends object>({
 									{onEdit && (
 										<TableCellViewer
 											item={row.original as Sample}
-											projectId={project?.id!}
+											projectId={project?.id ?? ""}
 											onUpdated={() => {
 												if (onEdit) onEdit(row.original);
 											}}
@@ -304,7 +307,7 @@ export function DataTable<T extends object>({
 
 									{dataType === "assay" ? (
 										<UploadDataDialog
-											projectId={project?.id!}
+											projectId={project?.id ?? ""}
 											sampleName={(row.original as Sample).name}
 										/>
 									) : (
@@ -312,7 +315,7 @@ export function DataTable<T extends object>({
 									)}
 									{onDelete && (
 										<DeleteAlertButton
-											projectId={project?.id!}
+											projectId={project?.id ?? ""}
 											item={row.original as { id: string }[]}
 											entityName="sample"
 											onDeleted={() => table.resetRowSelection()}
@@ -329,7 +332,15 @@ export function DataTable<T extends object>({
 			...(dataType === "assay" ? [fileColumn] : []),
 			...(actionColumn ? [actionColumn] : []),
 		];
-	}, [autoColumns, onOpen, onEdit, onDelete]);
+	}, [
+		autoColumns,
+		onOpen,
+		onEdit,
+		onDelete,
+		dataType,
+		orderedColumns,
+		project?.id,
+	]);
 
 	const enhancedColumnsWithDates: ColumnDef<T>[] = React.useMemo(() => {
 		return enhancedColumns.map((col) => {
@@ -400,27 +411,29 @@ export function DataTable<T extends object>({
 		);
 
 	const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
-	const prepareTableDataForDownload = (table: any) => {
+	const prepareTableDataForDownload = (table: TanStackTable<T>) => {
 		const headers = table
 			.getHeaderGroups()[0]
 			.headers.filter(
-				(h: any, idx: number) =>
+				(h: Header<T, unknown>, idx: number) =>
 					!h.isPlaceholder &&
 					idx > 0 &&
 					idx < table.getHeaderGroups()[0].headers.length - 1
 			)
-			.map((h: any) => {
+			.map((h: Header<T, unknown>) => {
 				const resolvedColumnDef = h.column.columnDef;
-				if (resolvedColumnDef.accessorKey) return resolvedColumnDef.accessorKey;
-				if (resolvedColumnDef.accessorFn) return resolvedColumnDef.id;
+				if ("accessorKey" in resolvedColumnDef)
+					return resolvedColumnDef.accessorKey as string;
+				if ("accessorFn" in resolvedColumnDef)
+					return resolvedColumnDef.id as string;
 				return "";
 			});
 
-		const rows = table.getRowModel().rows.map((row: any) =>
+		const rows = table.getRowModel().rows.map((row: Row<T>) =>
 			row
 				.getVisibleCells()
 				.slice(1, -1)
-				.map((cell: any) => {
+				.map((cell: Cell<T, unknown>) => {
 					const value = cell.getValue();
 					return value !== undefined && value !== null ? String(value) : "";
 				})
@@ -435,33 +448,35 @@ export function DataTable<T extends object>({
 		setLoading(true);
 
 		try {
-			const sampleData = selectedRows.map((row: any) => {
-				return {
-					name: row.name,
-					alias: row.alias,
-					taxId: row.taxId,
-					hostTaxId: row.hostTaxId,
-					mlst: row.mlst,
-					isolationSource: row.isolationSource,
-					collectionDate: row.collectionDate,
-					location: row.location,
-					sequencingLab: row.sequencingLab,
-					institution: row.institution,
-					hostHealthState: row.hostHealthState,
+			const sampleData = (selectedRows as unknown as Sample[]).map(
+				(row: Sample) => {
+					return {
+						name: row.name,
+						alias: row.alias,
+						taxId: row.taxId,
+						hostTaxId: row.hostTaxId,
+						mlst: row.mlst,
+						isolationSource: row.isolationSource,
+						collectionDate: row.collectionDate,
+						location: row.location,
+						sequencingLab: row.sequencingLab,
+						institution: row.institution,
+						hostHealthState: row.hostHealthState,
 
-					[colName]: value,
-				};
-			});
+						[colName]: value,
+					};
+				}
+			);
 
-			batchEditSamples(project?.id!, { sampleData });
+			batchEditSamples(project?.id ?? "", { sampleData });
 
 			toast.success("Samples have been updated");
 
 			queryClient.invalidateQueries({
 				queryKey: ["samples"],
 			});
-		} catch (err: any) {
-			toast.error(err?.message ?? "Error updating samples");
+		} catch (err: unknown) {
+			toast.error((err as Error)?.message ?? "Error updating samples");
 		} finally {
 			setLoading(false);
 		}
@@ -469,8 +484,12 @@ export function DataTable<T extends object>({
 
 	const treeData =
 		dataType === "assay"
-			? buildProjectTreeSampleAssay(project!, selectedRows as any, assay!)
-			: buildProjectTree(project!, selectedRows as any);
+			? buildProjectTreeSampleAssay(
+					project!,
+					selectedRows as unknown as Sample[],
+					assay!
+				)
+			: buildProjectTree(project!, selectedRows as unknown as Sample[]);
 
 	const editableColumns = autoColumns.filter(
 		(col) => !NON_EDITABLE_COLUMNS.includes(String(col.header))
@@ -550,16 +569,18 @@ export function DataTable<T extends object>({
 									className="rounded-none"
 									onClick={() =>
 										downloadTSV(
-											selectedRows.map((r: any) =>
-												Object.fromEntries(
-													r
-														.getVisibleCells()
-														.map((cell: any, i: number) => [
-															headers[i],
-															cell.getValue(),
-														])
-												)
-											),
+											table
+												.getSelectedRowModel()
+												.rows.map((r: Row<T>) =>
+													Object.fromEntries(
+														r
+															.getVisibleCells()
+															.map((cell: Cell<T, unknown>, i: number) => [
+																headers[i],
+																cell.getValue(),
+															])
+													)
+												),
 											"selected-rows"
 										)
 									}
@@ -624,7 +645,7 @@ export function DataTable<T extends object>({
 
 								{/* Delete */}
 								<DeleteAlertButton
-									projectId={project?.id!}
+									projectId={project?.id ?? ""}
 									item={selectedRows as { id: string }[]}
 									entityName="sample"
 									onDeleted={() => table.resetRowSelection()}
@@ -642,11 +663,11 @@ export function DataTable<T extends object>({
 						downloadTSV(
 							table
 								.getFilteredRowModel()
-								.rows.map((r: any) =>
+								.rows.map((r: Row<T>) =>
 									Object.fromEntries(
 										r
 											.getVisibleCells()
-											.map((cell: any, i: number) => [
+											.map((cell: Cell<T, unknown>, i: number) => [
 												headers[i],
 												cell.getValue(),
 											])
@@ -774,8 +795,8 @@ function TableCellViewer({
 			});
 
 			if (onUpdated) onUpdated();
-		} catch (err: any) {
-			toast.error(err?.message || "Erro updating sample");
+		} catch (err: unknown) {
+			toast.error((err as Error)?.message || "Erro updating sample");
 		} finally {
 			setLoading(false);
 		}

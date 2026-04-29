@@ -19,7 +19,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AssayTable } from "@/components/dashboard/assayTable";
 import { AddAssayDialog } from "@/components/dashboard/add-assay";
 import { Button } from "@/components/ui/button";
@@ -69,12 +69,6 @@ export function RouteComponent() {
 	const [activeAssayTab, setActiveAssayTab] = useState<string | undefined>(
 		undefined
 	);
-
-	useEffect(() => {
-		if (assays.length > 0) {
-			setActiveAssayTab(assays[0].id);
-		}
-	}, [assays]);
 
 	if (projectLoading) {
 		return (
@@ -184,7 +178,7 @@ export function RouteComponent() {
 							<TabsContent value="runs">
 								{assays.length > 0 ? (
 									<Tabs
-										value={activeAssayTab}
+										value={activeAssayTab ?? assays[0].id}
 										onValueChange={setActiveAssayTab}
 									>
 										<div className="mb-4 flex items-center gap-2">

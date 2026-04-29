@@ -24,8 +24,8 @@ export function DownloadTemplateButton({ type }: DownloadTemplateButtonProps) {
 			}
 
 			toast.success("Template downloaded successfully");
-		} catch (err: any) {
-			toast.error(err?.message ?? "Error downloading template");
+		} catch (err: unknown) {
+			toast.error((err as Error)?.message ?? "Error downloading template");
 		} finally {
 			setLoading(false);
 		}

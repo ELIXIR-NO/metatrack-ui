@@ -101,14 +101,16 @@ export async function getProjectsByUser() {
 }
 
 export async function getSamples(projectId: string): Promise<Sample[]> {
-	const data = await api<any>(`projects/${projectId}/samples`);
-	return data.samples ?? data;
+	const data = await api<Sample[] | { samples: Sample[] }>(
+		`projects/${projectId}/samples`
+	);
+	return Array.isArray(data) ? data : (data.samples ?? []);
 }
 
 export async function uploadSamplesheet(
 	projectId: string,
 	file: File
-): Promise<any> {
+): Promise<unknown> {
 	const formData = new FormData();
 	formData.append("file", file);
 

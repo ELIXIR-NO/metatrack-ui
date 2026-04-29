@@ -51,10 +51,9 @@ export function UploadSampleDialog({
 			setFile(null);
 			setOpen(false);
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			console.error(error);
-			const message =
-				error?.response?.data?.message || error?.message || "Uploading error";
+			const message = error?.message || "Uploading error";
 
 			toast.error(message, {
 				action: {

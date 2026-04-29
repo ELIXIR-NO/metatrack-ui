@@ -3,18 +3,18 @@
 import { useState } from "react";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
-	DialogClose,
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateAssay, deleteAssay } from "@/lib/api-keycloak";
+import { deleteAssay, updateAssay } from "@/lib/api-keycloak";
 import { Assay } from "@/lib/types";
 import { SquarePen } from "lucide-react";
 
@@ -46,7 +46,7 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
 			setOpen(false);
 		},
-		onError: (err: any) =>
+		onError: (err: Error) =>
 			toast.error(err?.message ?? "Failed to update assay"),
 	});
 
@@ -57,7 +57,7 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
 			setOpen(false);
 		},
-		onError: (err: any) =>
+		onError: (err: Error) =>
 			toast.error(err?.message ?? "Failed to delete assay"),
 	});
 
@@ -85,7 +85,7 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 							<label className="text-sm font-medium">{key}</label>
 							<Input
 								type={key === "insertSize" ? "number" : "text"}
-								value={(form as any)[key]}
+								value={form[key as keyof typeof form]}
 								onChange={(e) =>
 									handleChange(
 										key as keyof typeof form,

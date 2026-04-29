@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import {
-	useReactTable,
+	ColumnDef,
+	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getSortedRowModel,
 	getPaginationRowModel,
-	flexRender,
-	ColumnDef,
+	getSortedRowModel,
 	SortingState,
+	useReactTable,
 } from "@tanstack/react-table";
 import {
 	Table,
@@ -142,6 +142,7 @@ export function ProjectsDataTable({
 		[onEdit, onDelete, onOpen]
 	);
 
+	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
 		data: projects,
 		columns,

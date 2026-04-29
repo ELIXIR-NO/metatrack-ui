@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Project } from "@/lib/types";
 import { ProjectGeneralTab } from "./tabs/project-general-tab";
 import { ProjectMembersTab } from "./tabs/project-members-tab";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface EditProjectDialogProps {
 	project: Project | null;
@@ -25,15 +25,15 @@ export function EditProjectDialog({
 	onOpenChange,
 	initialTab = "general",
 }: EditProjectDialogProps) {
-	if (!project) return null;
-
 	const [activeTab, setActiveTab] = useState<"general" | "members">(initialTab);
+	const [prevOpen, setPrevOpen] = useState(open);
 
-	useEffect(() => {
-		if (open) {
-			setActiveTab(initialTab);
-		}
-	}, [open, initialTab]);
+	if (open && !prevOpen) {
+		setPrevOpen(true);
+		setActiveTab(initialTab);
+	} else if (!open && prevOpen) {
+		setPrevOpen(false);
+	}
 
 	if (!project) return null;
 
