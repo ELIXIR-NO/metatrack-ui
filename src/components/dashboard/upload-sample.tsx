@@ -9,7 +9,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { uploadSampleFileNew } from "@/lib/api-client";
+import { uploadSamplesheet as uploadSampleFileNew } from "@/lib/api-keycloak";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "../ui/input";

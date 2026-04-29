@@ -19,7 +19,7 @@ import {
 import { HelpCircle, SquarePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createInvestigation } from "@/lib/api-client";
+import { createInvestigation } from "@/lib/api-keycloak";
 
 export function AddProjectDialog() {
 	const [name, setName] = useState("");

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getSamplesNew } from "@/lib/api-client";
+import { getSamples as getSamplesNew } from "@/lib/api-keycloak";
 import { addSamplesToAssay } from "@/lib/api-keycloak";
 import { Input } from "@/components/ui/input";
 import { SquarePlus } from "lucide-react";

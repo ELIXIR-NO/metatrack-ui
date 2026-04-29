@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiteHeader } from "@/components/dashboard/site-header";
 
-import { getSamplesNew } from "@/lib/api-client";
+import {
+	getAssays,
+	getProjectsByUser,
+	getSamples as getSamplesNew,
+} from "@/lib/api-keycloak";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
 import { Project, Sample } from "@/lib/types";
