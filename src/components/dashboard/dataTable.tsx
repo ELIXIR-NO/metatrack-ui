@@ -346,6 +346,11 @@ export function DataTable<T extends object>({
 		}
 	);
 
+	const [pagination, setPagination] = React.useState({
+		pageIndex: 0,
+		pageSize: 15,
+	});
+
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
 			alias: false,
@@ -369,17 +374,16 @@ export function DataTable<T extends object>({
 	const table = useReactTable({
 		data,
 		columns: enhancedColumnsWithDates,
-		initialState: {
-			pagination: { pageSize: 15 },
-		},
 		state: {
 			sorting,
 			globalFilter,
 			columnVisibility,
+			pagination,
 		},
 		autoResetPageIndex: false,
 		onSortingChange: setSorting,
 		onGlobalFilterChange: setGlobalFilter,
+		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
