@@ -80,7 +80,6 @@ interface DataTableProps<T extends object> {
 	data: T[];
 	columns?: ColumnDef<T>[];
 	onSelectSamples?: (selected: Sample[]) => void;
-	onOpen?: (row: T) => void;
 	onEdit?: (row: T) => void;
 	onDelete?: (row: T) => void;
 	showAddButton?: React.ReactNode;
@@ -168,7 +167,6 @@ const formatDateToYMD = (dateStr?: string | null) =>
 
 export function DataTable<T extends object>({
 	data,
-	onOpen,
 	onEdit,
 	onDelete,
 	showAddButton,
@@ -332,15 +330,8 @@ export function DataTable<T extends object>({
 			...(dataType === "assay" ? [fileColumn] : []),
 			...(actionColumn ? [actionColumn] : []),
 		];
-	}, [
-		autoColumns,
-		onOpen,
-		onEdit,
-		onDelete,
-		dataType,
-		orderedColumns,
-		project?.id,
-	]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [onEdit, onDelete, dataType, orderedColumns, project?.id]);
 
 	const enhancedColumnsWithDates: ColumnDef<T>[] = React.useMemo(() => {
 		return enhancedColumns.map((col) => {
