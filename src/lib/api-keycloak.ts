@@ -4,6 +4,7 @@ import {
 	CreateSample,
 	Member,
 	PresignDownloadRequest,
+	PresignDownloadResponse,
 	PresignUploadRequest,
 	PresignUploadResponse,
 	Project,
@@ -12,8 +13,6 @@ import {
 	StatisticsResponse,
 } from "./types";
 import { API_URL } from "./config";
-
-//const API_URL = "/api";
 
 export async function api<T = unknown>(
 	endpoint: string,
@@ -172,8 +171,8 @@ export async function requestPresignedUpload(
 
 export async function requestPresignedDownload(
 	data: PresignDownloadRequest
-): Promise<PresignUploadResponse> {
-	return api<PresignUploadResponse>("files/presign-download", {
+): Promise<PresignDownloadResponse> {
+	return api<PresignDownloadResponse>("files/presign-download", {
 		method: "POST",
 		body: JSON.stringify({
 			projectId: data.projectId,
@@ -209,7 +208,6 @@ export async function deleteProject(projectId: string): Promise<void> {
 	});
 }
 
-//projects
 export async function updateProject(
 	projectId: string,
 	data: { name?: string; description?: string }
@@ -294,7 +292,7 @@ export async function deleteSelectedSamples<T extends { id: string }>(
 }
 
 export async function downloadSampleTemplate(): Promise<void> {
-	const res = await fetch("https://api.metatrack.no/templates/templateV1.csv");
+	const res = await fetch(`${API_URL}/templates/templateV1.csv`);
 
 	if (!res.ok) {
 		throw new Error("Failed to download template");
@@ -314,58 +312,25 @@ export async function downloadSampleTemplate(): Promise<void> {
 }
 
 export async function getAssays(projectId: string): Promise<Assay[]> {
-	const token = keycloak.token;
-
-	const response = await fetch(`${API_URL}/projects/${projectId}/assays`, {
-		method: "GET",
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error("Erro ao buscar assays");
-	}
-
-	const data = await response.json();
-	return data.assays ?? data;
+	const data = await api<Assay[] | { assays: Assay[] }>(
+		`projects/${projectId}/assays`
+	);
+	return Array.isArray(data) ? data : (data.assays ?? []);
 }
 
 export async function getAssayById(
 	projectId: string,
 	assayId: string
 ): Promise<Assay> {
-	const token = keycloak.token;
-
-	const response = await fetch(
-		`${API_URL}/projects/${projectId}/assays/${assayId}`,
-		{
-			method: "GET",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error("Erro ao buscar assay");
-	}
-
-	return response.json();
+	return api<Assay>(`projects/${projectId}/assays/${assayId}`);
 }
 
 export async function createAssay(
 	projectId: string,
 	payload: Partial<Assay>
 ): Promise<Assay> {
-	const token = keycloak.token;
-
-	const response = await fetch(`${API_URL}/projects/${projectId}/assays`, {
+	return api<Assay>(`projects/${projectId}/assays`, {
 		method: "POST",
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
 		body: JSON.stringify({
 			name: payload.name,
 			studyAccession: payload.studyAccession ?? null,
@@ -378,12 +343,6 @@ export async function createAssay(
 			insertSize: payload.insertSize ?? null,
 		}),
 	});
-
-	if (!response.ok) {
-		throw new Error("Erro ao criar assay");
-	}
-
-	return response.json();
 }
 
 export async function updateAssay(
@@ -391,63 +350,23 @@ export async function updateAssay(
 	assayId: string,
 	payload: Partial<Assay>
 ) {
-	const token = keycloak.token;
-
-	const response = await fetch(
-		`${API_URL}/projects/${projectId}/assays/${assayId}`,
-		{
-			method: "PATCH",
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(payload),
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error("Erro ao atualizar assay");
-	}
+	return api(`projects/${projectId}/assays/${assayId}`, {
+		method: "PATCH",
+		body: JSON.stringify(payload),
+	});
 }
 
 export async function deleteAssay(projectId: string, assayId: string) {
-	const token = keycloak.token;
-
-	const response = await fetch(
-		`${API_URL}/projects/${projectId}/assays/${assayId}`,
-		{
-			method: "DELETE",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error("Erro ao deletar assay");
-	}
+	return api(`projects/${projectId}/assays/${assayId}`, {
+		method: "DELETE",
+	});
 }
 
 export async function getSamplesInAssay(
 	projectId: string,
 	assayId: string
 ): Promise<Sample[]> {
-	const token = keycloak.token;
-
-	const response = await fetch(
-		`${API_URL}/projects/${projectId}/assays/${assayId}/samples`,
-		{
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error("Erro ao buscar samples do assay");
-	}
-
-	return response.json();
+	return api<Sample[]>(`projects/${projectId}/assays/${assayId}/samples`);
 }
 
 export async function addSamplesToAssay(
@@ -455,24 +374,10 @@ export async function addSamplesToAssay(
 	assayId: string,
 	sampleNames: string[]
 ): Promise<void> {
-	const token = keycloak.token;
-
-	const response = await fetch(
-		`${API_URL}/projects/${projectId}/assays/${assayId}/samples`,
-		{
-			method: "PUT",
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ sampleNames }),
-		}
-	);
-
-	if (!response.ok) {
-		const text = await response.text();
-		throw new Error(text || "Failed to add samples to assay");
-	}
+	return api(`projects/${projectId}/assays/${assayId}/samples`, {
+		method: "PUT",
+		body: JSON.stringify({ sampleNames }),
+	});
 }
 
 export async function progressUploadFile(

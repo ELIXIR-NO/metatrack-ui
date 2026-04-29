@@ -14,6 +14,7 @@ export interface Sample {
 	institution: string | null;
 	hostHealthState: string | null;
 	createdOn: string | null; // Date
+	// lastUpdatedOn is the API field name; modifiedOn is the display-facing alias returned by some endpoints
 	lastUpdatedOn: string | null; // Date
 	modifiedOn: string | null;
 	files?: SampleFile[];
@@ -76,6 +77,8 @@ export interface PresignUploadResponse {
 	expiresIn: number;
 	expiresAt: string;
 }
+
+export type PresignDownloadResponse = PresignUploadResponse;
 
 export interface Assay {
 	id: string;

@@ -52,8 +52,7 @@ export function ProjectsDataTable({
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
 
-	const columns = React.useMemo<ColumnDef<Project>[]>(
-		() => [
+	const columns: ColumnDef<Project>[] = [
 			{
 				id: "select",
 				header: ({ table }) => (
@@ -138,9 +137,7 @@ export function ProjectsDataTable({
 					);
 				},
 			},
-		],
-		[onEdit, onDelete, onOpen]
-	);
+	];
 
 	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({

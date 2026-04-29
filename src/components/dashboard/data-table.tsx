@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
 	closestCenter,
@@ -349,10 +347,7 @@ export function DataTable({ data: initialData }: { data: TableDataSchema[] }) {
 		useSensor(KeyboardSensor, {})
 	);
 
-	const dataIds = React.useMemo<UniqueIdentifier[]>(
-		() => data?.map(({ id }) => id) || [],
-		[data]
-	);
+	const dataIds: UniqueIdentifier[] = data?.map(({ id }) => id) || [];
 
 	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({

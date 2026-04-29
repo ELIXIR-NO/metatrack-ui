@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { useState } from "react";
 import {
@@ -178,43 +176,38 @@ export function DataTable<T extends object>({
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
 	const [initialColumnOrder] = React.useState<string[]>([]);
-	const [, setLoading] = useState(false);
 	const queryClient = useQueryClient();
 
-	const autoColumns: ColumnDef<T>[] = React.useMemo(() => {
-		if (data.length === 0) return [];
+	const autoColumns: ColumnDef<T>[] =
+		data.length === 0
+			? []
+			: (Object.keys(data[0]) as Array<keyof T>)
+					.filter((key) => key !== "files")
+					.map((key) => ({
+						id: String(key),
+						accessorKey: String(key),
+						enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
+						header: (props) => (
+							<DataTableColumnHeader
+								column={props.column}
+								title={getColumnNewName(String(key))}
+							/>
+						),
+						meta: {
+							label: getColumnNewName(String(key)),
+						},
+					}));
 
-		return (Object.keys(data[0]) as Array<keyof T>)
-			.filter((key) => key !== "files")
-			.map((key) => ({
-				id: String(key),
-				accessorKey: String(key),
-				enableHiding: !NON_VIEWED_COLUMNS.includes(String(key)),
-				header: (props) => (
-					<DataTableColumnHeader
-						column={props.column}
-						title={getColumnNewName(String(key))}
-					/>
-				),
-				meta: {
-					label: getColumnNewName(String(key)),
-				},
-			}));
-	}, [data]);
+	const orderedColumns: ColumnDef<T>[] =
+		autoColumns.length === 0
+			? []
+			: initialColumnOrder.length === 0
+				? autoColumns
+				: (initialColumnOrder
+						.map((id) => autoColumns.find((col) => col.id === id))
+						.filter(Boolean) as ColumnDef<T>[]);
 
-	const orderedColumns = React.useMemo(() => {
-		if (autoColumns.length === 0) return [];
-
-		if (initialColumnOrder.length === 0) {
-			return autoColumns;
-		}
-
-		return initialColumnOrder
-			.map((id) => autoColumns.find((col) => col.id === id))
-			.filter(Boolean) as ColumnDef<T>[];
-	}, [autoColumns, initialColumnOrder]);
-
-	const enhancedColumns: ColumnDef<T>[] = React.useMemo(() => {
+	const enhancedColumns: ColumnDef<T>[] = (() => {
 		const selectionColumn: ColumnDef<T> = {
 			id: "select",
 			header: ({ table }) => (
@@ -256,16 +249,19 @@ export function DataTable<T extends object>({
 							<button
 								key={index}
 								onClick={async () => {
+									if (!project?.id) return;
 									try {
 										const { url } = await requestPresignedDownload({
-											projectId: Number(project?.id),
+											projectId: Number(project.id),
 											sampleName: sample.name,
 											fileName: file.name,
 										});
 
 										window.open(url, "_blank");
 									} catch (err: unknown) {
-										toast.error((err as Error)?.message ?? "Download failed");
+										const message =
+											err instanceof Error ? err.message : "Download failed";
+										toast.error(message);
 									}
 								}}
 								className="text-left text-blue-600 hover:underline"
@@ -308,9 +304,7 @@ export function DataTable<T extends object>({
 											projectId={project?.id ?? ""}
 											sampleName={(row.original as Sample).name}
 										/>
-									) : (
-										[]
-									)}
+									) : null}
 									{onDelete && (
 										<DeleteAlertButton
 											projectId={project?.id ?? ""}
@@ -330,28 +324,25 @@ export function DataTable<T extends object>({
 			...(dataType === "assay" ? [fileColumn] : []),
 			...(actionColumn ? [actionColumn] : []),
 		];
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [onEdit, onDelete, dataType, orderedColumns, project?.id]);
+	})();
 
-	const enhancedColumnsWithDates: ColumnDef<T>[] = React.useMemo(() => {
-		return enhancedColumns.map((col) => {
-			if (
-				"accessorKey" in col &&
-				(col.accessorKey === "createdOn" || col.accessorKey === "modifiedOn")
-			) {
-				return {
-					...col,
-					cell: ({ row }) => {
-						const key = col.accessorKey as string;
-						const dateStr = row.getValue(key) as unknown as string;
-						if (!dateStr) return "";
-						return formatDateToYMD(dateStr);
-					},
-				};
-			}
-			return col;
-		});
-	}, [enhancedColumns]);
+	const enhancedColumnsWithDates: ColumnDef<T>[] = enhancedColumns.map((col) => {
+		if (
+			"accessorKey" in col &&
+			(col.accessorKey === "createdOn" || col.accessorKey === "modifiedOn")
+		) {
+			return {
+				...col,
+				cell: ({ row }) => {
+					const key = col.accessorKey as string;
+					const dateStr = row.getValue(key) as unknown as string;
+					if (!dateStr) return "";
+					return formatDateToYMD(dateStr);
+				},
+			};
+		}
+		return col;
+	});
 
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
@@ -394,13 +385,6 @@ export function DataTable<T extends object>({
 		onColumnVisibilityChange: setColumnVisibility,
 	});
 
-	table
-		.getAllColumns()
-		.filter(
-			(column) =>
-				!column.getCanHide() && !NON_VIEWED_COLUMNS.includes(column.id)
-		);
-
 	const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
 	const prepareTableDataForDownload = (table: TanStackTable<T>) => {
 		const headers = table
@@ -436,8 +420,6 @@ export function DataTable<T extends object>({
 	const { headers, rows } = prepareTableDataForDownload(table);
 
 	const handleBatchUpdate = async (colName: string, value: string) => {
-		setLoading(true);
-
 		try {
 			const sampleData = (selectedRows as unknown as Sample[]).map(
 				(row: Sample) => {
@@ -459,7 +441,7 @@ export function DataTable<T extends object>({
 				}
 			);
 
-			batchEditSamples(project?.id ?? "", { sampleData });
+			await batchEditSamples(project?.id ?? "", { sampleData });
 
 			toast.success("Samples have been updated");
 
@@ -468,19 +450,18 @@ export function DataTable<T extends object>({
 			});
 		} catch (err: unknown) {
 			toast.error((err as Error)?.message ?? "Error updating samples");
-		} finally {
-			setLoading(false);
 		}
 	};
 
-	const treeData =
-		dataType === "assay"
+	const treeData = project
+		? dataType === "assay" && assay
 			? buildProjectTreeSampleAssay(
-					project!,
+					project,
 					selectedRows as unknown as Sample[],
-					assay!
+					assay
 				)
-			: buildProjectTree(project!, selectedRows as unknown as Sample[]);
+			: buildProjectTree(project, selectedRows as unknown as Sample[])
+		: { name: "", children: [] };
 
 	const editableColumns = autoColumns.filter(
 		(col) => !NON_EDITABLE_COLUMNS.includes(String(col.header))
@@ -519,7 +500,7 @@ export function DataTable<T extends object>({
 
 						<Separator orientation="vertical" />
 						{quickEditColumns.map((col) => (
-							<>
+							<React.Fragment key={String(col.id)}>
 								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
 										<Button variant="ghost" size="sm" className="rounded-none">
@@ -549,7 +530,7 @@ export function DataTable<T extends object>({
 									</DropdownMenuContent>
 								</DropdownMenu>
 								<Separator orientation="vertical" />
-							</>
+							</React.Fragment>
 						))}
 
 						<Tooltip>
@@ -610,19 +591,12 @@ export function DataTable<T extends object>({
 											</PopoverTrigger>
 											<PopoverContent className="p-1">
 												<Input
-													name="field"
 													placeholder={String(col.meta?.label)}
 													className="w-auto"
 													onKeyDown={(e) => {
 														if (e.key === "Enter") {
 															e.preventDefault();
-															const form = e.currentTarget.form;
-															if (form) {
-																const value = new FormData(form).get(
-																	"field"
-																) as string;
-																handleBatchUpdate(String(col.id), value);
-															}
+															handleBatchUpdate(String(col.id), e.currentTarget.value);
 														}
 													}}
 												/>
@@ -752,6 +726,7 @@ function TableCellViewer({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (!projectId) return;
 		setLoading(true);
 
 		try {
@@ -787,7 +762,9 @@ function TableCellViewer({
 
 			if (onUpdated) onUpdated();
 		} catch (err: unknown) {
-			toast.error((err as Error)?.message || "Erro updating sample");
+			const message =
+				err instanceof Error ? err.message : "Error updating sample";
+			toast.error(message);
 		} finally {
 			setLoading(false);
 		}
