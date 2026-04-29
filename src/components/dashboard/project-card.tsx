@@ -53,90 +53,88 @@ export function ProjectsDataTable({
 	const [globalFilter, setGlobalFilter] = React.useState("");
 
 	const columns: ColumnDef<Project>[] = [
-			{
-				id: "select",
-				header: ({ table }) => (
-					<Checkbox
-						checked={table.getIsAllPageRowsSelected()}
-						onCheckedChange={(value) =>
-							table.toggleAllPageRowsSelected(!!value)
-						}
-						aria-label="Select all"
-					/>
-				),
-				cell: ({ row }) => (
-					<Checkbox
-						checked={row.getIsSelected()}
-						onCheckedChange={(value) => row.toggleSelected(!!value)}
-						aria-label="Select row"
-					/>
-				),
-				enableSorting: false,
-				enableHiding: false,
-			},
-			{
-				accessorKey: "name",
-				header: ({ column }) => (
-					<DataTableColumnHeader column={column} title="Title" />
-				),
-				cell: ({ row }) => (
-					<span
-						className="cursor-pointer font-medium"
-						onClick={() => onOpen(row.original)}
-					>
-						{row.getValue("name")}
-					</span>
-				),
-			},
-			{
-				accessorKey: "description",
-				header: ({ column }) => (
-					<DataTableColumnHeader column={column} title="Description" />
-				),
-				cell: ({ row }) => row.getValue("description") || "-",
-			},
-			{
-				id: "actions",
-				enableHiding: false,
-				cell: ({ row }) => {
-					const project = row.original;
-					return (
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="sm">
-									<MoreHorizontal size={16} />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent>
-								<DropdownMenuItem
-									onClick={() => onOpen(project)}
-									className="flex items-center gap-2"
-								>
-									<FolderOpen />
-									Open
-								</DropdownMenuItem>
+		{
+			id: "select",
+			header: ({ table }) => (
+				<Checkbox
+					checked={table.getIsAllPageRowsSelected()}
+					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+					aria-label="Select all"
+				/>
+			),
+			cell: ({ row }) => (
+				<Checkbox
+					checked={row.getIsSelected()}
+					onCheckedChange={(value) => row.toggleSelected(!!value)}
+					aria-label="Select row"
+				/>
+			),
+			enableSorting: false,
+			enableHiding: false,
+		},
+		{
+			accessorKey: "name",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Title" />
+			),
+			cell: ({ row }) => (
+				<span
+					className="cursor-pointer font-medium"
+					onClick={() => onOpen(row.original)}
+				>
+					{row.getValue("name")}
+				</span>
+			),
+		},
+		{
+			accessorKey: "description",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Description" />
+			),
+			cell: ({ row }) => row.getValue("description") || "-",
+		},
+		{
+			id: "actions",
+			enableHiding: false,
+			cell: ({ row }) => {
+				const project = row.original;
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="sm">
+								<MoreHorizontal size={16} />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem
+								onClick={() => onOpen(project)}
+								className="flex items-center gap-2"
+							>
+								<FolderOpen />
+								Open
+							</DropdownMenuItem>
 
-								<DropdownMenuItem
-									onClick={() => onEdit(project)}
-									className="flex items-center gap-2"
-								>
-									<SquarePen />
-									Edit
-								</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => onEdit(project)}
+								className="flex items-center gap-2"
+							>
+								<SquarePen />
+								Edit
+							</DropdownMenuItem>
 
-								<DropdownMenuItem asChild>
-									<DeleteAlertButton
-										projectId={project?.id}
-										item={{ id: project.id! }}
-										entityName="project"
-										onDeleted={() => onDelete(project)}
-									/>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					);
-				},
+							<DropdownMenuItem asChild>
+								<DeleteAlertButton
+									projectId={project?.id}
+									item={{ id: project.id! }}
+									entityName="project"
+									onDeleted={() => onDelete(project)}
+								/>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				);
 			},
+		},
 	];
 
 	// eslint-disable-next-line react-hooks/incompatible-library

@@ -131,7 +131,7 @@ const TabsWithUrlSync: React.FC<TabsUrlSyncProps> = ({
 	const { searchStr } = useLocation();
 	const searchParams = React.useMemo(
 		() => new URLSearchParams(searchStr),
-		[searchStr],
+		[searchStr]
 	);
 
 	const [value, setValue] = React.useState(defaultValue);

@@ -326,23 +326,25 @@ export function DataTable<T extends object>({
 		];
 	})();
 
-	const enhancedColumnsWithDates: ColumnDef<T>[] = enhancedColumns.map((col) => {
-		if (
-			"accessorKey" in col &&
-			(col.accessorKey === "createdOn" || col.accessorKey === "modifiedOn")
-		) {
-			return {
-				...col,
-				cell: ({ row }) => {
-					const key = col.accessorKey as string;
-					const dateStr = row.getValue(key) as unknown as string;
-					if (!dateStr) return "";
-					return formatDateToYMD(dateStr);
-				},
-			};
+	const enhancedColumnsWithDates: ColumnDef<T>[] = enhancedColumns.map(
+		(col) => {
+			if (
+				"accessorKey" in col &&
+				(col.accessorKey === "createdOn" || col.accessorKey === "modifiedOn")
+			) {
+				return {
+					...col,
+					cell: ({ row }) => {
+						const key = col.accessorKey as string;
+						const dateStr = row.getValue(key) as unknown as string;
+						if (!dateStr) return "";
+						return formatDateToYMD(dateStr);
+					},
+				};
+			}
+			return col;
 		}
-		return col;
-	});
+	);
 
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
@@ -596,7 +598,10 @@ export function DataTable<T extends object>({
 													onKeyDown={(e) => {
 														if (e.key === "Enter") {
 															e.preventDefault();
-															handleBatchUpdate(String(col.id), e.currentTarget.value);
+															handleBatchUpdate(
+																String(col.id),
+																e.currentTarget.value
+															);
 														}
 													}}
 												/>
