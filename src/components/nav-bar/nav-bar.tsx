@@ -52,7 +52,7 @@ export function NavBar() {
 									"h-10 rounded-md px-4 has-[>svg]:px-4"
 								)}
 							>
-								<a href="/dashboard">Dashboard</a>
+								<Link to="/dashboard">Dashboard</Link>
 							</Button>
 						)}
 						{NavItems.map((it) => (
@@ -106,7 +106,7 @@ const NavBarItem: FC<NavItem> = ({ pageUrl, pageName }) => {
 			className={cn("text-md", "h-10 rounded-md px-4 has-[>svg]:px-4")}
 			variant={pathName === pageUrl ? "default" : "secondary"}
 		>
-			<a href={pageUrl}>{pageName}</a>
+			<Link to={pageUrl}>{pageName}</Link>
 		</Button>
 	);
 };
