@@ -660,7 +660,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
 				<div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
 					{!isMobile && (
 						<>
-							<ChartContainer config={chartConfig} className="aspect-auto h-[200px] w-full">
+							<ChartContainer
+								config={chartConfig}
+								className="aspect-auto h-[200px] w-full"
+							>
 								<AreaChart
 									accessibilityLayer
 									data={chartData}

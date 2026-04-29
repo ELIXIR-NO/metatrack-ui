@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import contactUsFormSchema, { HelpAndSupportFormSchema } from "./helpAndSupportFormSchema";
+import contactUsFormSchema, {
+	HelpAndSupportFormSchema,
+} from "./helpAndSupportFormSchema";
 import { sendEmailToElixir } from "./actions";
 import { useForm } from "react-hook-form";
 
