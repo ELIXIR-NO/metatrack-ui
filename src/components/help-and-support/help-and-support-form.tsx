@@ -1,22 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import contactUsFormSchema, {
-	HelpAndSupportFormSchema,
-} from "./helpAndSupportFormSchema";
+import contactUsFormSchema, { HelpAndSupportFormSchema, } from "./helpAndSupportFormSchema";
 import { sendEmailToElixir } from "./actions";
 import { useForm } from "react-hook-form";
 
@@ -45,11 +35,10 @@ export default function HelpAndSupportForm() {
 			});
 			form.reset();
 		} else {
-			let errorMessage = "An unexpected error occurred.";
+			let errorMessage: string;
 
 			if (
 				typeof serverResponse.error === "object" &&
-				serverResponse.error !== null &&
 				"message" in serverResponse.error
 			) {
 				errorMessage = String(

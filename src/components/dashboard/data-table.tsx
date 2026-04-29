@@ -4,13 +4,13 @@ import * as React from "react";
 import {
 	closestCenter,
 	DndContext,
+	type DragEndEvent,
 	KeyboardSensor,
 	MouseSensor,
 	TouchSensor,
+	type UniqueIdentifier,
 	useSensor,
 	useSensors,
-	type DragEndEvent,
-	type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -453,7 +453,7 @@ export function DataTable({
 											className="capitalize"
 											checked={column.getIsVisible()}
 											onCheckedChange={(value) =>
-												column.toggleVisibility(!!value)
+												column.toggleVisibility(value)
 											}
 										>
 											{column.id}
