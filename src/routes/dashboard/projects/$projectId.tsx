@@ -13,16 +13,13 @@ import {
 } from "@/lib/api-keycloak";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
-import { Project, Sample } from "@/lib/types";
+import { Assay, Project, Sample } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
 import { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
-import { getProjectsByUser } from "@/lib/api-keycloak";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
-import { getAssays } from "@/lib/api-keycloak";
-import { Assay } from "@/lib/types";
 import { AssayTable } from "@/components/dashboard/assayTable";
 import { AddAssayDialog } from "@/components/dashboard/add-assay";
 import { Button } from "@/components/ui/button";
