@@ -13,8 +13,8 @@ function RouteComponent() {
 			<article className="prose prose-neutral max-w-none">
 				<ReactMarkdown
 					components={{
-						p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-						a: ({ node, ...props }) => (
+						p: ({ ...props }) => <p className="mb-2" {...props} />,
+						a: ({ ...props }) => (
 							<a
 								className="text-blue-600 hover:underline"
 								target="_blank"
@@ -22,11 +22,9 @@ function RouteComponent() {
 								{...props}
 							/>
 						),
-						ul: ({ node, ...props }) => (
-							<ul className="ml-6 list-disc" {...props} />
-						),
-						li: ({ node, ...props }) => <li className="my-2" {...props} />,
-						hr: ({ node, ...props }) => (
+						ul: ({ ...props }) => <ul className="ml-6 list-disc" {...props} />,
+						li: ({ ...props }) => <li className="my-2" {...props} />,
+						hr: ({ ...props }) => (
 							<hr className="my-4 border-gray-300" {...props} />
 						),
 					}}
