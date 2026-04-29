@@ -51,6 +51,7 @@ export function NavBar() {
 									"text-md",
 									"h-10 rounded-md px-4 has-[>svg]:px-4"
 								)}
+								asChild
 							>
 								<Link to="/dashboard">Dashboard</Link>
 							</Button>
