@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import {
-	ColumnDef,
+	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	SortingState,
+	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -33,7 +33,7 @@ import { AddProjectDialog } from "./add-project";
 import { DataTableColumnHeader } from "../data-table-column-header";
 import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
-import { Project } from "@/lib/types";
+import type { Project } from "@/lib/types";
 import { DeleteAlertButton } from "../delete-alert-button";
 
 interface DataTableProps {

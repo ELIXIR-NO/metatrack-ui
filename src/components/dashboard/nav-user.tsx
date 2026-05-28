@@ -18,7 +18,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { MeResponse } from "@/lib/types";
+import type { MeResponse } from "@/lib/types";
 import { AuthContext } from "@/providers/auth-context";
 import { useContext } from "react";
 import {

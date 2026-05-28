@@ -1,4 +1,4 @@
-import { Assay, Project, Sample } from "./types";
+import type { Assay, Project, Sample } from "./types";
 
 export function buildProjectTree(project: Project, samples: Sample[]) {
 	return {

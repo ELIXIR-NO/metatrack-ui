@@ -1,190 +1,91 @@
-"use client";
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { Tabs as TabsPrimitive } from "radix-ui"
 
-import * as React from "react";
-import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { cva } from "class-variance-authority";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-import type { VariantProps } from "class-variance-authority";
+import { cn } from "#/lib/utils.ts"
 
-import { cn } from "@/lib/utils";
-
-const Tabs = TabsPrimitive.Root;
-
-const TabsListVariants = cva(" inline-flex items-center justify-start h-9", {
-	variants: {
-		variant: {
-			default: "rounded-lg bg-muted p-1",
-			underline:
-				"rounded-none bg-background gap-0 p-0 border-b border-gray-200",
-		},
-		size: {
-			default: "h-9",
-			sm: "h-8  text-xs",
-			lg: "h-10 ",
-			icon: "h-9 w-9",
-		},
-		width: {
-			default: "w-full",
-			fit: "w-fit",
-		},
-	},
-	defaultVariants: {
-		variant: "default",
-		size: "default",
-		width: "default",
-	},
-});
-
-const TabsTriggerVariants = cva(
-	"inline-flex items-center justify-center whitespace-nowrap text-sm font-normal  transition-all disabled:pointer-events-none data-[state=active]:text-foreground px-3",
-	{
-		variants: {
-			variant: {
-				default:
-					"data-[state=active]:bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=active]:shadow disabled:opacity-50 rounded-md py-1",
-				underline:
-					"bg-background border-b-2 border-secondary focus:border-primary ring-0 outline-none shadow-none data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary disabled:opacity-100 rounded-none m-0 pt-1.5 pb-2 hover:bg-background-muted data-[state=active]:font-semibold",
-			},
-			size: {
-				default: "",
-				sm: " text-xs",
-				lg: "",
-				icon: "h-9 w-9",
-			},
-			width: {
-				default: "w-full",
-				fit: "w-fit",
-			},
-		},
-		defaultVariants: {
-			variant: "default",
-			size: "default",
-			width: "default",
-		},
-	}
-);
-
-export interface TabsListProps
-	extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>,
-		VariantProps<typeof TabsListVariants> {}
-
-const TabsList = React.forwardRef<
-	React.ElementRef<typeof TabsPrimitive.List>,
-	TabsListProps
->(({ className, variant, size, width, ...props }, ref) => (
-	<TabsPrimitive.List
-		ref={ref}
-		className={cn(
-			TabsListVariants({ variant, size, width }),
-			variant === "underline" && "border-b border-gray-200",
-			className
-		)}
-		{...props}
-	/>
-));
-TabsList.displayName = TabsPrimitive.List.displayName;
-
-export interface TabsTriggerProps
-	extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>,
-		VariantProps<typeof TabsTriggerVariants> {}
-
-const TabsTrigger = React.forwardRef<
-	React.ElementRef<typeof TabsPrimitive.Trigger>,
-	TabsTriggerProps
->(({ className, variant, size, width, ...props }, ref) => (
-	<TabsPrimitive.Trigger
-		ref={ref}
-		className={cn(TabsTriggerVariants({ variant, size, width, className }))}
-		{...props}
-	/>
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
-
-const TabsContent = React.forwardRef<
-	React.ElementRef<typeof TabsPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-	<TabsPrimitive.Content
-		ref={ref}
-		className={cn(
-			"ring-offset-background focus-visible:ring-ring mt-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-			className
-		)}
-		{...props}
-	/>
-));
-TabsContent.displayName = TabsPrimitive.Content.displayName;
-
-interface TabsUrlSyncProps extends React.ComponentPropsWithoutRef<typeof Tabs> {
-	defaultValue: string;
-	urlParamName?: string;
+function Tabs({
+  className,
+  orientation = "horizontal",
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  return (
+    <TabsPrimitive.Root
+      data-slot="tabs"
+      data-orientation={orientation}
+      orientation={orientation}
+      className={cn(
+        "group/tabs flex gap-2 data-[orientation=horizontal]:flex-col",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-const TabsWithUrlSync: React.FC<TabsUrlSyncProps> = ({
-	children,
-	defaultValue,
-	urlParamName = "tab",
-	...props
-}) => {
-	const navigate = useNavigate();
-	const location = useLocation();
-	const { searchStr } = useLocation();
-	const searchParams = React.useMemo(
-		() => new URLSearchParams(searchStr),
-		[searchStr]
-	);
+const tabsListVariants = cva(
+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
+  {
+    variants: {
+      variant: {
+        default: "bg-muted",
+        line: "gap-1 bg-transparent",
+        underline:
+				"rounded-none bg-background gap-0 p-0 border-b border-gray-200",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-	const [value, setValue] = React.useState(defaultValue);
+function TabsList({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List> &
+  VariantProps<typeof tabsListVariants>) {
+  return (
+    <TabsPrimitive.List
+      data-slot="tabs-list"
+      data-variant={variant}
+      className={cn(tabsListVariants({ variant }), className)}
+      {...props}
+    />
+  )
+}
 
-	React.useEffect(() => {
-		const tabFromUrl = searchParams.get(urlParamName);
+function TabsTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return (
+    <TabsPrimitive.Trigger
+      data-slot="tabs-trigger"
+      className={cn(
+        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm group-data-[variant=line]/tabs-list:data-[state=active]:shadow-none dark:text-muted-foreground dark:hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent",
+        "data-[state=active]:bg-background data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground",
+        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-		const isValidTab = React.Children.toArray(children).some((child) => {
-			if (React.isValidElement<{ value?: string }>(child)) {
-				return child.props.value === tabFromUrl;
-			}
-			return false;
-		});
+function TabsContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return (
+    <TabsPrimitive.Content
+      data-slot="tabs-content"
+      className={cn("flex-1 outline-none", className)}
+      {...props}
+    />
+  )
+}
 
-		if (tabFromUrl && isValidTab) {
-			setValue(tabFromUrl);
-		} else if (!tabFromUrl) {
-			navigate({
-				to: location.pathname,
-				search: {
-					...Object.fromEntries(searchParams.entries()),
-					[urlParamName]: defaultValue,
-				},
-				replace: true,
-			});
-		}
-	}, [
-		searchParams,
-		children,
-		defaultValue,
-		urlParamName,
-		location.pathname,
-		navigate,
-	]);
-
-	const handleValueChange = (newValue: string) => {
-		setValue(newValue);
-
-		navigate({
-			to: location.pathname,
-			search: {
-				...Object.fromEntries(searchParams.entries()),
-				[urlParamName]: newValue,
-			},
-			replace: true,
-		});
-	};
-
-	return (
-		<Tabs {...props} value={value} onValueChange={handleValueChange}>
-			{children}
-		</Tabs>
-	);
-};
-
-export { TabsWithUrlSync, Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }

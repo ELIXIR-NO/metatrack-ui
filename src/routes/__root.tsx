@@ -1,50 +1,135 @@
-import Footer from "@/components/footer";
-import { createRootRoute, Outlet, useMatchRoute } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import "@/index.css";
-import { NavBar } from "@/components/nav-bar/nav-bar";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { NavBarMobile } from "@/components/nav-bar/nav-bar-mobile";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Toaster } from "@/components/ui/sonner";
-import { queryClient } from "@/lib/query-client";
+import * as React from 'react'
+import {
+  createRootRoute,
+  Outlet,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from '@tanstack/react-router'
 
-function RootLayout() {
-	const matchRoute = useMatchRoute();
+import Footer from '@/components/footer'
+import { NavBar } from '@/components/nav-bar/nav-bar'
+import { NavBarMobile } from '@/components/nav-bar/nav-bar-mobile'
+import { ThemeProvider } from '@/providers/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 
-	const matchedLoginRoute = matchRoute({ to: "/dashboard", fuzzy: true });
+import { KeycloakProvider } from '#/providers/keycloak-provider'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '#/lib/query-client'
 
-	return (
-		<QueryClientProvider client={queryClient}>
-			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-				<div className="flex min-h-screen flex-col">
-					{!matchedLoginRoute ? (
-						<header>
-							<div className="lg:hidden">
-								<NavBarMobile />
-							</div>
-							<div className="hidden lg:flex">
-								<NavBar />
-							</div>
-						</header>
-					) : undefined}
+import { seo } from '#/lib/utils'
 
-					<main className="mx-auto w-full flex-1">
-						<Outlet />
-						<Toaster position="top-center" />
-					</main>
+import stylesUrl from '../styles.css?url' 
 
-					<Footer />
-				</div>
+import {
+  ReactQueryDevtoolsPanel,
+} from '@tanstack/react-query-devtools'
 
-				<TanStackRouterDevtools />
-				<ReactQueryDevtools initialIsOpen={false} />
-			</ThemeProvider>
-		</QueryClientProvider>
-	);
-}
+import {
+  TanStackRouterDevtoolsPanel,
+} from '@tanstack/react-router-devtools'
+
+import { TanStackDevtools } from '@tanstack/react-devtools'
 
 export const Route = createRootRoute({
-	component: RootLayout,
-});
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      ...seo({
+        title: 'MetaTrack',
+        description:
+          'MetaTrack is an open platform for metadata management and tracking...',
+      }),
+    ],
+    links: [
+      { rel: 'stylesheet', href: stylesUrl },
+      { rel: 'icon', href: '/Metatrack-logo.svg' },
+    ],
+  }),
+
+  component: RootComponent,
+
+  errorComponent: ({ error }) => (
+    <RootDocument>
+      <div className="p-4 text-red-500">{error.message}</div>
+    </RootDocument>
+  ),
+
+  notFoundComponent: () => (
+    <RootDocument>
+      <div>Not found</div>
+    </RootDocument>
+  ),
+})
+
+function LayoutComponent() {
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+
+  const hideNavbar = pathname.startsWith("/dashboard");
+
+  return (
+    <>
+      {!hideNavbar && (
+        <header>
+          <div className="lg:hidden">
+            <NavBarMobile />
+          </div>
+          <div className="hidden lg:flex">
+            <NavBar />
+          </div>
+        </header>
+      )}
+
+      <main className="flex-1 w-full mx-auto">
+        <Outlet />
+        <Toaster position="top-center" />
+        <TanStackDevtools
+      plugins={[
+        {
+          name: 'TanStack Query',
+          render: <ReactQueryDevtoolsPanel />,
+        },
+        {
+          name: 'TanStack Router',
+          render: <TanStackRouterDevtoolsPanel />,
+        },
+      ]}
+    />
+      </main>
+
+      <Footer />
+    </>
+  )
+}
+
+function RootComponent() {
+  return (
+    <KeycloakProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <RootDocument>
+            <LayoutComponent />
+          </RootDocument>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </KeycloakProvider>
+  )
+}
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+
+      <body className="min-h-screen flex flex-col">
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}

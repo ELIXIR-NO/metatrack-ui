@@ -13,9 +13,9 @@ import {
 } from "@/lib/api-keycloak";
 import { DataTable } from "@/components/dashboard/dataTable";
 import { AddSampleDialog } from "@/components/dashboard/add-sample";
-import { Assay, Project, Sample } from "@/lib/types";
+import type { Assay, Project, Sample } from "@/lib/types";
 import { UploadSampleDialog } from "@/components/dashboard/upload-sample";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { NON_VIEWED_COLUMNS } from "@/lib/utils";
 import { DownloadTemplateButton } from "@/components/dashboard/download-template-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/dashboard/projects/$projectId")({
 	component: RouteComponent,
 });
 
-export function RouteComponent() {
+function RouteComponent() {
 	const { projectId } = Route.useParams();
 	const [activeTab, setActiveTab] = useState("samples");
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -137,10 +137,9 @@ export function RouteComponent() {
 				<Card className="pt-2">
 					<Tabs value={activeTab} onValueChange={setActiveTab}>
 						<CardHeader className="pb-0">
-							<TabsList className="bg-transparent p-0">
+							<TabsList variant="underline" className="bg-transparent p-0">
 								<TabsTrigger
 									value="samples"
-									variant="underline"
 									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
 								>
 									Samples
@@ -148,7 +147,6 @@ export function RouteComponent() {
 
 								<TabsTrigger
 									value="runs"
-									variant="underline"
 									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
 								>
 									Runs

@@ -1,32 +1,61 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { type RowData } from "@tanstack/react-table";
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import { type RowData } from '@tanstack/react-table'
 
 export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
-export const QUICK_EDIT_LIMIT = 4;
-export const NON_EDITABLE_COLUMNS = [
-	"name",
-	"createdOn",
-	"modifiedOn",
-	"files",
-];
-export const NON_VIEWED_COLUMNS = ["id", "lastUpdatedOn"];
+export const QUICK_EDIT_LIMIT = 4
+export const NON_EDITABLE_COLUMNS = ['name', 'createdOn', 'modifiedOn', 'files']
+export const NON_VIEWED_COLUMNS = ['id', 'lastUpdatedOn']
 
-declare module "@tanstack/react-table" {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	interface ColumnMeta<TData extends RowData, TValue> {
-		label?: string;
-	}
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    label?: string
+  }
 }
 
 export function emptyToNull<T extends Record<string, unknown>>(obj: T): T {
-	return Object.fromEntries(
-		Object.entries(obj).map(([key, value]) => [
-			key,
-			value === "" || value === undefined ? null : value,
-		])
-	) as T;
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      value === '' || value === undefined ? null : value,
+    ]),
+  ) as T
+}
+
+export const seo = ({
+  title,
+  description,
+  keywords,
+  image,
+}: {
+  title: string
+  description?: string
+  image?: string
+  keywords?: string
+}) => {
+  const tags = [
+    { title },
+    { name: 'description', content: description },
+    { name: 'keywords', content: keywords },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:creator', content: '@tannerlinsley' },
+    { name: 'twitter:site', content: '@tannerlinsley' },
+    { name: 'og:type', content: 'website' },
+    { name: 'og:title', content: title },
+    { name: 'og:description', content: description },
+    ...(image
+      ? [
+          { name: 'twitter:image', content: image },
+          { name: 'twitter:card', content: 'summary_large_image' },
+          { name: 'og:image', content: image },
+        ]
+      : []),
+  ]
+
+  return tags
 }

@@ -1,8 +1,7 @@
 import * as React from "react";
-import { useState } from "react";
-import {
+import { useState } from "react";import {
 	type Cell,
-	ColumnDef,
+	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
@@ -10,11 +9,12 @@ import {
 	getSortedRowModel,
 	type Header,
 	type Row,
-	SortingState,
+	type SortingState,
 	type Table as TanStackTable,
 	useReactTable,
-	VisibilityState,
 } from "@tanstack/react-table";
+
+import type { VisibilityState } from "@tanstack/react-table";
 import {
 	Table,
 	TableBody,
@@ -55,7 +55,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import { Assay, CreateSample, Project, Sample, SampleFile } from "@/lib/types";
+import type { Assay, CreateSample, Project, Sample, SampleFile } from "@/lib/types";
 import {
 	emptyToNull,
 	NON_EDITABLE_COLUMNS,

@@ -1,4 +1,4 @@
-import { FC, useContext } from "react";
+import { useContext } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -96,11 +96,13 @@ export function NavBar() {
 	);
 }
 
-const NavBarItem: FC<NavItem> = ({ pageUrl, pageName }) => {
+function NavBarItem({ pageUrl, pageName }: NavItem) {
 	const selected = useRouterState({
 		select: (state) => state.location,
 	});
+
 	const pathName = selected.pathname;
+
 	return (
 		<Button
 			asChild
@@ -110,4 +112,4 @@ const NavBarItem: FC<NavItem> = ({ pageUrl, pageName }) => {
 			<Link to={pageUrl}>{pageName}</Link>
 		</Button>
 	);
-};
+}
