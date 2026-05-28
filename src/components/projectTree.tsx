@@ -23,7 +23,7 @@ export function ProjectTree({ data, width = 800 }: ProjectTreeProps) {
 		const dx = 20;
 		const dy = width / (root.height + 1);
 		const tree = d3.tree<TreeNode>().nodeSize([dx, dy]);
-		root.sort((a, b) => d3.ascending(a.data.name, b.data.name));
+		root.sort((a: { data: { name: any; }; }, b: { data: { name: any; }; }) => d3.ascending(a.data.name, b.data.name));
 		tree(root);
 
 		let x0 = Infinity;
@@ -59,7 +59,7 @@ export function ProjectTree({ data, width = 800 }: ProjectTreeProps) {
 			.selectAll("path")
 			.data(root.links() as d3.HierarchyPointLink<TreeNode>[])
 			.join("path")
-			.attr("d", (d) => linkGenerator(d));
+			.attr("d", (d: d3.HierarchyPointLink<TreeNode>) => linkGenerator(d));
 
 		const node = svg
 			.append("g")

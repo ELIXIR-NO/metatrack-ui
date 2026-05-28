@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAssay, updateAssay } from "@/lib/api-keycloak";
-import { Assay } from "@/lib/types";
+import type { Assay } from "@/lib/types";
 import { SquarePen } from "lucide-react";
 
 interface EditAssayDialogProps {

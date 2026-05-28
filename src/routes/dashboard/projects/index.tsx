@@ -5,7 +5,7 @@ import { ProjectsDataTable } from "@/components/dashboard/project-card";
 import { Loader2Icon } from "lucide-react";
 import { getProjectsByUser } from "@/lib/api-keycloak";
 import { useState } from "react";
-import { Project } from "@/lib/types";
+import type { Project } from "@/lib/types";
 import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
 
 export const Route = createFileRoute("/dashboard/projects/")({

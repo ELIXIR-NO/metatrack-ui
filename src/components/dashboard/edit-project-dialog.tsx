@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Project } from "@/lib/types";
+import type { Project } from "@/lib/types";
 import { ProjectGeneralTab } from "./tabs/project-general-tab";
 import { ProjectMembersTab } from "./tabs/project-members-tab";
 import { useState } from "react";

@@ -2,7 +2,7 @@
 
 //import { Resend } from "resend";
 import contactFormSchema, {
-	HelpAndSupportFormSchema,
+	type HelpAndSupportFormSchema,
 } from "./helpAndSupportFormSchema";
 //import EmailTemplate from "./email-template";
 

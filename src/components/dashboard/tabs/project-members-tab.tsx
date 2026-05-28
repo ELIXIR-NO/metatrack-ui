@@ -24,7 +24,7 @@ import {
 	removeProjectMember,
 	updateProjectMember,
 } from "@/lib/api-keycloak";
-import { Member, Project } from "@/lib/types";
+import type { Member, Project } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
