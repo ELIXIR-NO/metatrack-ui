@@ -4,6 +4,7 @@ import {
   Outlet,
   HeadContent,
   Scripts,
+  useRouterState,
 } from '@tanstack/react-router'
 
 import Footer from '@/components/footer'
@@ -63,36 +64,24 @@ export const Route = createRootRoute({
 })
 
 function LayoutComponent() {
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+
+  const hideNavbar = pathname.startsWith("/dashboard");
 
   return (
     <>
-      <header>
-        <div className="lg:hidden">
-          <NavBarMobile />
-        </div>
-        <div className="hidden lg:flex">
-          <NavBar />
-        </div>
-      </header>
-      
-      <main className="flex-1 w-full mx-auto">
-        <Outlet />
-        <Toaster position="top-center" />
-        <TanStackDevtools
-      plugins={[
-        {
-          name: 'TanStack Query',
-          render: <ReactQueryDevtoolsPanel />,
-        },
-        {
-          name: 'TanStack Router',
-          render: <TanStackRouterDevtoolsPanel />,
-        },
-      ]}
-    />
-      </main>
-
-      <Footer />
+      {!hideNavbar && (
+        <header>
+          <div className="lg:hidden">
+            <NavBarMobile />
+          </div>
+          <div className="hidden lg:flex">
+            <NavBar />
+          </div>
+        </header>
+      )}
     </>
   )
 }
@@ -120,6 +109,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
       <body className="min-h-screen flex flex-col">
         <LayoutComponent />
+        <main className="flex-1 w-full mx-auto">
+        {children}
+        <Toaster position="top-center" />
+        </main>
+        <Footer />
+        <TanStackDevtools
+      plugins={[
+        {
+          name: 'TanStack Query',
+          render: <ReactQueryDevtoolsPanel />,
+        },
+        {
+          name: 'TanStack Router',
+          render: <TanStackRouterDevtoolsPanel />,
+        },
+      ]}
+    />
         <Scripts />
       </body>
     </html>
