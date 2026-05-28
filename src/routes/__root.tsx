@@ -4,7 +4,6 @@ import {
   Outlet,
   HeadContent,
   Scripts,
-  useRouterState,
 } from '@tanstack/react-router'
 
 import Footer from '@/components/footer'
@@ -64,25 +63,18 @@ export const Route = createRootRoute({
 })
 
 function LayoutComponent() {
-  const pathname = useRouterState({
-    select: (s) => s.location.pathname,
-  });
-
-  const hideNavbar = pathname.startsWith("/dashboard");
 
   return (
     <>
-      {!hideNavbar && (
-        <header>
-          <div className="lg:hidden">
-            <NavBarMobile />
-          </div>
-          <div className="hidden lg:flex">
-            <NavBar />
-          </div>
-        </header>
-      )}
-
+      <header>
+        <div className="lg:hidden">
+          <NavBarMobile />
+        </div>
+        <div className="hidden lg:flex">
+          <NavBar />
+        </div>
+      </header>
+      
       <main className="flex-1 w-full mx-auto">
         <Outlet />
         <Toaster position="top-center" />
@@ -111,7 +103,7 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
           <RootDocument>
-            <LayoutComponent />
+            <Outlet />
           </RootDocument>
         </ThemeProvider>
       </QueryClientProvider>
@@ -127,7 +119,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
 
       <body className="min-h-screen flex flex-col">
-        {children}
+        <LayoutComponent />
         <Scripts />
       </body>
     </html>
