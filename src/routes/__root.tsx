@@ -4,6 +4,7 @@ import {
   Outlet,
   HeadContent,
   Scripts,
+  useRouterState,
 } from '@tanstack/react-router'
 
 import Footer from '@/components/footer'
@@ -63,16 +64,24 @@ export const Route = createRootRoute({
 })
 
 function LayoutComponent() {
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+
+  const hideNavbar = pathname.startsWith("/dashboard");
+
   return (
     <>
-      <header>
-        <div className="lg:hidden">
-          <NavBarMobile />
-        </div>
-        <div className="hidden lg:flex">
-          <NavBar />
-        </div>
-      </header>
+      {!hideNavbar && (
+        <header>
+          <div className="lg:hidden">
+            <NavBarMobile />
+          </div>
+          <div className="hidden lg:flex">
+            <NavBar />
+          </div>
+        </header>
+      )}
 
       <main className="flex-1 w-full mx-auto">
         <Outlet />
