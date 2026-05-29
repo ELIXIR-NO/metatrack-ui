@@ -53,7 +53,7 @@ export function NavBar() {
 								)}
 								asChild
 							>
-								<Link to="/dashboard">Dashboard</Link>
+								<Link to="/projects">My Projects</Link>
 							</Button>
 						)}
 						{NavItems.map((it) => (
