@@ -21,13 +21,6 @@ import {
 import type { MeResponse } from "@/lib/types";
 import { AuthContext } from "@/providers/auth-context";
 import { useContext } from "react";
-import {
-	IconBook,
-	IconDatabase,
-	IconMessageQuestion,
-	IconRocket,
-} from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
 
 export function NavUser({ user }: { user: MeResponse }) {
 	const { isMobile } = useSidebar();
@@ -72,36 +65,7 @@ export function NavUser({ user }: { user: MeResponse }) {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
-							<DropdownMenuItem asChild>
-								<Link to="/about">
-									<IconMessageQuestion />
-									About
-								</Link>
-							</DropdownMenuItem>
 
-							<DropdownMenuItem asChild>
-								<Link to="/public-data">
-									<IconDatabase />
-									Public Data
-								</Link>
-							</DropdownMenuItem>
-
-							<DropdownMenuItem asChild>
-								<Link to="/get-started">
-									<IconRocket />
-									Get Started
-								</Link>
-							</DropdownMenuItem>
-
-							<DropdownMenuItem asChild>
-								<Link to="/resources">
-									<IconBook />
-									Resources
-								</Link>
-							</DropdownMenuItem>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
 								<BadgeCheck />
