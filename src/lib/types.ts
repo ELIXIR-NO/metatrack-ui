@@ -50,6 +50,9 @@ export interface Project {
 	id?: string;
 	name: string;
 	description?: string;
+	ownerId?: string;
+	createdOn?: string; // Date
+	modifiedOn?: string;
 }
 
 export interface StatisticsResponse {
