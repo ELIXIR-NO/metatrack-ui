@@ -5,6 +5,7 @@ import QuickStart from '@/components/quick-start'
 import { motion } from 'framer-motion'
 import { ChartAreaHomePage } from '@/components/dashboard/chart-area-home-page'
 import { useDashboardStats } from '@/lib/data/statCards'
+import { Loader2Icon } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: Index,
@@ -14,7 +15,10 @@ function Index() {
   const { data: statCards = [], isLoading } = useDashboardStats()
 
   if (isLoading) {
-    return <div className="p-6">Loading…</div>
+    return <div className="flex h-screen w-full items-center justify-center">
+      <Loader2Icon size={72} className="animate-spin" />
+    </div>
+    
   }
 
   return (
