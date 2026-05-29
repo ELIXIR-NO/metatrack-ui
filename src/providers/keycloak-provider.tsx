@@ -33,7 +33,7 @@ export function KeycloakProvider({ children }: { children: React.ReactNode }) {
 
 	const login = () =>
 		keycloak.login({
-			redirectUri: `${window.location.origin}/dashboard`,
+			redirectUri: `${window.location.origin}/projects`,
 		});
 
 	const logout = () =>
