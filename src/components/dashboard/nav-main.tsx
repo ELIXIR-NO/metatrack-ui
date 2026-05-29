@@ -2,7 +2,7 @@
 
 import { type Icon } from "@tabler/icons-react";
 import { ChevronRight, FileText, Flag } from "lucide-react";
-import { useLocation } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 
 import {
 	Collapsible,
@@ -54,13 +54,13 @@ export function NavMain({
 										<SidebarMenuButton
 											asChild
 											tooltip="My Projects"
-											isActive={location.pathname === `/dashboard${item.url}`}
+											isActive={location.pathname === `/projects${item.url}`}
 											className="gap-x-2"
 										>
-											<a href={`${item.url}`}>
+											<Link to={`${item.url}`}>
 												{item.icon && <item.icon className="!size-6" />}
 												<span>{item.title}</span>
-											</a>
+											</Link>
 										</SidebarMenuButton>
 
 										{item.items && item.items.length > 0 && (
@@ -77,8 +77,8 @@ export function NavMain({
 											{item.items?.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title}>
 													<SidebarMenuSubButton asChild>
-														<a
-															href={subItem.url}
+														<Link
+															to={subItem.url}
 															className="flex items-center gap-2"
 														>
 															{item.isTeam ? (
@@ -87,7 +87,7 @@ export function NavMain({
 																<FileText className="!size-4" />
 															)}
 															<span>{subItem.title}</span>
-														</a>
+														</Link>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}

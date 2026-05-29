@@ -14,13 +14,12 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PublicDataRouteImport } from './routes/public-data'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as GetStartedRouteImport } from './routes/get-started'
-import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as ProjectsRouteRouteImport } from './routes/projects/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as HelpAndSupportIndexRouteImport } from './routes/help-and-support/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
-import { Route as DashboardProjectsIndexRouteImport } from './routes/dashboard/projects/index'
-import { Route as DashboardProjectsProjectIdRouteImport } from './routes/dashboard/projects/$projectId'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projectId'
 
 const TermsOfUseRoute = TermsOfUseRouteImport.update({
   id: '/terms-of-use',
@@ -47,9 +46,9 @@ const GetStartedRoute = GetStartedRouteImport.update({
   path: '/get-started',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRouteRoute = DashboardRouteRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const ProjectsRouteRoute = ProjectsRouteRouteImport.update({
+  id: '/projects',
+  path: '/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -57,46 +56,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsRouteRoute,
+} as any)
 const HelpAndSupportIndexRoute = HelpAndSupportIndexRouteImport.update({
   id: '/help-and-support/',
   path: '/help-and-support/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/about/',
   path: '/about/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardProjectsIndexRoute = DashboardProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => DashboardRouteRoute,
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => ProjectsRouteRoute,
 } as any)
-const DashboardProjectsProjectIdRoute =
-  DashboardProjectsProjectIdRouteImport.update({
-    id: '/projects/$projectId',
-    path: '/projects/$projectId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
   '/get-started': typeof GetStartedRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/about/': typeof AboutIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
   '/help-and-support/': typeof HelpAndSupportIndexRoute
-  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
-  '/dashboard/projects/': typeof DashboardProjectsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,42 +97,39 @@ export interface FileRoutesByTo {
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/about': typeof AboutIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
   '/help-and-support': typeof HelpAndSupportIndexRoute
-  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
-  '/dashboard/projects': typeof DashboardProjectsIndexRoute
+  '/projects': typeof ProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
   '/get-started': typeof GetStartedRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/about/': typeof AboutIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
   '/help-and-support/': typeof HelpAndSupportIndexRoute
-  '/dashboard/projects/$projectId': typeof DashboardProjectsProjectIdRoute
-  '/dashboard/projects/': typeof DashboardProjectsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
+    | '/projects'
     | '/get-started'
     | '/privacy-policy'
     | '/public-data'
     | '/resources'
     | '/terms-of-use'
+    | '/projects/$projectId'
     | '/about/'
-    | '/dashboard/'
     | '/help-and-support/'
-    | '/dashboard/projects/$projectId'
-    | '/dashboard/projects/'
+    | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,30 +138,28 @@ export interface FileRouteTypes {
     | '/public-data'
     | '/resources'
     | '/terms-of-use'
+    | '/projects/$projectId'
     | '/about'
-    | '/dashboard'
     | '/help-and-support'
-    | '/dashboard/projects/$projectId'
-    | '/dashboard/projects'
+    | '/projects'
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
+    | '/projects'
     | '/get-started'
     | '/privacy-policy'
     | '/public-data'
     | '/resources'
     | '/terms-of-use'
+    | '/projects/$projectId'
     | '/about/'
-    | '/dashboard/'
     | '/help-and-support/'
-    | '/dashboard/projects/$projectId'
-    | '/dashboard/projects/'
+    | '/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  ProjectsRouteRoute: typeof ProjectsRouteRouteWithChildren
   GetStartedRoute: typeof GetStartedRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PublicDataRoute: typeof PublicDataRoute
@@ -219,11 +206,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GetStartedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteRouteImport
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -233,19 +220,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRouteRoute
+    }
     '/help-and-support/': {
       id: '/help-and-support/'
       path: '/help-and-support'
       fullPath: '/help-and-support/'
       preLoaderRoute: typeof HelpAndSupportIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
     }
     '/about/': {
       id: '/about/'
@@ -254,42 +241,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/projects/': {
-      id: '/dashboard/projects/'
-      path: '/projects'
-      fullPath: '/dashboard/projects/'
-      preLoaderRoute: typeof DashboardProjectsIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/projects/$projectId': {
-      id: '/dashboard/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/dashboard/projects/$projectId'
-      preLoaderRoute: typeof DashboardProjectsProjectIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      parentRoute: typeof ProjectsRouteRoute
     }
   }
 }
 
-interface DashboardRouteRouteChildren {
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardProjectsProjectIdRoute: typeof DashboardProjectsProjectIdRoute
-  DashboardProjectsIndexRoute: typeof DashboardProjectsIndexRoute
+interface ProjectsRouteRouteChildren {
+  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
-const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardProjectsProjectIdRoute: DashboardProjectsProjectIdRoute,
-  DashboardProjectsIndexRoute: DashboardProjectsIndexRoute,
+const ProjectsRouteRouteChildren: ProjectsRouteRouteChildren = {
+  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
 }
 
-const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
-  DashboardRouteRouteChildren,
+const ProjectsRouteRouteWithChildren = ProjectsRouteRoute._addFileChildren(
+  ProjectsRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  ProjectsRouteRoute: ProjectsRouteRouteWithChildren,
   GetStartedRoute: GetStartedRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PublicDataRoute: PublicDataRoute,
