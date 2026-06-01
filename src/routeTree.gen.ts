@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as HelpAndSupportIndexRouteImport } from './routes/help-and-support/index'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
+import { Route as ProjectsMyProfileRouteImport } from './routes/projects/my-profile'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projectId'
 
 const TermsOfUseRoute = TermsOfUseRouteImport.update({
@@ -71,6 +72,11 @@ const AboutIndexRoute = AboutIndexRouteImport.update({
   path: '/about/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsMyProfileRoute = ProjectsMyProfileRouteImport.update({
+  id: '/my-profile',
+  path: '/my-profile',
+  getParentRoute: () => ProjectsRouteRoute,
+} as any)
 const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
   id: '/$projectId',
   path: '/$projectId',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects/my-profile': typeof ProjectsMyProfileRoute
   '/about/': typeof AboutIndexRoute
   '/help-and-support/': typeof HelpAndSupportIndexRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects/my-profile': typeof ProjectsMyProfileRoute
   '/about': typeof AboutIndexRoute
   '/help-and-support': typeof HelpAndSupportIndexRoute
   '/projects': typeof ProjectsIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/projects/my-profile': typeof ProjectsMyProfileRoute
   '/about/': typeof AboutIndexRoute
   '/help-and-support/': typeof HelpAndSupportIndexRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/terms-of-use'
     | '/projects/$projectId'
+    | '/projects/my-profile'
     | '/about/'
     | '/help-and-support/'
     | '/projects/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/terms-of-use'
     | '/projects/$projectId'
+    | '/projects/my-profile'
     | '/about'
     | '/help-and-support'
     | '/projects'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/terms-of-use'
     | '/projects/$projectId'
+    | '/projects/my-profile'
     | '/about/'
     | '/help-and-support/'
     | '/projects/'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/my-profile': {
+      id: '/projects/my-profile'
+      path: '/my-profile'
+      fullPath: '/projects/my-profile'
+      preLoaderRoute: typeof ProjectsMyProfileRouteImport
+      parentRoute: typeof ProjectsRouteRoute
+    }
     '/projects/$projectId': {
       id: '/projects/$projectId'
       path: '/$projectId'
@@ -253,11 +272,13 @@ declare module '@tanstack/react-router' {
 
 interface ProjectsRouteRouteChildren {
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
+  ProjectsMyProfileRoute: typeof ProjectsMyProfileRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
 const ProjectsRouteRouteChildren: ProjectsRouteRouteChildren = {
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
+  ProjectsMyProfileRoute: ProjectsMyProfileRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
 }
 
