@@ -5,6 +5,7 @@ import {
 	IconBook,
 	IconBriefcase,
 	IconDatabase,
+	IconFileInfo,
 	IconMessageDots,
 	IconMessageQuestion,
 	IconRocket,
@@ -92,6 +93,11 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 				title: "Help and Support",
 				url: "/help-and-support",
 				icon: IconMessageDots,
+			},
+			{
+				title: "Terms of Use",
+				url: "/terms-of-use",
+				icon: IconFileInfo,
 			},
 		],
 	};
