@@ -28,7 +28,7 @@ export function NavUser({ user }: { user: MeResponse }) {
 
 			<SidebarMenu>
 				<SidebarMenuItem>
-					<SidebarMenuButton asChild>
+					<SidebarMenuButton asChild className="gap-x-2 hover:bg-neutral-300">
 						<Link to="/projects/my-profile" className="flex items-center gap-2">
 							<BadgeCheck className="size-4" />
 							<span>Account</span>
@@ -39,7 +39,7 @@ export function NavUser({ user }: { user: MeResponse }) {
 				<SidebarMenuItem>
 					<SidebarMenuButton
 						onClick={logout}
-						className="text-destructive hover:text-destructive"
+						className="text-destructive hover:text-destructive hover:bg-red-200"
 					>
 						<LogOut className="size-4" />
 						<span>Log out</span>

@@ -47,31 +47,30 @@ export function NavMain({
 								key={item.title}
 								asChild
 								defaultOpen={item.isActive}
-								className="group/collapsible"
+								className="group/collapsible flex-none"
 							>
 								<SidebarMenuItem>
-									<div className="flex items-center justify-between">
-										<SidebarMenuButton
-											asChild
-											tooltip="My Projects"
-											isActive={location.pathname === `/projects${item.url}`}
-											className="gap-x-2"
-										>
-											<Link to={`${item.url}`}>
-												{item.icon && <item.icon className="!size-6" />}
-												<span>{item.title}</span>
-											</Link>
-										</SidebarMenuButton>
+									<SidebarMenuButton
+										asChild
+										tooltip={item.title}
+										isActive={location.pathname === `/projects${item.url}`}
+										className="flex-none hover:bg-neutral-300"
+									>
+										<Link to={`${item.url}`}>
+											{item.icon && <item.icon className="!size-6" />}
+											<span>{item.title}</span>
+										</Link>
+									</SidebarMenuButton>
 
-										{item.items && item.items.length > 0 && (
-											<CollapsibleTrigger asChild>
-												<SidebarMenuAction className="data-[state=open]:bg-accent rounded-sm">
-													<ChevronRight className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-													<span className="sr-only">Arrow</span>
-												</SidebarMenuAction>
-											</CollapsibleTrigger>
-										)}
-									</div>
+									{item.items && item.items.length > 0 && (
+										<CollapsibleTrigger asChild>
+											<SidebarMenuAction className="-right-2 h-5 w-20 hover:bg-neutral-300">
+												<ChevronRight className="group-data-[state=open]/collapsible:rotate-90" />
+												<span className="sr-only">Arrow</span>
+											</SidebarMenuAction>
+										</CollapsibleTrigger>
+									)}
+
 									<CollapsibleContent>
 										<SidebarMenuSub>
 											{item.items?.map((subItem) => (

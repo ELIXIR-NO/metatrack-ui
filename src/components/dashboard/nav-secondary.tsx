@@ -30,7 +30,7 @@ export function NavSecondary({
 							<SidebarMenuButton
 								asChild
 								tooltip={item.title}
-								className="gap-x-2"
+								className="gap-x-2 hover:bg-neutral-300"
 							>
 								<a href={item.url}>
 									<item.icon className="!size-6" />
