@@ -1,5 +1,6 @@
 import * as React from "react";
-import { useState } from "react";import {
+import { useState } from "react";
+import {
 	type Cell,
 	type ColumnDef,
 	flexRender,
@@ -55,7 +56,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteAlertButton } from "../delete-alert-button";
 import { toast } from "sonner";
-import type { Assay, CreateSample, Project, Sample, SampleFile } from "@/lib/types";
+import type {
+	Assay,
+	CreateSample,
+	Project,
+	Sample,
+	SampleFile,
+} from "@/lib/types";
 import {
 	emptyToNull,
 	NON_EDITABLE_COLUMNS,
@@ -215,6 +222,7 @@ export function DataTable<T extends object>({
 					checked={table.getIsAllPageRowsSelected()}
 					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
+					className="border-neutral-900"
 				/>
 			),
 			cell: ({ row }) => (
@@ -222,6 +230,7 @@ export function DataTable<T extends object>({
 					checked={row.getIsSelected()}
 					onCheckedChange={(value) => row.toggleSelected(!!value)}
 					aria-label="Select row"
+					className="border-neutral-900"
 				/>
 			),
 			enableSorting: false,
@@ -690,6 +699,7 @@ export function DataTable<T extends object>({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									className="hover:bg-neutral-300"
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
@@ -702,7 +712,7 @@ export function DataTable<T extends object>({
 								</TableRow>
 							))
 						) : (
-							<TableRow>
+							<TableRow className="hover:bg-neutral-300">
 								<TableCell
 									colSpan={enhancedColumns.length}
 									className="h-24 text-center"

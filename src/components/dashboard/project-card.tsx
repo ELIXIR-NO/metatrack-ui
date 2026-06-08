@@ -60,6 +60,7 @@ export function ProjectsDataTable({
 					checked={table.getIsAllPageRowsSelected()}
 					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
+					className="border-neutral-900"
 				/>
 			),
 			cell: ({ row }) => (
@@ -67,6 +68,7 @@ export function ProjectsDataTable({
 					checked={row.getIsSelected()}
 					onCheckedChange={(value) => row.toggleSelected(!!value)}
 					aria-label="Select row"
+					className="border-neutral-900"
 				/>
 			),
 			enableSorting: false,
@@ -195,6 +197,7 @@ export function ProjectsDataTable({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									className="hover:bg-neutral-300"
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
@@ -210,7 +213,7 @@ export function ProjectsDataTable({
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className="h-24 text-center"
+									className="h-24 text-center hover:bg-neutral-300"
 								>
 									No results.
 								</TableCell>
