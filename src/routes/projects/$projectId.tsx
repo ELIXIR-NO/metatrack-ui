@@ -101,8 +101,8 @@ function RouteComponent() {
 		<div>
 			<SiteHeader
 				items={[
-					{ label: "My Projects", href: "/dashboard/projects" },
-					{ label: project.name, href: `/dashboard/projects/${project.id}` },
+					{ label: "My Projects", href: "/projects" },
+					{ label: project.name, href: `/projects/${project.id}` },
 				]}
 			/>
 			<div className="space-y-6 p-4">
