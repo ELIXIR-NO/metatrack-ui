@@ -74,7 +74,7 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="max-w-lg">
+			<DialogContent className="max-w-lg" aria-describedby={undefined}>
 				<DialogHeader>
 					<DialogTitle>Edit Assay</DialogTitle>
 				</DialogHeader>

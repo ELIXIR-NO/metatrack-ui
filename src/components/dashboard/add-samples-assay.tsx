@@ -81,7 +81,7 @@ export function AddSamplesToAssayDialog({
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="max-w-lg">
+			<DialogContent className="max-w-lg" aria-describedby={undefined}>
 				<DialogHeader>
 					<DialogTitle>Select Samples to Add</DialogTitle>
 				</DialogHeader>

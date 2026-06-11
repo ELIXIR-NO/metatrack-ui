@@ -227,7 +227,7 @@ export function AddSampleDialog({ projectId }: AddSampleDialogProps) {
 					Add Sample
 				</Button>
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent aria-describedby={undefined}>
 				<form onSubmit={handleCreate} className="space-y-4">
 					<DialogHeader>
 						<DialogTitle>Create New Sample</DialogTitle>

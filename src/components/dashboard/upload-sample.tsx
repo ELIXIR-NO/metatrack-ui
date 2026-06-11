@@ -88,7 +88,7 @@ export function UploadSampleDialog({
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="sm:max-w-2xl">
+			<DialogContent className="sm:max-w-2xl" aria-describedby={undefined}>
 				<DialogHeader>
 					<DialogTitle>Upload Sample File</DialogTitle>
 				</DialogHeader>

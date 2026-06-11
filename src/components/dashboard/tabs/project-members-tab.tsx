@@ -207,7 +207,7 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 						<Button>Add member</Button>
 					</DialogTrigger>
 
-					<DialogContent>
+					<DialogContent aria-describedby={undefined}>
 						<DialogHeader>
 							<DialogTitle>Add Project Member</DialogTitle>
 						</DialogHeader>
@@ -258,7 +258,7 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 						<Button variant="secondary">Invite by email</Button>
 					</DialogTrigger>
 
-					<DialogContent>
+					<DialogContent aria-describedby={undefined}>
 						<DialogHeader>
 							<DialogTitle>Invite Member by Email</DialogTitle>
 						</DialogHeader>
@@ -316,7 +316,7 @@ export function ProjectMembersTab({ project }: { project: Project }) {
 					open={!!editingMember}
 					onOpenChange={() => setEditingMember(null)}
 				>
-					<DialogContent>
+					<DialogContent aria-describedby={undefined}>
 						<DialogHeader>
 							<DialogTitle>Edit Member Role</DialogTitle>
 						</DialogHeader>
