@@ -80,6 +80,7 @@ import {
 	requestPresignedDownload,
 	updateSample,
 } from "@/lib/api-keycloak";
+import { useEnrichedSamples } from "#/hooks/use-enrichedSamples";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -100,8 +101,11 @@ const COLUMN_TOOLTIPS: Record<string, string> = {
 		'Unique ID for identification of a sample in ENA. This should be the "TEXT_ID" OR "SAMPLE_NUMBER"',
 	taxId:
 		"The Tax Id indicates the taxonomic classification(e.g. 9606 for human). ENA requires this information.",
+	taxonName: "The scientific name corresponding to the taxonomic identifier.",
 	hostTaxId:
 		"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
+	hostTaxonName:
+		"The scientific name corresponding to the host taxonomic identifier.",
 	mlst: "Multi-Locus Sequence Typing (MLST) scheme assigned to the isolate.",
 	isolationSource:
 		"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived.",
@@ -137,7 +141,9 @@ const COLUMN_NAMES: Record<string, string> = {
 	name: "Sample Name",
 	alias: "Alias",
 	taxId: "Taxonomic Identifier",
+	taxonName: "Taxon Name",
 	hostTaxId: "Host Taxonomic Identifier",
+	hostTaxonName: "Host Taxon Name",
 	mlst: "MLST",
 	isolationSource: "Isolation Source",
 	collectionDate: "Collection Date",
@@ -182,13 +188,32 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
-	const [initialColumnOrder] = React.useState<string[]>([]);
+	const [initialColumnOrder] = React.useState<string[]>([
+		"name",
+		"alias",
+		"taxId",
+		"taxonName",
+		"hostTaxId",
+		"hostTaxonName",
+		"mlst",
+		"isolationSource",
+		"collectionDate",
+		"location",
+		"sequencingLab",
+		"institution",
+		"hostHealthState",
+		"createdOn",
+		"modifiedOn",
+		"lastUpdatedOn",
+	]);
 	const queryClient = useQueryClient();
 
+	const enrichedData = useEnrichedSamples(data as Sample[]);
+
 	const autoColumns: ColumnDef<T>[] =
-		data.length === 0
+		enrichedData.length === 0
 			? []
-			: (Object.keys(data[0]) as Array<keyof T>)
+			: (Object.keys(enrichedData[0]) as Array<keyof T>)
 					.filter((key) => key !== "files")
 					.map((key) => ({
 						id: String(key),
@@ -327,6 +352,7 @@ export function DataTable<T extends object>({
 						),
 					}
 				: undefined;
+
 		return [
 			selectionColumn,
 			...orderedColumns,
@@ -363,8 +389,10 @@ export function DataTable<T extends object>({
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({
 			alias: false,
-			taxId: true,
-			hostTaxId: true,
+			taxId: false,
+			taxonName: true,
+			hostTaxId: false,
+			hostTaxonName: true,
 			isolationSource: true,
 			collectionDate: true,
 			geoLocation: true,
@@ -381,7 +409,7 @@ export function DataTable<T extends object>({
 
 	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
-		data,
+		data: enrichedData as T[],
 		columns: enhancedColumnsWithDates,
 		state: {
 			sorting,

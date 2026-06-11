@@ -100,3 +100,8 @@ export interface Assay {
 }
 
 export type AssaySampleRow = Omit<Assay, "id">;
+
+export interface Taxon {
+	taxon_id: string;
+	name: string;
+}
