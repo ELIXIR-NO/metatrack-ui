@@ -35,6 +35,7 @@ export function FormField({
 						<TooltipTrigger asChild>
 							<button
 								type="button"
+								tabIndex={-1}
 								className="text-muted-foreground hover:text-foreground"
 							>
 								<Info className="h-3 w-3" />
