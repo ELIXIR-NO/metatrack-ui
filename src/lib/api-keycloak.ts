@@ -13,9 +13,7 @@ import type {
 	StatisticsResponse,
 	Taxon,
 } from "./types";
-//import { API_URL } from './config'
-
-const API_URL = "https://api.metatrack.no/api";
+import { API_URL, API_BASE_URL } from "./config";
 
 export async function api<T = unknown>(
 	endpoint: string,
@@ -295,7 +293,7 @@ export async function deleteSelectedSamples<T extends { id: string }>(
 }
 
 export async function downloadSampleTemplate(): Promise<void> {
-	const res = await fetch(`${API_URL}/templates/templateV1.csv`);
+	const res = await fetch(`${API_BASE_URL}/templates/templateV1.csv`);
 
 	if (!res.ok) {
 		throw new Error("Failed to download template");
