@@ -73,7 +73,17 @@ export function AddSamplesToAssayDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={(value) => {
+				setOpen(value);
+
+				if (!value) {
+					setSelectedSamples([]);
+					setSearch("");
+				}
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button>
 					<SquarePlus />
