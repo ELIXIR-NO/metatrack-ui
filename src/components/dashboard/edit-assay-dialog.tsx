@@ -42,23 +42,30 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 	const updateMutation = useMutation({
 		mutationFn: () => updateAssay(projectId, assay.id, form),
 		onSuccess: () => {
-			toast.success("Assay updated successfully!");
-			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
+			toast.success("Experiment updated successfully!");
+			queryClient.invalidateQueries({
+				queryKey: ["assays"],
+				exact: false,
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["assaySamples"],
+				exact: false,
+			});
 			setOpen(false);
 		},
 		onError: (err: Error) =>
-			toast.error(err?.message ?? "Failed to update assay"),
+			toast.error(err?.message ?? "Failed to update experiment"),
 	});
 
 	const deleteMutation = useMutation({
 		mutationFn: () => deleteAssay(projectId, assay.id),
 		onSuccess: () => {
-			toast.success("Assay deleted successfully!");
+			toast.success("Experiment deleted successfully!");
 			queryClient.invalidateQueries({ queryKey: ["assays", projectId] });
 			setOpen(false);
 		},
 		onError: (err: Error) =>
-			toast.error(err?.message ?? "Failed to delete assay"),
+			toast.error(err?.message ?? "Failed to delete experiment"),
 	});
 
 	const handleChange = (key: keyof typeof form, value: string | number) => {
@@ -70,13 +77,13 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 			<DialogTrigger asChild>
 				<Button>
 					<SquarePen />
-					Edit Run
+					Edit Experiment
 				</Button>
 			</DialogTrigger>
 
 			<DialogContent className="max-w-lg" aria-describedby={undefined}>
 				<DialogHeader>
-					<DialogTitle>Edit Assay</DialogTitle>
+					<DialogTitle>Edit Experiment</DialogTitle>
 				</DialogHeader>
 
 				<div className="space-y-4">
@@ -106,7 +113,7 @@ export function EditAssayDialog({ assay, projectId }: EditAssayDialogProps) {
 							onClick={() => deleteMutation.mutate()}
 							disabled={deleteMutation.isPending}
 						>
-							{deleteMutation.isPending ? "Deleting..." : "Delete Assay"}
+							{deleteMutation.isPending ? "Deleting..." : "Delete Experiment"}
 						</Button>
 
 						<div className="flex gap-2">

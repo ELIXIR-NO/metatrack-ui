@@ -46,9 +46,9 @@ type FieldConfig = {
 const fields: FieldConfig[] = [
 	{
 		key: "name",
-		label: "Run Name",
-		placeholder: "Run name",
-		tooltip: "Unique name for this sequencing run.",
+		label: "Experiment Name",
+		placeholder: "Experiment name",
+		tooltip: "Unique name for this sequencing experiment.",
 	},
 	{
 		key: "studyAccession",
@@ -188,7 +188,7 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 		onSuccess: () => {
 			setOpen(false);
 
-			toast.success("Run has been created", {
+			toast.success("Experiment has been created", {
 				description: new Date().toLocaleString(),
 			});
 
@@ -198,7 +198,7 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 		},
 
 		onError: (error: Error) => {
-			toast.error(error?.message ?? "Error creating run");
+			toast.error(error?.message ?? "Error creating experiment");
 		},
 	});
 
@@ -212,14 +212,14 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 			<DialogTrigger asChild>
 				<Button className="flex items-center gap-2">
 					<SquarePlus />
-					Add Run
+					Add Experiment
 				</Button>
 			</DialogTrigger>
 
 			<DialogContent aria-describedby={undefined}>
 				<form onSubmit={handleCreate} className="space-y-4">
 					<DialogHeader>
-						<DialogTitle>Create New Run</DialogTitle>
+						<DialogTitle>Create New Experiment</DialogTitle>
 					</DialogHeader>
 
 					{fields
@@ -279,7 +279,9 @@ export function AddAssayDialog({ projectId }: AddAssayDialogProps) {
 						</DialogClose>
 
 						<Button type="submit" disabled={mutation.isPending}>
-							{mutation.isPending ? "Creating Run..." : "Create Run"}
+							{mutation.isPending
+								? "Creating Experiment..."
+								: "Create Experiment"}
 						</Button>
 					</DialogFooter>
 				</form>

@@ -82,7 +82,7 @@ export function SectionCards() {
 			{/* ASSAYS */}
 			<Card className="@container/card">
 				<CardHeader>
-					<CardDescription>Total Assays</CardDescription>
+					<CardDescription>Total Experiments</CardDescription>
 					<CardTitle className="text-2xl font-semibold">
 						{totalAssays}
 					</CardTitle>
