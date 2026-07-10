@@ -13,7 +13,7 @@ interface AssayTableProps {
 
 export function AssayTable({ assay, project }: AssayTableProps) {
 	const { data } = useQuery({
-		queryKey: ["assaySamples", assay.id],
+		queryKey: ["assaySamples", assay.id, assay.modifiedOn],
 		queryFn: async () => {
 			const samples: Sample[] =
 				(await getSamplesInAssay(project?.id ?? "", assay.id)) ?? [];
