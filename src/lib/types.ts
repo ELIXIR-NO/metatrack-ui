@@ -64,12 +64,14 @@ export interface StatisticsResponse {
 
 export interface PresignUploadRequest {
 	projectId: number;
+	assayId: string;
 	sampleName: string;
 	file: File;
 }
 
 export interface PresignDownloadRequest {
 	projectId: number;
+	assayId: string;
 	sampleName: string;
 	fileName: string;
 }

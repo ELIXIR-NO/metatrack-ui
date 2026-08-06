@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Assay, AssaySampleRow, Project, Sample } from "@/lib/types";
 import { DataTable } from "./dataTable";
-import { getSampleFiles, getSamplesInAssay } from "@/lib/api-keycloak";
+import { getFilesSampleAssay, getSamplesInAssay } from "@/lib/api-keycloak";
 import { AddSamplesToAssayDialog } from "./add-samples-assay";
 import { DownloadTemplateButton } from "./download-template-button";
 import { EditAssayDialog } from "./edit-assay-dialog";
@@ -21,7 +21,11 @@ export function AssayTable({ assay, project }: AssayTableProps) {
 			const samplesWithFiles = await Promise.all(
 				samples.map(async (sample) => {
 					try {
-						const files = await getSampleFiles(Number(project?.id), sample.id);
+						const files = await getFilesSampleAssay(
+							Number(project?.id),
+							assay.id,
+							sample.id
+						);
 
 						return {
 							...sample,

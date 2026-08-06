@@ -18,6 +18,7 @@ import { Progress } from "../ui/progress";
 
 interface UploadSampleDialogProps {
 	projectId: string;
+	assayId: string;
 	sampleName: string;
 }
 
@@ -30,6 +31,7 @@ type FileUploadState = {
 
 export function UploadDataDialog({
 	projectId,
+	assayId,
 	sampleName,
 }: UploadSampleDialogProps) {
 	const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
@@ -52,7 +54,7 @@ export function UploadDataDialog({
 
 	const updateFile = (index: number, update: Partial<FileUploadState>) => {
 		setFileStates((prev) =>
-			prev.map((s, i) => (i === index ? { ...s, ...update } : s)),
+			prev.map((s, i) => (i === index ? { ...s, ...update } : s))
 		);
 	};
 
@@ -71,6 +73,7 @@ export function UploadDataDialog({
 
 				const { url } = await requestPresignedUpload({
 					projectId: Number(projectId),
+					assayId,
 					sampleName,
 					file: state.file,
 				});
@@ -96,9 +99,7 @@ export function UploadDataDialog({
 			}
 		};
 
-		await Promise.all(
-			Array.from({ length: CONCURRENCY }, () => worker()),
-		);
+		await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
 		setUploading(false);
 		await queryClient.invalidateQueries({ queryKey: ["samples", projectId] });
@@ -106,7 +107,7 @@ export function UploadDataDialog({
 		const succeeded = fileStates.length - failed;
 		if (failed === 0) {
 			toast.success(
-				`${succeeded} file${succeeded > 1 ? "s" : ""} uploaded successfully`,
+				`${succeeded} file${succeeded > 1 ? "s" : ""} uploaded successfully`
 			);
 		} else {
 			toast.warning(`${succeeded} uploaded, ${failed} failed`);
