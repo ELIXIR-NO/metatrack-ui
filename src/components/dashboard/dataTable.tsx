@@ -81,6 +81,7 @@ import {
 	updateSample,
 } from "@/lib/api-keycloak";
 import { useEnrichedSamples } from "#/hooks/use-enrichedSamples";
+import { COLUMN_TOOLTIPS } from "#/lib/data/column_tooltips";
 
 interface DataTableProps<T extends object> {
 	data: T[];
@@ -95,55 +96,13 @@ interface DataTableProps<T extends object> {
 	assay?: Assay;
 }
 
-const COLUMN_TOOLTIPS: Record<string, string> = {
-	name: "Unique identifier for the sample within this project.",
-	alias:
-		'Unique ID for identification of a sample in ENA. This should be the "TEXT_ID" OR "SAMPLE_NUMBER"',
-	taxId:
-		"The Tax Id indicates the taxonomic classification(e.g. 9606 for human). ENA requires this information.",
-	taxonName: "The scientific name corresponding to the taxonomic identifier.",
-	hostTaxId:
-		"The Tax Id indicates the taxonomic classification of the host to the organism from which sample was obtained(e.g. 9606 for human).",
-	hostTaxonName:
-		"The scientific name corresponding to the host taxonomic identifier.",
-	mlst: "Multi-Locus Sequence Typing (MLST) scheme assigned to the isolate.",
-	isolationSource:
-		"Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived.",
-	collectionDate:
-		"The date the sample was collected with the intention of sequencing. Full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21.",
-	location:
-		"The geographical origin of the sample as defined by the specific region name followed by the locality name.",
-	sequencingLab:
-		"Typically the laboratory that carried out the sequencing of the samples.",
-	institution:
-		"Typically the institution or organization responsible for the project and its data.",
-	hostHealthState:
-		"Health status of the host at the time of sample collection.",
-	createdOn: "Date of creation",
-	modifiedOn: "Last modification date",
-	files: "FASTQ files linked to the sample",
-	sampleName: "Unique identifier for the sample within this project.",
-	studyAccession: "Study accession or unique name.",
-	instrumentModel: "Model of the sequencing instrument.",
-	libraryName: "The submitter's name for this library.",
-	librarySource:
-		"The library_source specifies the type of source material that is being sequenced.",
-	libraryStrategy: "Sequencing technique intended for this library.",
-	librarySelection:
-		"Method used to enrich the target in the sequence library preparation.",
-	libraryLayout:
-		"Library_layout specifies whether to expect single, paired, or other configuration of reads. in the case of paired reads, information about the relative distance and orientation is specified.",
-	insertSize:
-		"The size (The distance between paired reads) of the DNA fragment that is sequenced in bp. A typical example for Nextseq is 500 or 550. MiSeq system are 50, 150, 250 and 300 bp.",
-};
-
 const COLUMN_NAMES: Record<string, string> = {
 	name: "Sample Name",
 	alias: "Alias",
-	taxId: "Taxonomic Identifier",
-	taxonName: "Taxon Name",
+	taxId: "Tax ID",
+	taxonName: "Scientific Name",
 	hostTaxId: "Host Taxonomic Identifier",
-	hostTaxonName: "Host Taxon Name",
+	hostTaxonName: "Host Scientific Name",
 	mlst: "MLST",
 	isolationSource: "Isolation Source",
 	collectionDate: "Collection Date",
@@ -188,27 +147,34 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState("");
-	const [initialColumnOrder] = React.useState<string[]>([
-		"name",
-		"alias",
-		"taxId",
-		"taxonName",
-		"hostTaxId",
-		"hostTaxonName",
-		"mlst",
-		"isolationSource",
-		"collectionDate",
-		"location",
-		"sequencingLab",
-		"institution",
-		"hostHealthState",
-		"createdOn",
-		"modifiedOn",
-		"lastUpdatedOn",
-	]);
+	const [initialColumnOrder] = React.useState<string[]>(
+		dataType === "assay"
+			? []
+			: [
+					"name",
+					"alias",
+					"taxId",
+					"taxonName",
+					"hostTaxId",
+					"hostTaxonName",
+					"mlst",
+					"isolationSource",
+					"collectionDate",
+					"location",
+					"sequencingLab",
+					"institution",
+					"hostHealthState",
+					"createdOn",
+					"modifiedOn",
+					"lastUpdatedOn",
+				]
+	);
 	const queryClient = useQueryClient();
 
-	const enrichedData = useEnrichedSamples(data as Sample[]);
+	const enrichedData = useEnrichedSamples(
+		data as Sample[],
+		dataType !== "assay"
+	);
 
 	const autoColumns: ColumnDef<T>[] =
 		enrichedData.length === 0
@@ -287,6 +253,7 @@ export function DataTable<T extends object>({
 									try {
 										const { url } = await requestPresignedDownload({
 											projectId: Number(project.id),
+											assayId: assay?.id ?? "",
 											sampleName: sample.name,
 											fileName: file.name,
 										});
@@ -336,6 +303,7 @@ export function DataTable<T extends object>({
 									{dataType === "assay" ? (
 										<UploadDataDialog
 											projectId={project?.id ?? ""}
+											assayId={assay?.id ?? ""}
 											sampleName={(row.original as Sample).name}
 										/>
 									) : null}
@@ -710,7 +678,7 @@ export function DataTable<T extends object>({
 															)}
 														</div>
 													</TooltipTrigger>
-													<TooltipContent>
+													<TooltipContent className="max-w-xs">
 														<p>{getColumnTooltip(header.id)}</p>
 													</TooltipContent>
 												</Tooltip>
