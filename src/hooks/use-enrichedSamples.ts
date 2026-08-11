@@ -2,7 +2,11 @@ import { useQueries } from "@tanstack/react-query";
 import { getTaxon } from "@/lib/api-keycloak";
 import type { Sample } from "@/lib/types";
 
-export function useEnrichedSamples(samples: Sample[]) {
+export function useEnrichedSamples(samples: Sample[], enabled = true) {
+	if (!enabled) {
+		return samples;
+	}
+
 	const uniqueTaxIds = [
 		...new Set(samples.map((s) => s.taxId).filter(Boolean)),
 	];
