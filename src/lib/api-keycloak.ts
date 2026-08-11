@@ -164,6 +164,7 @@ export async function requestPresignedUpload(
 		method: "POST",
 		body: JSON.stringify({
 			projectId: data.projectId,
+			assayId: data.assayId,
 			sampleName: data.sampleName,
 			fileName: data.file.name,
 		}),
@@ -177,6 +178,7 @@ export async function requestPresignedDownload(
 		method: "POST",
 		body: JSON.stringify({
 			projectId: data.projectId,
+			assayId: data.assayId,
 			sampleName: data.sampleName,
 			fileName: data.fileName,
 		}),
@@ -190,6 +192,19 @@ export async function getSampleFiles(
 	return api<SampleFile[]>(`projects/${projectId}/samples/${sampleId}/files`, {
 		method: "GET",
 	});
+}
+
+export async function getFilesSampleAssay(
+	projectId: number,
+	assayId: string,
+	sampleId: string
+): Promise<SampleFile[]> {
+	return api<SampleFile[]>(
+		`projects/${projectId}/assays/${assayId}/samples/${sampleId}/files`,
+		{
+			method: "GET",
+		}
+	);
 }
 
 export async function uploadFile(uploadUrl: string, file: File): Promise<void> {
