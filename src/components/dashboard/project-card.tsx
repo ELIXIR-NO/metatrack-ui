@@ -35,12 +35,25 @@ import { DataTablePagination } from "../data-table-pagination";
 import { DataTableViewOptions } from "../data-table-column-toggle";
 import type { Project } from "@/lib/types";
 import { DeleteAlertButton } from "../delete-alert-button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface DataTableProps {
 	projects: Project[];
 	onEdit: (project: Project) => void;
 	onDelete: (project: Project) => void;
 	onOpen: (project: Project) => void;
+}
+
+const COLUMN_TOOLTIPS: Record<string, string> = {
+	name: "Title of the sample.",
+	description:
+		"Description of the sample (example: Staphylococcus aureus isolated from blood culture.)",
+	createdOn: "Date of creation",
+	modifiedOn: "Last modification date",
+};
+
+function getColumnTooltip(key: string) {
+	return COLUMN_TOOLTIPS[key] ?? "";
 }
 
 export function ProjectsDataTable({
@@ -94,6 +107,22 @@ export function ProjectsDataTable({
 				<DataTableColumnHeader column={column} title="Description" />
 			),
 			cell: ({ row }) => row.getValue("description") || "-",
+		},
+		{
+			accessorKey: "createdOn",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Created On" />
+			),
+			cell: ({ row }) =>
+				new Date(row.getValue("createdOn")).toISOString().split("T")[0] || "-",
+		},
+		{
+			accessorKey: "modifiedOn",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Modified On" />
+			),
+			cell: ({ row }) =>
+				new Date(row.getValue("modifiedOn")).toISOString().split("T")[0] || "-",
 		},
 		{
 			id: "actions",
@@ -180,12 +209,23 @@ export function ProjectsDataTable({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
 									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-												)}
+										{header.isPlaceholder ? null : (
+											<div className="flex items-center gap-1">
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<div>
+															{flexRender(
+																header.column.columnDef.header,
+																header.getContext()
+															)}
+														</div>
+													</TooltipTrigger>
+													<TooltipContent>
+														<p>{getColumnTooltip(header.id)}</p>
+													</TooltipContent>
+												</Tooltip>
+											</div>
+										)}
 									</TableHead>
 								))}
 							</TableRow>
