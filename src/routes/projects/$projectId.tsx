@@ -25,6 +25,7 @@ import { AddAssayDialog } from "@/components/dashboard/add-assay";
 import { Button } from "@/components/ui/button";
 import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
 import { SquarePen, UserRoundCog } from "lucide-react";
+import { IconMicroscope, IconTestPipe } from "@tabler/icons-react";
 
 export const Route = createFileRoute("/projects/$projectId")({
 	component: RouteComponent,
@@ -137,19 +138,21 @@ function RouteComponent() {
 				<Card className="pt-2">
 					<Tabs value={activeTab} onValueChange={setActiveTab}>
 						<CardHeader className="pb-0">
-							<TabsList variant="underline" className="bg-transparent p-0">
+							<TabsList className="w-[300px]">
 								<TabsTrigger
 									value="samples"
-									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
+									className="text-lg font-semibold text-gray-500 [&_svg:not([class*='size-'])]:size-5"
 								>
+									<IconTestPipe />
 									Samples
 								</TabsTrigger>
 
 								<TabsTrigger
-									value="runs"
-									className="text-lg font-semibold text-gray-500 data-[state=active]:border-blue-600"
+									value="experiments"
+									className="text-lg font-semibold text-gray-500 [&_svg:not([class*='size-'])]:size-5"
 								>
-									Runs
+									<IconMicroscope />
+									Experiments
 								</TabsTrigger>
 							</TabsList>
 						</CardHeader>
@@ -173,7 +176,7 @@ function RouteComponent() {
 								/>
 							</TabsContent>
 
-							<TabsContent value="runs">
+							<TabsContent value="experiments">
 								{assays.length > 0 ? (
 									<Tabs
 										value={activeAssayTab ?? assays[0].id}
