@@ -13,6 +13,7 @@ export function KeycloakProvider({ children }: { children: React.ReactNode }) {
 				onLoad: "check-sso",
 				pkceMethod: "S256",
 				checkLoginIframe: false,
+				silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
 			})
 			.then((authenticated) => {
 				setIsAuthenticated(authenticated);

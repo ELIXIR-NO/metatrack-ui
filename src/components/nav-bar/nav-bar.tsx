@@ -26,7 +26,7 @@ const NavItems: NavItem[] = [
 ];
 
 export function NavBar() {
-	const { isAuthenticated, loading, login, logout } = useContext(AuthContext);
+	const { isAuthenticated, login, logout } = useContext(AuthContext);
 
 	return (
 		<nav className="flex w-full justify-between py-4">
@@ -44,7 +44,7 @@ export function NavBar() {
 
 				<div className="flex items-center gap-6">
 					<ul className="flex items-center gap-4">
-						{!loading && !isAuthenticated ? null : (
+						{isAuthenticated && (
 							<Button
 								variant="secondary"
 								className={cn(
@@ -63,20 +63,7 @@ export function NavBar() {
 								pageName={it.pageName}
 							/>
 						))}
-						{!loading && !isAuthenticated ? (
-							<Button
-								onClick={() => {
-									console.log("LOGIN CLICKED");
-									login();
-								}}
-								className={cn(
-									"text-md",
-									"h-10 rounded-md px-4 has-[>svg]:px-4"
-								)}
-							>
-								Login
-							</Button>
-						) : (
+						{isAuthenticated ? (
 							<Button
 								onClick={logout}
 								variant="destructive"
@@ -86,6 +73,16 @@ export function NavBar() {
 								)}
 							>
 								Logout
+							</Button>
+						) : (
+							<Button
+								onClick={login}
+								className={cn(
+									"text-md",
+									"h-10 rounded-md px-4 has-[>svg]:px-4"
+								)}
+							>
+								Login
 							</Button>
 						)}
 					</ul>
