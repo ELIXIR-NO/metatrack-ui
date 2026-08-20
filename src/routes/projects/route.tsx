@@ -3,24 +3,26 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarSkeleton } from "@/components/sidebar-skeleton";
 import { useUser } from "@/hooks/use-user";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AuthContext } from "@/providers/auth-context";
 
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 
 export const Route = createFileRoute("/projects")({
 	component: DashboardLayout,
 });
 
 function DashboardLayout() {
-	const { data: user, isLoading } = useUser();
+	const { isAuthenticated, loading: authLoading } = useContext(AuthContext);
+	const { data: user, isLoading: userLoading } = useUser(isAuthenticated);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!isLoading && !user) {
+		if (!authLoading && !isAuthenticated) {
 			navigate({ to: "/" });
 		}
-	}, [user, isLoading, navigate]);
+	}, [authLoading, isAuthenticated, navigate]);
 
-	if (isLoading) {
+	if (authLoading || (isAuthenticated && userLoading)) {
 		return (
 			<SidebarProvider>
 				<SidebarSkeleton />
