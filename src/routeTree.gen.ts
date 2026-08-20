@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsOfUseRouteImport } from './routes/terms-of-use'
+import { Route as SilentCheckSsoRouteImport } from './routes/silent-check-sso'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PublicDataRouteImport } from './routes/public-data'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
@@ -25,6 +26,11 @@ import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projec
 const TermsOfUseRoute = TermsOfUseRouteImport.update({
   id: '/terms-of-use',
   path: '/terms-of-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SilentCheckSsoRoute = SilentCheckSsoRouteImport.update({
+  id: '/silent-check-sso',
+  path: '/silent-check-sso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesRoute = ResourcesRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/silent-check-sso': typeof SilentCheckSsoRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/my-profile': typeof ProjectsMyProfileRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/silent-check-sso': typeof SilentCheckSsoRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/my-profile': typeof ProjectsMyProfileRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/public-data': typeof PublicDataRoute
   '/resources': typeof ResourcesRoute
+  '/silent-check-sso': typeof SilentCheckSsoRoute
   '/terms-of-use': typeof TermsOfUseRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/my-profile': typeof ProjectsMyProfileRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/silent-check-sso'
     | '/terms-of-use'
     | '/projects/$projectId'
     | '/projects/my-profile'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/silent-check-sso'
     | '/terms-of-use'
     | '/projects/$projectId'
     | '/projects/my-profile'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/privacy-policy'
     | '/public-data'
     | '/resources'
+    | '/silent-check-sso'
     | '/terms-of-use'
     | '/projects/$projectId'
     | '/projects/my-profile'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PublicDataRoute: typeof PublicDataRoute
   ResourcesRoute: typeof ResourcesRoute
+  SilentCheckSsoRoute: typeof SilentCheckSsoRoute
   TermsOfUseRoute: typeof TermsOfUseRoute
   AboutIndexRoute: typeof AboutIndexRoute
   HelpAndSupportIndexRoute: typeof HelpAndSupportIndexRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/terms-of-use'
       fullPath: '/terms-of-use'
       preLoaderRoute: typeof TermsOfUseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/silent-check-sso': {
+      id: '/silent-check-sso'
+      path: '/silent-check-sso'
+      fullPath: '/silent-check-sso'
+      preLoaderRoute: typeof SilentCheckSsoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PublicDataRoute: PublicDataRoute,
   ResourcesRoute: ResourcesRoute,
+  SilentCheckSsoRoute: SilentCheckSsoRoute,
   TermsOfUseRoute: TermsOfUseRoute,
   AboutIndexRoute: AboutIndexRoute,
   HelpAndSupportIndexRoute: HelpAndSupportIndexRoute,
