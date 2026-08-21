@@ -33,7 +33,7 @@ function ProfilePage() {
 	return (
 		<div>
 			<SiteHeader
-				items={[{ label: "My Profile", href: "/projects/profile" }]}
+				items={[{ label: "My Profile", href: "/projects/my-profile" }]}
 			/>
 			<div className="flex h-[80vh] items-center justify-center">
 				<Card className="max-w-4xl">
