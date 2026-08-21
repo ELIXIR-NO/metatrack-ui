@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
 	Card,
@@ -35,7 +35,7 @@ const chartConfig = {
 	},
 	sample: {
 		label: "Sample",
-		color: "var(--primary)",
+		color: "var(--selected)",
 	},
 } satisfies ChartConfig;
 
@@ -43,6 +43,8 @@ export function ChartAreaHomePage() {
 	const [timeRange, setTimeRange] = React.useState("90d");
 
 	const { data, isLoading, error } = useSampleStats(timeRange);
+
+	console.log("data:", data);
 
 	if (isLoading) {
 		return (
@@ -102,22 +104,15 @@ export function ChartAreaHomePage() {
 					config={chartConfig}
 					className="aspect-auto h-[250px] w-full"
 				>
-					<AreaChart data={data}>
-						<defs>
-							<linearGradient id="fillSample" x1="0" y1="0" x2="0" y2="1">
-								<stop
-									offset="5%"
-									stopColor="var(--color-sample)"
-									stopOpacity={0.8}
-								/>
-								<stop
-									offset="95%"
-									stopColor="var(--color-sample)"
-									stopOpacity={0.1}
-								/>
-							</linearGradient>
-						</defs>
+					<BarChart
+						data={data}
+						margin={{
+							left: 12,
+							right: 12,
+						}}
+					>
 						<CartesianGrid vertical={false} />
+
 						<XAxis
 							dataKey="date"
 							tickLine={false}
@@ -125,39 +120,41 @@ export function ChartAreaHomePage() {
 							tickMargin={8}
 							minTickGap={32}
 							tickFormatter={(value) => {
-								const date = new Date(value);
+								const date = new Date(`${value}T00:00:00`);
+
 								return date.toLocaleDateString("en-US", {
 									month: "short",
 									day: "numeric",
 								});
 							}}
 						/>
-						<YAxis />
+
+						<YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+
 						<ChartTooltip
 							cursor={false}
 							content={
 								<ChartTooltipContent
 									labelFormatter={(value: unknown) => {
-										return new Date(value as string).toLocaleDateString(
-											"en-US",
-											{
-												month: "short",
-												day: "numeric",
-											}
-										);
+										const date = new Date(`${value as string}T00:00:00`);
+
+										return date.toLocaleDateString("en-US", {
+											year: "numeric",
+											month: "short",
+											day: "numeric",
+										});
 									}}
 									indicator="dot"
 								/>
 							}
 						/>
-						<Area
+
+						<Bar
 							dataKey="sample"
-							type="natural"
-							fill="url(#fillSample)"
-							stroke="var(--color-sample)"
-							stackId="a"
+							fill="var(--color-sample)"
+							radius={[4, 4, 0, 0]}
 						/>
-					</AreaChart>
+					</BarChart>
 				</ChartContainer>
 			</CardContent>
 		</Card>

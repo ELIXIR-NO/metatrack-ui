@@ -1,28 +1,10 @@
+import { getSamplesByDate } from "@/lib/api-keycloak";
 import { useQuery } from "@tanstack/react-query";
 
 export type SampleStatPoint = {
 	date: string;
 	sample: number;
 };
-
-//mock data
-function formatDate(date: Date) {
-	return date.toISOString().split("T")[0];
-}
-
-export function generateSampleStats(days: number): SampleStatPoint[] {
-	const today = new Date();
-
-	return Array.from({ length: days }).map((_, index) => {
-		const date = new Date(today);
-		date.setDate(today.getDate() - (days - index));
-
-		return {
-			date: formatDate(date),
-			sample: Math.floor(Math.random() * 40) + 5, // 5–45
-		};
-	});
-}
 
 function getDaysFromRange(range: string) {
 	switch (range) {
@@ -36,36 +18,40 @@ function getDaysFromRange(range: string) {
 	}
 }
 
-async function mockFetchSampleStats(range: string): Promise<SampleStatPoint[]> {
-	const days = getDaysFromRange(range);
+function getStartDate(days: number) {
+	const date = new Date();
 
-	// simula delay de API real
-	await new Promise((res) => setTimeout(res, 400));
+	date.setHours(0, 0, 0, 0);
+	date.setDate(date.getDate() - (days - 1));
 
-	return generateSampleStats(days);
+	return date;
 }
-
-//async function getSampleStats(range: string): Promise<SampleStatPoint[]> {
-//	const res = await fetch(
-//		`https://api.metatrack.no/api/statistics/samples?range=${range}`
-//	);
-//
-//	if (!res.ok) {
-//		throw new Error("Failed to load sample statistics");
-//	}
-//
-//	const data = await res.json();
-//
-//	return data.samplesOverTime.map((item: any) => ({
-//		date: item.date,
-//		sample: item.count,
-//	}));
-//}
 
 export function useSampleStats(range: string) {
 	return useQuery({
 		queryKey: ["sample-stats", range],
-		queryFn: () => mockFetchSampleStats(range),
+
+		queryFn: async (): Promise<SampleStatPoint[]> => {
+			const days = getDaysFromRange(range);
+			const startDate = getStartDate(days);
+
+			const data = await getSamplesByDate();
+
+			console.log("data from getSamplesByDate:", data);
+
+			return data.items
+				.filter((item) => {
+					const date = new Date(`${item.date}T00:00:00`);
+
+					return date >= startDate;
+				})
+				.map((item) => ({
+					date: item.date,
+					sample: item.sampleCount,
+				}))
+				.sort((a, b) => a.date.localeCompare(b.date));
+		},
+
 		staleTime: 1000 * 60 * 5,
 	});
 }
