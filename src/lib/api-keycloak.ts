@@ -10,10 +10,15 @@ import type {
 	Project,
 	Sample,
 	SampleFile,
+	SampleStatsByDateResponse,
 	StatisticsResponse,
 	Taxon,
 } from "./types";
 import { API_URL, API_BASE_URL } from "./config";
+
+// ============================================================
+// API
+// ============================================================
 
 export async function api<T = unknown>(
 	endpoint: string,
@@ -48,6 +53,7 @@ export async function api<T = unknown>(
 	}
 
 	const contentType = res.headers.get("content-type");
+
 	if (!contentType || !contentType.includes("application/json")) {
 		return undefined as T;
 	}
@@ -69,24 +75,23 @@ export async function apiPublic<T = unknown>(
 
 	if (!res.ok) {
 		let message = "API error";
+
 		try {
 			const data = await res.json();
 			message = data?.message ?? message;
 		} catch {
 			message = await res.text();
 		}
+
 		throw new Error(message);
 	}
 
 	return res.json();
 }
 
-export function createInvestigation(data: Project) {
-	return api<Project>("projects", {
-		method: "POST",
-		body: JSON.stringify(data),
-	});
-}
+// ============================================================
+// Projects
+// ============================================================
 
 export async function getProjects() {
 	return api<Project[]>("projects");
@@ -100,127 +105,10 @@ export async function getProjectsByUser() {
 	return api<Project[]>("projects/me");
 }
 
-export async function getSamples(projectId: string): Promise<Sample[]> {
-	const data = await api<Sample[] | { samples: Sample[] }>(
-		`projects/${projectId}/samples`
-	);
-	return Array.isArray(data) ? data : (data.samples ?? []);
-}
-
-export async function uploadSamplesheet(
-	projectId: string,
-	file: File
-): Promise<unknown> {
-	const formData = new FormData();
-	formData.append("file", file);
-
-	return api(`projects/${projectId}/samples/samplesheet`, {
-		method: "POST",
-		body: formData,
-	});
-}
-
-export async function createSample(
-	data: CreateSample,
-	projectId: string
-): Promise<void> {
-	await api(`projects/${projectId}/samples`, {
+export function createInvestigation(data: Project) {
+	return api<Project>("projects", {
 		method: "POST",
 		body: JSON.stringify(data),
-	});
-}
-
-export async function updateSample(
-	projectId: string,
-	sampleId: string,
-	data: Partial<CreateSample>
-): Promise<void> {
-	await api(`projects/${projectId}/samples/${sampleId}`, {
-		method: "PATCH",
-		body: JSON.stringify(data),
-	});
-}
-
-export async function batchEditSamples(
-	projectId: string,
-	data: {
-		sampleData: Partial<CreateSample>[];
-	}
-): Promise<void> {
-	await api(`projects/${projectId}/samples`, {
-		method: "PATCH",
-		body: JSON.stringify(data),
-	});
-}
-
-export async function getStatistics() {
-	return apiPublic<StatisticsResponse>("statistics");
-}
-
-export async function requestPresignedUpload(
-	data: PresignUploadRequest
-): Promise<PresignUploadResponse> {
-	return api<PresignUploadResponse>("files/presign-upload", {
-		method: "POST",
-		body: JSON.stringify({
-			projectId: data.projectId,
-			assayId: data.assayId,
-			sampleName: data.sampleName,
-			fileName: data.file.name,
-		}),
-	});
-}
-
-export async function requestPresignedDownload(
-	data: PresignDownloadRequest
-): Promise<PresignDownloadResponse> {
-	return api<PresignDownloadResponse>("files/presign-download", {
-		method: "POST",
-		body: JSON.stringify({
-			projectId: data.projectId,
-			assayId: data.assayId,
-			sampleName: data.sampleName,
-			fileName: data.fileName,
-		}),
-	});
-}
-
-export async function getSampleFiles(
-	projectId: number,
-	sampleId: string
-): Promise<SampleFile[]> {
-	return api<SampleFile[]>(`projects/${projectId}/samples/${sampleId}/files`, {
-		method: "GET",
-	});
-}
-
-export async function getFilesSampleAssay(
-	projectId: number,
-	assayId: string,
-	sampleId: string
-): Promise<SampleFile[]> {
-	return api<SampleFile[]>(
-		`projects/${projectId}/assays/${assayId}/samples/${sampleId}/files`,
-		{
-			method: "GET",
-		}
-	);
-}
-
-export async function uploadFile(uploadUrl: string, file: File): Promise<void> {
-	const res = await fetch(uploadUrl, {
-		method: "PUT",
-		body: file,
-	});
-
-	if (!res.ok) {
-		throw new Error("Error uploading file to storage");
-	}
-}
-
-export async function deleteProject(projectId: string): Promise<void> {
-	await api(`projects/${projectId}`, {
-		method: "DELETE",
 	});
 }
 
@@ -233,6 +121,16 @@ export async function updateProject(
 		body: JSON.stringify(data),
 	});
 }
+
+export async function deleteProject(projectId: string): Promise<void> {
+	await api(`projects/${projectId}`, {
+		method: "DELETE",
+	});
+}
+
+// ============================================================
+// Project Members & Join Requests
+// ============================================================
 
 export async function getAllProjectMembers(
 	projectId: string
@@ -267,6 +165,82 @@ export async function updateProjectMember(
 export async function removeProjectMember(projectId: string, memberId: string) {
 	return api(`projects/${projectId}/member/${memberId}`, {
 		method: "DELETE",
+	});
+}
+
+export async function joinProject(
+	projectId: string,
+	role: string
+): Promise<void> {
+	await api(`projects/${projectId}/join/${role}`, {
+		method: "POST",
+	});
+}
+
+export async function getJoinRequests(projectId: string): Promise<unknown[]> {
+	return api<unknown[]>(`projects/${projectId}/joinrequests`);
+}
+
+export async function approveJoinRequest(
+	projectId: string,
+	userId: string
+): Promise<void> {
+	await api(`projects/${projectId}/joinrequests/${userId}/approve`, {
+		method: "POST",
+	});
+}
+
+export async function deleteJoinRequest(
+	projectId: string,
+	userId: string
+): Promise<void> {
+	await api(`projects/${projectId}/joingrequests/${userId}`, {
+		method: "DELETE",
+	});
+}
+
+// ============================================================
+// Samples
+// ============================================================
+
+export async function getSamples(projectId: string): Promise<Sample[]> {
+	const data = await api<Sample[] | { samples: Sample[] }>(
+		`projects/${projectId}/samples`
+	);
+
+	return Array.isArray(data) ? data : (data.samples ?? []);
+}
+
+export async function createSample(
+	data: CreateSample,
+	projectId: string
+): Promise<void> {
+	await api(`projects/${projectId}/samples`, {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+}
+
+export async function updateSample(
+	projectId: string,
+	sampleId: string,
+	data: Partial<CreateSample>
+): Promise<void> {
+	await api(`projects/${projectId}/samples/${sampleId}`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
+	});
+}
+
+export async function batchEditSamples(
+	projectId: string,
+	data: {
+		sampleData: Partial<CreateSample>[];
+	}
+): Promise<void> {
+	await api(`projects/${projectId}/samples`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
 	});
 }
 
@@ -307,30 +281,112 @@ export async function deleteSelectedSamples<T extends { id: string }>(
 	return { success, failed };
 }
 
-export async function downloadSampleTemplate(): Promise<void> {
-	const res = await fetch(`${API_BASE_URL}/templates/templateV1.csv`);
+export async function uploadSamplesheet(
+	projectId: string,
+	file: File
+): Promise<unknown> {
+	const formData = new FormData();
+	formData.append("file", file);
 
-	if (!res.ok) {
-		throw new Error("Failed to download template");
-	}
-
-	const blob = await res.blob();
-	const url = window.URL.createObjectURL(blob);
-
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = "templateV1.csv";
-	document.body.appendChild(a);
-	a.click();
-
-	a.remove();
-	window.URL.revokeObjectURL(url);
+	return api(`projects/${projectId}/samples/samplesheet`, {
+		method: "POST",
+		body: formData,
+	});
 }
+
+// ============================================================
+// Sample Metadata Fields
+// ============================================================
+
+export async function getSampleMetadataFields(
+	projectId: string
+): Promise<unknown[]> {
+	return api<unknown[]>(`projects/${projectId}/sample-metadata-fields`);
+}
+
+export async function createSampleMetadataField(
+	projectId: string,
+	data: {
+		key: string;
+		label: string;
+		type: string;
+	}
+): Promise<void> {
+	await api(`projects/${projectId}/sample-metadata-fields`, {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+}
+
+export async function updateSampleMetadataField(
+	projectId: string,
+	fieldId: string,
+	data: {
+		label?: string;
+		archived?: boolean;
+	}
+): Promise<void> {
+	await api(`projects/${projectId}/sample-metadata-fields/${fieldId}`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
+	});
+}
+
+export async function deleteSampleMetadataField(
+	projectId: string,
+	fieldId: string
+): Promise<void> {
+	await api(`projects/${projectId}/sample-metadata-fields/${fieldId}`, {
+		method: "DELETE",
+	});
+}
+
+// ============================================================
+// Sample Vocabularies
+// ============================================================
+
+export async function getSampleVocabularies(
+	projectId: string
+): Promise<unknown[]> {
+	return api<unknown[]>(`projects/${projectId}/sample-vocabularies`);
+}
+
+export async function getSampleVocabulary(
+	projectId: string,
+	fieldKey: string
+): Promise<unknown> {
+	return api<unknown>(`projects/${projectId}/sample-vocabularies/${fieldKey}`);
+}
+
+export async function updateSampleVocabulary(
+	projectId: string,
+	fieldKey: string,
+	terms: string[]
+): Promise<void> {
+	await api(`projects/${projectId}/sample-vocabularies/${fieldKey}`, {
+		method: "PUT",
+		body: JSON.stringify({ terms }),
+	});
+}
+
+export async function deleteSampleVocabulary(
+	projectId: string,
+	fieldKey: string
+): Promise<void> {
+	await api(`projects/${projectId}/sample-vocabularies/${fieldKey}`, {
+		method: "DELETE",
+	});
+}
+
+// ============================================================
+// Assays
+// ============================================================
 
 export async function getAssays(projectId: string): Promise<Assay[]> {
 	const data = await api<Assay[] | { assays: Assay[] }>(
 		`projects/${projectId}/assays`
 	);
+
 	return Array.isArray(data) ? data : (data.assays ?? []);
 }
 
@@ -396,6 +452,71 @@ export async function addSamplesToAssay(
 	});
 }
 
+// ============================================================
+// Files
+// ============================================================
+
+export async function getSampleFiles(
+	projectId: number,
+	sampleId: string
+): Promise<SampleFile[]> {
+	return api<SampleFile[]>(`projects/${projectId}/samples/${sampleId}/files`, {
+		method: "GET",
+	});
+}
+
+export async function getFilesSampleAssay(
+	projectId: number,
+	assayId: string,
+	sampleId: string
+): Promise<SampleFile[]> {
+	return api<SampleFile[]>(
+		`projects/${projectId}/assays/${assayId}/samples/${sampleId}/files`,
+		{
+			method: "GET",
+		}
+	);
+}
+
+export async function requestPresignedUpload(
+	data: PresignUploadRequest
+): Promise<PresignUploadResponse> {
+	return api<PresignUploadResponse>("files/presign-upload", {
+		method: "POST",
+		body: JSON.stringify({
+			projectId: data.projectId,
+			assayId: data.assayId,
+			sampleName: data.sampleName,
+			fileName: data.file.name,
+		}),
+	});
+}
+
+export async function requestPresignedDownload(
+	data: PresignDownloadRequest
+): Promise<PresignDownloadResponse> {
+	return api<PresignDownloadResponse>("files/presign-download", {
+		method: "POST",
+		body: JSON.stringify({
+			projectId: data.projectId,
+			assayId: data.assayId,
+			sampleName: data.sampleName,
+			fileName: data.fileName,
+		}),
+	});
+}
+
+export async function uploadFile(uploadUrl: string, file: File): Promise<void> {
+	const res = await fetch(uploadUrl, {
+		method: "PUT",
+		body: file,
+	});
+
+	if (!res.ok) {
+		throw new Error("Error uploading file to storage");
+	}
+}
+
 export async function progressUploadFile(
 	url: string,
 	file: File,
@@ -403,7 +524,9 @@ export async function progressUploadFile(
 ) {
 	return new Promise<void>((resolve, reject) => {
 		const xhr = new XMLHttpRequest();
+
 		xhr.open("PUT", url);
+
 		xhr.setRequestHeader(
 			"Content-Type",
 			file.type || "application/octet-stream"
@@ -412,7 +535,9 @@ export async function progressUploadFile(
 		if (onProgress) {
 			xhr.upload.onprogress = (event) => {
 				if (!event.lengthComputable) return;
+
 				const percent = Math.round((event.loaded * 100) / event.total);
+
 				onProgress(percent);
 			};
 		}
@@ -424,11 +549,53 @@ export async function progressUploadFile(
 				reject(new Error(`Upload failed with status ${xhr.status}`));
 			}
 		};
+
 		xhr.onerror = () => reject(new Error("Upload failed"));
+
 		xhr.send(file);
 	});
 }
 
+// ============================================================
+// Statistics / Taxonomy
+// ============================================================
+
+export async function getStatistics() {
+	return apiPublic<StatisticsResponse>("statistics");
+}
+
 export async function getTaxon(taxon_id: string): Promise<Taxon> {
 	return api<Taxon>(`../taxon/${taxon_id}`);
+}
+
+export async function getSamplesByDate(
+	size = 1000
+): Promise<SampleStatsByDateResponse> {
+	return apiPublic<SampleStatsByDateResponse>(`statistics/samples-by-date`);
+}
+
+// ============================================================
+// Templates
+// ============================================================
+
+export async function downloadSampleTemplate(): Promise<void> {
+	const res = await fetch(`${API_BASE_URL}/templates/templateV1.csv`);
+
+	if (!res.ok) {
+		throw new Error("Failed to download template");
+	}
+
+	const blob = await res.blob();
+	const url = window.URL.createObjectURL(blob);
+
+	const a = document.createElement("a");
+
+	a.href = url;
+	a.download = "templateV1.csv";
+
+	document.body.appendChild(a);
+	a.click();
+
+	a.remove();
+	window.URL.revokeObjectURL(url);
 }
