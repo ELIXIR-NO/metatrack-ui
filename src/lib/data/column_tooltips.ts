@@ -58,7 +58,7 @@ export const COLUMN_TOOLTIPS: Record<string, string> = {
 	collectorName:
 		"Name of the person who collected the specimen. If no suitable value is available, use: Not generated, Not provided, Restricted access, or Not applicable.",
 
-	collectingInstitution:
+	institution:
 		"Name of the institution to which the person collecting the specimen belongs. Format: Institute Name, Institute Address.",
 
 	hostSex:
@@ -110,6 +110,9 @@ export const COLUMN_TOOLTIPS: Record<string, string> = {
 		"The hospital or health institution where the sample was collected. Example: University Hospital of North Norway.",
 
 	mlst: "Multi-Locus Sequence Typing (MLST) scheme assigned to the isolate.",
+
+	sequencingLab:
+		"Typically the laboratory that carried out the sequencing of the samples.",
 
 	// EXPERIMENT COLUMNS TOOLTIP
 	sampleName:
