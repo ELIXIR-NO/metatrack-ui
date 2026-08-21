@@ -1,8 +1,9 @@
 // New types
 
 export interface Sample {
-	name: string;
 	id: string;
+	name: string;
+
 	alias: string | null;
 	taxId: number | null;
 	hostTaxId: number | null;
@@ -13,10 +14,42 @@ export interface Sample {
 	sequencingLab: string | null;
 	institution: string | null;
 	hostHealthState: string | null;
+
+	projectTitle: string | null;
+	description: string | null;
+	isolate: string | null;
+	collectedBy: string | null;
+	latitude: number | null;
+	longitude: number | null;
+	environmentalSample: string | null;
+	hostAssociated: string | null;
+	hostCommonName: string | null;
+	hostSubjectId: string | null;
+	collectorName: string | null;
+	collectingInstitution: string | null;
+	hostSex: string | null;
+	influenzaTestMethod: string | null;
+	influenzaTestResult: string | null;
+	otherPathogensTested: string | null;
+	otherPathogensTestResult: string | null;
+	hostHabitat: string | null;
+	isolationSourceHostAssociated: string | null;
+	hostBehaviour: string | null;
+	isolationSourceNonHostAssociated: string | null;
+	influenzaVirusType: string | null;
+	influenzaSubType: string | null;
+	serovar: string | null;
+	strain: string | null;
+	hostAge: string | null;
+	county: string | null;
+	commune: string | null;
+	hospitalHealthInstitution: string | null;
+
 	createdOn: string | null; // Date
-	// lastUpdatedOn is the API field name; modifiedOn is the display-facing alias returned by some endpoints
-	lastUpdatedOn: string | null; // Date
-	modifiedOn: string | null;
+	modifiedOn: string | null; // Date
+
+	customMetadata?: Record<string, unknown>;
+
 	files?: SampleFile[];
 }
 
@@ -51,6 +84,8 @@ export interface Project {
 	name: string;
 	description?: string;
 	ownerId?: string;
+	ownerUsername?: string;
+	sampleCount?: number;
 	createdOn?: string; // Date
 	modifiedOn?: string;
 }
@@ -107,3 +142,16 @@ export interface Taxon {
 	taxon_id: string;
 	name: string;
 }
+
+export type SampleStatsByDateItem = {
+	date: string;
+	sampleCount: number;
+};
+
+export type SampleStatsByDateResponse = {
+	items: SampleStatsByDateItem[];
+	page: number;
+	size: number;
+	totalElements: number;
+	totalPages: number;
+};
