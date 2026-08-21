@@ -48,6 +48,7 @@ const COLUMN_TOOLTIPS: Record<string, string> = {
 	name: "Title of the sample.",
 	description:
 		"Description of the sample (example: Staphylococcus aureus isolated from blood culture.)",
+	sampleCount: "Number of samples associated with the project.",
 	createdOn: "Date of creation",
 	modifiedOn: "Last modification date",
 };
@@ -71,6 +72,7 @@ export function ProjectsDataTable({
 			header: ({ table }) => (
 				<Checkbox
 					checked={table.getIsAllPageRowsSelected()}
+					onClick={(event) => event.stopPropagation()}
 					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
 					className="border-neutral-900"
@@ -79,6 +81,7 @@ export function ProjectsDataTable({
 			cell: ({ row }) => (
 				<Checkbox
 					checked={row.getIsSelected()}
+					onClick={(event) => event.stopPropagation()}
 					onCheckedChange={(value) => row.toggleSelected(!!value)}
 					aria-label="Select row"
 					className="border-neutral-900"
@@ -93,10 +96,7 @@ export function ProjectsDataTable({
 				<DataTableColumnHeader column={column} title="Title" />
 			),
 			cell: ({ row }) => (
-				<span
-					className="cursor-pointer font-medium"
-					onClick={() => onOpen(row.original)}
-				>
+				<span className="cursor-pointer font-medium">
 					{row.getValue("name")}
 				</span>
 			),
@@ -108,6 +108,14 @@ export function ProjectsDataTable({
 			),
 			cell: ({ row }) => row.getValue("description") || "-",
 		},
+		{
+			accessorKey: "sampleCount",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Samples in Project" />
+			),
+			cell: ({ row }) => row.original.sampleCount ?? 0,
+		},
+
 		{
 			accessorKey: "createdOn",
 			header: ({ column }) => (
@@ -129,14 +137,20 @@ export function ProjectsDataTable({
 			enableHiding: false,
 			cell: ({ row }) => {
 				const project = row.original;
+
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="sm">
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={(event) => event.stopPropagation()}
+							>
 								<MoreHorizontal size={16} />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent>
+
+						<DropdownMenuContent onClick={(event) => event.stopPropagation()}>
 							<DropdownMenuItem
 								onClick={() => onOpen(project)}
 								className="flex items-center gap-2"
@@ -237,7 +251,8 @@ export function ProjectsDataTable({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
-									className="hover:bg-neutral-300"
+									className="cursor-pointer hover:bg-neutral-300 [&_*]:cursor-pointer"
+									onClick={() => onOpen(row.original)}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
